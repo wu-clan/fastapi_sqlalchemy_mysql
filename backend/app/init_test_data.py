@@ -3,8 +3,7 @@
 from email_validator import EmailNotValidError, validate_email
 from faker import Faker
 
-
-from backend.app.datebase.session import db_session
+from backend.app.datebase.db_mysql import db_session
 from backend.app.model import User
 from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password

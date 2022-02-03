@@ -24,4 +24,3 @@ class User(Base):
     qq = Column(String(128), default=None,  comment='QQ')
     blog_address = Column(String(128), default=None,  comment='博客地址')
     introduction = Column(LONGTEXT, default=None,  comment='自我介绍')
-

@@ -10,10 +10,12 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     """ 配置类 """
     # FastAPI
-    TITLE: str = '博客系统API'
+    TITLE: str = 'FastAPI'
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
-    > demo：
+    DEMO：fastapi + sqlalchemy(同步) + alembic + mysql + aioredis 项目脚手架
+    
+    src: https://gitee.com/wu_cl/fastapi_mysql_demo
     """
     DOCS_URL: str = '/v1/docs'
     REDOCS_URL: bool = False
@@ -57,6 +59,7 @@ class Settings(BaseSettings):
     # 中间件
     CORS: bool = True
     GZIP: bool = True
+    ACCESS: bool = True
 
 
 @lru_cache

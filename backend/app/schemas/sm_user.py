@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Optional, Union
+import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -14,13 +15,26 @@ class CreateUser(Auth):
     email: str = Field(..., example='user@example.com')
 
 
-class GetUserInfo(CreateUser):
-    avatar: str
-    mobile_number: int
-    we_chart: str
-    qq: str
-    blog_address: str
-    introduction: str
+class UpdateUser(BaseModel):
+    username: str
+    email: str
+    mobile_number: Optional[int] = None
+    we_chart: Optional[str] = None
+    qq: Optional[str] = None
+    blog_address: Optional[str] = None
+    introduction: Optional[str] = None
+
+
+class GetUserInfo(UpdateUser):
+    id: int
+    avatar: Optional[str] = None
+    time_joined: datetime.datetime
+    last_login: datetime.datetime
+    is_superuser: bool
+    is_active: bool
+
+    class Config:
+        orm_mode = True
 
 
 class DeleteUser(BaseModel):

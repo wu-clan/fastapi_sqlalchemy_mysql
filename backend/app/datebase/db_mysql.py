@@ -4,8 +4,9 @@ import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from backend.app.core.conf import settings
+
 from backend.app.common.log import log
+from backend.app.core.conf import settings
 
 """ 
 说明：SqlAlchemy
@@ -37,4 +38,4 @@ def get_db():
         conn.close()
 
 
-__all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db']
+__all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']

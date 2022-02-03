@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Optional
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Query
 
 from backend.app.api import jwt_security
 from backend.app.model import User
-from backend.app.schemas.sm_user import CreateUser, DeleteUser, ResetPassword
+from backend.app.schemas.sm_user import CreateUser, DeleteUser, UpdateUser
 
 
 def get_user_by_id(db: Session, user_id: int) -> User:
@@ -18,7 +18,7 @@ def get_user_by_username(db: Session, username: str) -> User:
     return db.query(User).filter(User.username == username).first()
 
 
-def update_user_login_time(db: Session, username: str):
+def update_user_login_time(db: Session, username: str) -> None:
     db.query(User).filter(User.username == username).update({'last_login': func.now()})
     db.commit()
 
@@ -45,26 +45,11 @@ def create_user(db: Session, create: CreateUser) -> User:
     return new_user
 
 
-def update_userinfo(db: Session,
-                    current_user: User,
-                    username: str,
-                    email: str,
-                    avatar: Optional[str],
-                    mobile_number: Optional[int],
-                    we_chart: Optional[str],
-                    qq: Optional[str],
-                    blog_address: Optional[str],
-                    introduction: Optional[str]) -> bool:
-    userinfo = db.query(User).filter(User.username == current_user.username)
+def update_userinfo(db: Session, current_user: User, put: UpdateUser, file: str) -> bool:
+    userinfo = db.query(User).filter(User.id == current_user.id)
+    userinfo.update(jsonable_encoder(put))
     userinfo.update({
-        'username': username,
-        'email': email,
-        'avatar': avatar,
-        'mobile_number': mobile_number,
-        'we_chart': we_chart,
-        'qq': qq,
-        'blog_address': blog_address,
-        'introduction': introduction,
+        'avatar': file
     })
     db.commit()
     return userinfo.first()
@@ -81,6 +66,13 @@ def check_email(db: Session, email: str) -> bool:
     return db.query(User).filter(User.email == email).first()
 
 
+def delete_avatar(db: Session, uid: int) -> bool:
+    user = db.query(User).filter(User.id == uid)
+    user.update({'avatar': None})
+    db.commit()
+    return user.first()
+
+
 def reset_password(db: Session, username: str, password: str) -> bool:
     current_user = db.query(User).filter(User.username == username)
     current_user.update({'password': jwt_security.get_hash_password(password)})
@@ -88,8 +80,8 @@ def reset_password(db: Session, username: str, password: str) -> bool:
     return current_user.first()
 
 
-def get_users(db: Session) -> list:
-    return db.query(User).order_by(User.time_joined.desc()).all()
+def get_users(db: Session) -> Query:
+    return db.query(User).order_by(User.time_joined.desc())
 
 
 def get_user_is_super(db: Session, user_id: int) -> bool:

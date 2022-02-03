@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
@@ -27,6 +28,9 @@ def register_app():
 
     # 初始化连接
     register_init(app)
+
+    # 分页
+    register_page(app)
 
     return app
 
@@ -56,4 +60,14 @@ def register_init(app):
 
     @app.on_event("shutdown")
     async def shutdown_event():
+        # 关闭redis连接
         await redis_client.init_redis_connect().close()
+
+
+def register_page(app):
+    """
+    分页
+    :param app:
+    :return:
+    """
+    add_pagination(app)
