@@ -10,5 +10,5 @@ BasePath = Path(__file__).resolve().parent.parent.parent
 # 日志文件路径
 LogPath = os.path.join(BasePath, 'app', 'log')
 
-# 图片上传存放路径
+# 图片上传存放路径: /static/media/uploads/
 ImgPath = os.path.join(BasePath, 'app', 'static', 'media', 'uploads', '')

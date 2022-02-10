@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     PORT: int = 8000
     RELOAD: bool = True
 
+    # DEBUG
+    DEBUG = True
+
     # DB
     DB_ECHO: bool = False
     DB_HOST: str = '127.0.0.1'
