@@ -28,7 +28,7 @@ class InitData:
         while True:
             email = input()
             try:
-                success_email = validate_email(email)
+                success_email = validate_email(email).email
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue

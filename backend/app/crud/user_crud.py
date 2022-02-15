@@ -55,11 +55,10 @@ def update_userinfo(db: Session, current_user: User, put: UpdateUser, file: str)
     return userinfo.first()
 
 
-def delete_user(db: Session, user_id: DeleteUser) -> bool:
+def delete_user(db: Session, user_id: DeleteUser) -> None:
     user = db.query(User).filter(User.id == user_id)
     user.delete()
     db.commit()
-    return user.first()
 
 
 def check_email(db: Session, email: str) -> bool:

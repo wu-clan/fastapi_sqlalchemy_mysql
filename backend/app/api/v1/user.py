@@ -120,7 +120,7 @@ async def password_reset_code(username_or_email: str, response: Response, tasks:
         return Response200(msg='验证码发送成功')
     else:
         try:
-            validate_email(str(username_or_email))
+            validate_email(username_or_email).email
         except EmailNotValidError:
             raise HTTPException(status_code=404, detail='用户名不存在，请重新输入')
         email_result = user_crud.check_email(db, username_or_email)
@@ -195,7 +195,7 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
         if _email:
             raise HTTPException(status_code=403, detail='该邮箱已存在~ 换一个吧')
         try:
-            validate_email(put.email)
+            validate_email(put.email).email
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
     current_filename = user_crud.get_avatar_by_username(db, current_user.username)
@@ -246,24 +246,22 @@ async def get_user_list(current_user=Depends(jwt_security.get_current_is_superus
             return paginate(user_list)
 
 
-@user.post('/user_super_set', summary='修改用户超级权限')
-async def super_set(current_user=Depends(jwt_security.get_current_is_superuser), db: Session = Depends(get_db)):
-    if current_user:
-        if user_crud.get_user_by_id(db, current_user.id):
-            if user_crud.super_set(db, current_user.id):
-                return Response200(msg=f'修改超级权限成功，当前：{user_crud.get_user_is_super(db, current_user.id)}')
-            return Response200(msg=f'修改超级权限成功，当前：{user_crud.get_user_is_super(db, current_user.id)}')
-        return Response404(msg='用户不存在')
+@user.post('/user_super_set/{pk}', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+async def super_set(pk: int, db: Session = Depends(get_db)):
+    if user_crud.get_user_by_id(db, pk):
+        if user_crud.super_set(db, pk):
+            return Response200(msg=f'修改超级权限成功，当前：{user_crud.get_user_is_super(db, pk)}')
+        return Response200(msg=f'修改超级权限成功，当前：{user_crud.get_user_is_super(db, pk)}')
+    return Response404(msg='用户不存在')
 
 
-@user.post('/user_action_set', summary='修改用户状态')
-async def active_set(current_user=Depends(jwt_security.get_current_is_superuser), db: Session = Depends(get_db)):
-    if current_user:
-        if user_crud.get_user_by_id(db, current_user.id):
-            if user_crud.active_set(db, current_user.id):
-                return Response200(msg=f'修改用户状态成功, 当前：{user_crud.get_user_is_action(db, current_user.id)}')
-            return Response200(msg=f'修改用户状态成功, 当前：{user_crud.get_user_is_action(db, current_user.id)}')
-        return Response404(msg='用户不存在')
+@user.post('/user_action_set/{pk}', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+async def active_set(pk: int, db: Session = Depends(get_db)):
+    if user_crud.get_user_by_id(db, pk):
+        if user_crud.active_set(db, pk):
+            return Response200(msg=f'修改用户状态成功, 当前：{user_crud.get_user_is_action(db, pk)}')
+        return Response200(msg=f'修改用户状态成功, 当前：{user_crud.get_user_is_action(db, pk)}')
+    return Response404(msg='用户不存在')
 
 
 @user.delete('/user_delete', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
@@ -275,6 +273,5 @@ async def user_delete(current_user=Depends(get_current_user), db: Session = Depe
         except FileExistsError:
             log.warning(f'删除图片:{current_filename}失败，未在本地找到相关图片')
         finally:
-            if not user_crud.delete_user(db, current_user.id):
-                return Response200(msg='用户注销成功')
-            return Response500(msg='用户注销失败')
+            user_crud.delete_user(db, current_user.id)
+            return Response200(msg='用户注销成功')
