@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 
 class ResponseBase(BaseModel):
-    msg: Optional[str] = None
+    msg: Optional[Any] = None
     data: Optional[Any] = None
 
 

@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from backend.app.core.conf import settings
@@ -53,7 +54,7 @@ def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta
     return encoded_jwt
 
 
-async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_schema)) -> User:
+async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_schema)) -> User:
     """
     通过token获取当前用户
     :param db:
@@ -73,11 +74,11 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
             raise credentials_exception
     except (jwt.JWTError, ValidationError):
         raise credentials_exception
-    user = user_crud.get_user_by_id(db, user_id)
+    user = await user_crud.get_user_by_id(db, user_id)
     return user
 
 
-async def get_current_is_superuser(user: User = Depends(get_current_user)) -> bool:
+async def get_current_is_superuser(user: User = Depends(get_current_user)) -> User:
     """
     通过token验证当前用户权限
     :param user:
@@ -86,4 +87,4 @@ async def get_current_is_superuser(user: User = Depends(get_current_user)) -> bo
     is_superuser = user.is_superuser
     if not is_superuser:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='用户权限不足', headers=headers)
-    return is_superuser
+    return user
