@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 from logging.config import fileConfig
 
@@ -7,12 +8,14 @@ from sqlalchemy import pool
 
 from alembic import context
 
-
 sys.path.append('../../')
+
+from backend.app.core import path_conf
+if not os.path.exists(path_conf.Versions):
+    os.makedirs(path_conf.Versions)
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-
-
 config = context.config
 
 # Interpret the config file for Python logging.
