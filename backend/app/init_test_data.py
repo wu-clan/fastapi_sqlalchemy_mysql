@@ -34,7 +34,7 @@ class InitData:
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
-            new_email = success_email.email
+            new_email = success_email
             break
         user_obj = User(
             username=username,
@@ -116,7 +116,7 @@ class InitData:
     async def init_data(self):
         """ 自动创建数据 """
         log.info('----------------开始初始化数据----------------')
-        # await self.create_superuser_by_yourself()
+        await self.create_superuser_by_yourself()
         await self.fake_user()
         await self.fake_no_active_user()
         await self.fake_superuser()
