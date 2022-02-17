@@ -32,7 +32,7 @@ class InitData:
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
-            new_email = success_email.email
+            new_email = success_email
             break
         user_obj = User(
             username=username,

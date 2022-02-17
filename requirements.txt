@@ -1,0 +1,13 @@
+fastapi==0.68.2
+SQLAlchemy==1.4.31
+passlib==1.7.4
+pydantic==1.8.2
+loguru==0.4.1
+aioredis==2.0.1
+alembic==1.7.4
+uvicorn==0.13.4
+path==15.1.2
+starlette==0.14.2
+Faker==9.7.1
+python-jose==3.3.0
+fast-captcha==0.1.1
