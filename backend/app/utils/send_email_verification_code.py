@@ -15,8 +15,8 @@ def send_email_verification_code(send_to, code):
     :return:
     """
     message = MIMEMultipart()
-    subject = settings.DEFAULT_FROM_EMAIL
-    content = MIMEText(f'您的重置密码验证码为：{code}\n为了不影响您正常使用，请在{int(settings.MAX_AGE / 60)}分钟内完成密码重置', _charset="utf-8")
+    subject = settings.EMAIL_DESCRIPTION
+    content = MIMEText(f'您的重置密码验证码为：{code}\n为了不影响您正常使用，请在{int(settings.COOKIES_MAX_AGE / 60)}分钟内完成密码重置', _charset="utf-8")
     message['from'] = settings.EMAIL_USER
     message['subject'] = subject
     message.attach(content)

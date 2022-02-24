@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
+from backend.app.common.sys_jobs import scheduler
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.api.v1 import v1
@@ -20,7 +21,7 @@ def register_app():
         openapi_url=settings.OPENAPI_URL
     )
 
-    if settings.DEBUG:
+    if settings.STATIC_FILES:
         # 注册静态文件
         register_static_file(app)
 
@@ -66,20 +67,30 @@ def register_static_file(app):
 
 def register_init(app):
     """
-    初始化连接
+    初始化
     :param app: FastAPI
     :return:
     """
 
     @app.on_event("startup")
     async def startup_event():
-        # 连接redis
-        await redis_client.init_redis_connect()
+        if settings.APS_OPEN:
+            REDIS_OPEN = True
+            # 启动定时任务
+            scheduler.start()
+        if settings.REDIS_OPEN or REDIS_OPEN:
+            # 连接redis
+            await redis_client.init_redis_connect()
 
     @app.on_event("shutdown")
     async def shutdown_event():
-        # 关闭redis连接
-        await redis_client.init_redis_connect().close()
+        if settings.APS_OPEN:
+            REDIS_OPEN = True
+            # 关闭定时任务
+            scheduler.shutdown()
+        if settings.REDIS_OPEN or REDIS_OPEN:
+            # 关闭redis连接
+            await redis_client.init_redis_connect().close()
 
 
 def register_page(app):

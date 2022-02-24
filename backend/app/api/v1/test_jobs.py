@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+from datetime import datetime
+
+from fastapi import APIRouter, Body
+
+from backend.app.common.log import log
+from backend.app.common.sys_jobs import scheduler
+from backend.app.schemas import Response200, Response404, Response403
+
+aps = APIRouter()
+
+
+def test_scheduler_write_log():
+    """
+    测试定时执行
+    :return:
+    """
+    log.debug('🎉🎉🎉 test scheduler')
+
+
+@aps.get("/jobs/all", summary="获取所有jobs")
+async def get_jobs_all():
+    return Response200(data=scheduler.get_jobs())
+
+
+@aps.get("/jobs/is", summary="获取指定的job")
+async def get_target_job(job_id: str):
+    job = scheduler.get_job(job_id=job_id)
+    if not job:
+        return Response404(msg=f"没有 job {job_id}")
+    return Response200(data=job)
+
+
+@aps.post("/job/schedule", summary="启动定时任务")
+async def add_job_to_scheduler(job_id: str = Body(...), seconds: int = Body(default=120, gt=1)):
+    res = scheduler.get_job(job_id=job_id)
+    if res:
+        return Response403(msg=f"job {job_id} is exist")
+    scheduler_job = scheduler.add_job(test_scheduler_write_log, 'interval', seconds=seconds, id=job_id,
+                                      next_run_time=datetime.now())
+    return Response200(msg='success', data={"id": scheduler_job.id})
+
+
+@aps.delete("/job/del", summary="移除定时任务")
+async def remove_schedule(job_id: str):
+    res = scheduler.get_job(job_id=job_id)
+    if not res:
+        return Response404(msg=f"没有 job {job_id}")
+    scheduler.remove_job(job_id)
+    return Response200(msg='移除成功')
