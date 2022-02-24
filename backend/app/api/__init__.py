@@ -20,7 +20,7 @@ def register_app():
         openapi_url=settings.OPENAPI_URL
     )
 
-    if settings.DEBUG:
+    if settings.STATIC_FILES:
         # 注册静态文件
         register_static_file(app)
 
@@ -73,13 +73,15 @@ def register_init(app):
 
     @app.on_event("startup")
     async def startup_event():
-        # 连接redis
-        await redis_client.init_redis_connect()
+        if settings.REDIS_OPEN:
+            # 连接redis
+            await redis_client.init_redis_connect()
 
     @app.on_event("shutdown")
     async def shutdown_event():
-        # 关闭redis连接
-        await redis_client.init_redis_connect().close()
+        if settings.REDIS_OPEN:
+            # 关闭redis连接
+            await redis_client.init_redis_connect().close()
 
 
 def register_page(app):

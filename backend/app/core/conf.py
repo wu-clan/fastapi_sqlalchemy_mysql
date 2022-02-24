@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     RELOAD: bool = True
 
     # DEBUG
-    DEBUG = True
+    STATIC_FILES = True
 
     # DB
     DB_ECHO: bool = False
@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     DB_CHARSET: str = 'utf8mb4'
 
     # redis
+    REDIS_OPEN: bool = True
     REDIS_HOST: str = '127.0.0.1'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
@@ -51,13 +52,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # token 时效 60 * 24 * 1 = 1 天
 
     # Email
-    DEFAULT_FROM_EMAIL: str = 'fastapi-mysql-demo'  # 默认发件说明
+    EMAIL_DESCRIPTION: str = 'fastapi-mysql-demo'  # 默认发件说明
     EMAIL_SERVER: str = 'smtp.qq.com'
     EMAIL_USER: str = 'xxxx-nav@qq.com'
     EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
 
     # 密码重置 cookies 过期时间
-    MAX_AGE: int = 60 * 5  # cookies 时效 60 * 5 = 5 分钟
+    COOKIES_MAX_AGE: int = 60 * 5  # cookies 时效 60 * 5 = 5 分钟
 
     # 中间件
     CORS: bool = True

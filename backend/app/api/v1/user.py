@@ -106,8 +106,8 @@ async def password_reset_code(username_or_email: str, response: Response, tasks:
             response.delete_cookie(key='fast-code')
             response.delete_cookie(key='fast-username')
             response.set_cookie(key='fast-code', value=sha256(code.encode('utf-8')).hexdigest(),
-                                max_age=settings.MAX_AGE)
-            response.set_cookie(key='fast-username', value=username_or_email, max_age=settings.MAX_AGE)
+                                max_age=settings.COOKIES_MAX_AGE)
+            response.set_cookie(key='fast-username', value=username_or_email, max_age=settings.COOKIES_MAX_AGE)
         except Exception as e:
             log.exception('无法发送验证码 {}', e)
             raise HTTPException(status_code=500, detail='内部错误，无法发送验证码')
@@ -130,9 +130,9 @@ async def password_reset_code(username_or_email: str, response: Response, tasks:
             response.delete_cookie(key='fast-code')
             response.delete_cookie(key='fast-username')
             response.set_cookie(key='fast-code', value=sha256(code.encode('utf-8')).hexdigest(),
-                                max_age=settings.MAX_AGE)
+                                max_age=settings.COOKIES_MAX_AGE)
             username = user_crud.get_username_by_email(db, username_or_email)
-            response.set_cookie(key='fast-username', value=username, max_age=settings.MAX_AGE)
+            response.set_cookie(key='fast-username', value=username, max_age=settings.COOKIES_MAX_AGE)
         except Exception as e:
             log.exception('无法发送验证码 {}', e)
             raise HTTPException(status_code=500, detail='内部错误，无法发送验证码')
