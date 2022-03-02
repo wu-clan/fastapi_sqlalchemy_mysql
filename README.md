@@ -3,6 +3,9 @@
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
+### async -> [APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
+
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
 fastapi + sqlalchyme + alembic + mysql + aioredis
 
