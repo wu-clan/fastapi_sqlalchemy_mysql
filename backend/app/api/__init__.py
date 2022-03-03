@@ -80,7 +80,7 @@ def register_init(app):
             scheduler.start()
         if settings.REDIS_OPEN or REDIS_OPEN:
             # 连接redis
-            await redis_client.init_redis_connect()
+            await redis_client.initialize()
 
     @app.on_event("shutdown")
     async def shutdown_event():
@@ -90,7 +90,7 @@ def register_init(app):
             scheduler.shutdown()
         if settings.REDIS_OPEN or REDIS_OPEN:
             # 关闭redis连接
-            await redis_client.init_redis_connect().close()
+            await redis_client.close()
 
 
 def register_page(app):
