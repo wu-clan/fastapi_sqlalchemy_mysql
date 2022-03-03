@@ -21,7 +21,12 @@ def test_scheduler_write_log():
 
 @aps.get("/jobs/all", summary="获取所有jobs")
 async def get_jobs_all():
-    return Response200(data=scheduler.get_jobs())
+    schedules = []
+    for job in scheduler.get_jobs():
+        schedules.append(
+            {"job_id": job.id, "func_name": job.func_ref, "func_args": job.args, "cron_model": str(job.trigger)}
+        )
+    return Response200(data=schedules)
 
 
 @aps.get("/jobs/is", summary="获取指定的job")
@@ -29,7 +34,7 @@ async def get_target_job(job_id: str):
     job = scheduler.get_job(job_id=job_id)
     if not job:
         return Response404(msg=f"没有 job {job_id}")
-    return Response200(data=job)
+    return Response200(data=job.id)
 
 
 @aps.post("/job/schedule", summary="启动定时任务")
