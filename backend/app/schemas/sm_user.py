@@ -11,6 +11,10 @@ class Auth(BaseModel):
     password: str
 
 
+class Auth2(Auth):
+    captcha: str
+
+
 class CreateUser(Auth):
     email: str = Field(..., example='user@example.com')
 

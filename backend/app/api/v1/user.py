@@ -15,13 +15,14 @@ from backend.app.api import jwt_security
 from backend.app.api.jwt_security import create_access_token, get_current_user
 from backend.app.common.log import log
 from backend.app.common.pagination import Page
+from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
 from backend.app.crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
-from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth
+from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2
 from backend.app.utils.send_email_verification_code import send_email_verification_code
 
 user = APIRouter()
@@ -30,7 +31,7 @@ headers = {"WWW-Authenticate": "Bearer"}
 
 
 @user.post('/login', summary='用户登录调试', response_model=Token,
-           description='form_data登录，为直接配合swagger-ui认证使用，接口数据与json_data登录一致，自由选择，注释其一即可', )
+           description='form_data登录，为直接配合swagger-ui认证使用，接口数据与json_data登录一致，自由选择，启用一个即可')
 async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     current_user = await user_crud.get_user_by_username(db, form_data.username)
     if not current_user:
@@ -66,11 +67,38 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #                  is_superuser=current_user.is_superuser)
 
 
+# @user.post('/login', summary='用户登录', response_model=Token,
+#            description='带有图形验证码的json_data登录，登陆前需请求一下验证码，并以返回的图片内容输入，不能配合swagger-ui认证使用')
+# async def user_login(request: Request, user_info: Auth2, db: AsyncSession = Depends(get_db)):
+#     current_user = await user_crud.get_user_by_username(db, user_info.username)
+#     if not current_user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户名不存在', headers=headers)
+#     elif not jwt_security.verity_password(user_info.password, current_user.password):
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='密码错误', headers=headers)
+#     elif not current_user.is_active:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
+#     try:
+#         redis_code = await redis_client.get(f"{request.app.state.captcha_uid}")
+#     except AttributeError:
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取', headers=headers)
+#     if redis_code.lower() != user_info.captcha.lower() or redis_code.upper() != user_info.captcha.upper():
+#         raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail='验证码输入错误', headers=headers)
+#     # 更新登陆时间
+#     await user_crud.update_user_login_time(db, user_info.username)
+#     # 创建token
+#     access_token = create_access_token(current_user.id)
+#     log.success('用户 {} 登陆成功', user_info.username)
+#     # 登陆成功后删除附加的验证码
+#     del request.app.state.captcha_uid
+#     return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
+#                  is_superuser=current_user.is_superuser)
+
+
 @user.post('/logout', summary='用户退出')
 async def logout(current_user=Depends(get_current_user)):
     if current_user:
         return Response200(msg='退出登录成功')
-    Response500(msg='退出登陆失败')
+    return Response500(msg='退出登陆失败')
 
 
 @user.post('/register', summary='用户注册')
