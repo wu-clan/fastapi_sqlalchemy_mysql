@@ -39,7 +39,6 @@ class Settings(BaseSettings):
     DB_CHARSET: str = 'utf8mb4'
 
     # redis
-    REDIS_OPEN: bool = True
     REDIS_HOST: str = '127.0.0.1'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
