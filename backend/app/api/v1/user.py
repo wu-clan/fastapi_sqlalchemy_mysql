@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
+import uuid
 from hashlib import sha256
 
 from email_validator import EmailNotValidError, validate_email
@@ -15,14 +16,15 @@ from backend.app.api import jwt_security
 from backend.app.api.jwt_security import create_access_token, get_current_user
 from backend.app.common.log import log
 from backend.app.common.pagination import Page
+from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
 from backend.app.crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
-from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth
-from backend.app.utils.send_email_verification_code import send_email_verification_code
+from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2, ELCode
+from backend.app.utils.send_email_verification_code import send_email_verification_code, SEND_EMAIL_LOGIN_TEXT
 
 user = APIRouter()
 
@@ -65,12 +67,57 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
 #                  is_superuser=current_user.is_superuser)
 
+@user.post('/email_login_code', summary='获取邮箱登录验证码')
+async def get_email_login_code(request: Request, email: ELCode, tasks: BackgroundTasks,
+                               db: AsyncSession = Depends(get_db)):
+    if not await user_crud.check_email(db, email.email):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='邮箱不存在', headers=headers)
+    username = await user_crud.get_username_by_email(db, email.email)
+    current_user = await user_crud.get_user_by_username(db, username)
+    if not current_user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录，发送验证码失败', headers=headers)
+    try:
+        code = tCaptcha()
+        tasks.add_task(send_email_verification_code, email.email, code, SEND_EMAIL_LOGIN_TEXT)
+    except Exception as e:
+        log.exception('验证码发送失败 {}', e)
+        raise HTTPException(status_code=500, detail='验证码发送失败')
+    else:
+        uid = str(uuid.uuid4())
+        await redis_client.set(uid, code, settings.EMAIL_LOGIN_CODE_MAX_AGE)
+        request.app.state.email_login_code = uid
+    return Response200(msg='验证码发送成功')
+
+
+@user.post('/login2', summary='邮箱登录', description='邮箱登录，使用此方式必须开启redis，不能配合swagger-ui认证使用', response_model=Token)
+async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(get_db)):
+    username = await user_crud.get_username_by_email(db, email.email)
+    current_user = await user_crud.get_user_by_username(db, username)
+    if not current_user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
+    try:
+        code = request.app.state.email_login_code
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='请先获取邮箱验证码再登陆')
+    r_code = await redis_client.get(f'{code}')
+    if not r_code:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取')
+    if r_code != email.code:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail='验证码输入错误')
+    # 更新登陆时间
+    await user_crud.update_user_login_time(db, username)
+    # 创建token
+    access_token = create_access_token(current_user.id)
+    log.success('用户 {} 登陆成功', username)
+    return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
+                 is_superuser=current_user.is_superuser)
+
 
 @user.post('/logout', summary='用户退出')
 async def logout(current_user=Depends(get_current_user)):
     if current_user:
         return Response200(msg='退出登录成功')
-    Response500(msg='退出登陆失败')
+    return Response500(msg='退出登陆失败')
 
 
 @user.post('/register', summary='用户注册')
@@ -115,7 +162,7 @@ async def password_reset_code(username_or_email: str, response: Response, tasks:
             tasks.add_task(send_email_verification_code, current_user_email, code)
         except Exception as e:
             log.exception('验证码发送失败 {}', e)
-            raise HTTPException(status_code=500, detail='内部错误，验证码发送失败')
+            raise HTTPException(status_code=500, detail='验证码发送失败')
         return Response200(msg='验证码发送成功')
     else:
         try:
@@ -139,7 +186,7 @@ async def password_reset_code(username_or_email: str, response: Response, tasks:
             tasks.add_task(send_email_verification_code, username_or_email, code)
         except Exception as e:
             log.exception('验证码发送失败 {}', e)
-            raise HTTPException(status_code=500, detail='内部错误，验证码发送失败')
+            raise HTTPException(status_code=500, detail='验证码发送失败')
         return Response200(msg='验证码发送成功')
 
 

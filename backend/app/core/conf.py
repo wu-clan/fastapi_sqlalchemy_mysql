@@ -54,8 +54,12 @@ class Settings(BaseSettings):
     # Email
     EMAIL_DESCRIPTION: str = 'fastapi-mysql-demo'  # 默认发件说明
     EMAIL_SERVER: str = 'smtp.qq.com'
+    EMAIL_PORT: int = 465
     EMAIL_USER: str = 'xxxx-nav@qq.com'
     EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
+
+    # 邮箱登录验证码过期时间
+    EMAIL_LOGIN_CODE_MAX_AGE: int = 60 * 2  # 时效 60 * 2 = 2 分钟
 
     # 密码重置 cookies 过期时间
     COOKIES_MAX_AGE: int = 60 * 5  # cookies 时效 60 * 5 = 5 分钟

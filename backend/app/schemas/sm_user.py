@@ -3,12 +3,20 @@
 import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 class Auth(BaseModel):
     username: str
     password: str
+
+
+class ELCode(BaseModel):
+    email: EmailStr
+
+
+class Auth2(ELCode):
+    code: str
 
 
 class CreateUser(Auth):
