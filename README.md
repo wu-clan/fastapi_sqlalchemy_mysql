@@ -3,7 +3,7 @@
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
-PS: 含 redis 邮箱登录
+PS: 含 redis 邮箱验证码登录
 
 ### async -> [APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
 fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
