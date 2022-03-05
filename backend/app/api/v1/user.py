@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
-import uuid
+import re
 from hashlib import sha256
 
 from email_validator import EmailNotValidError, validate_email
@@ -24,6 +24,7 @@ from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
 from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2, ELCode
+from backend.app.utils.generate_uuid import get_uuid
 from backend.app.utils.send_email_verification_code import send_email_verification_code, SEND_EMAIL_LOGIN_TEXT
 
 user = APIRouter()
@@ -45,9 +46,22 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
     await user_crud.update_user_login_time(db, form_data.username)
     # 创建token
     access_token = create_access_token(current_user.id)
-    log.success('用户 {} 登陆成功', form_data.username)
-    return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
-                 is_superuser=current_user.is_superuser)
+    # token存放redis
+    if settings.REDIS_OPEN:
+        uid = current_user.user_id
+        rd_token = await redis_client.get(uid)
+        if not rd_token:
+            await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            token = access_token
+        else:
+            token = rd_token
+        log.success('用户 {} 登陆成功', form_data.username)
+        return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+                     is_superuser=current_user.is_superuser)
+    else:
+        log.success('用户 {} 登陆成功', form_data.username)
+        return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
+                     is_superuser=current_user.is_superuser)
 
 
 # @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
@@ -63,9 +77,23 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     await user_crud.update_user_login_time(db, user_info.username)
 #     # 创建token
 #     access_token = create_access_token(current_user.id)
-#     log.success('用户 {} 登陆成功', user_info.username)
-#     return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
-#                  is_superuser=current_user.is_superuser)
+#     # token存放redis
+#     if settings.REDIS_OPEN:
+#         uid = current_user.user_id
+#         rd_token = await redis_client.get(uid)
+#         if not rd_token:
+#             await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#             token = access_token
+#         else:
+#             token = rd_token
+#         log.success('用户 {} 登陆成功', user_info.username)
+#         return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+#                      is_superuser=current_user.is_superuser)
+#     else:
+#         log.success('用户 {} 登陆成功', user_info.username)
+#         return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
+#                      is_superuser=current_user.is_superuser)
+
 
 @user.post('/email_login_code', summary='获取邮箱登录验证码')
 async def get_email_login_code(request: Request, email: ELCode, tasks: BackgroundTasks,
@@ -83,7 +111,7 @@ async def get_email_login_code(request: Request, email: ELCode, tasks: Backgroun
         log.exception('验证码发送失败 {}', e)
         raise HTTPException(status_code=500, detail='验证码发送失败')
     else:
-        uid = str(uuid.uuid4())
+        uid = get_uuid()
         await redis_client.set(uid, code, settings.EMAIL_LOGIN_CODE_MAX_AGE)
         request.app.state.email_login_code = uid
     return Response200(msg='验证码发送成功')
@@ -91,6 +119,8 @@ async def get_email_login_code(request: Request, email: ELCode, tasks: Backgroun
 
 @user.post('/login2', summary='邮箱登录', description='邮箱登录，使用此方式必须开启redis，不能配合swagger-ui认证使用', response_model=Token)
 async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(get_db)):
+    if not settings.REDIS_OPEN:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='登陆失败, 服务器未启用此服务')
     username = await user_crud.get_username_by_email(db, email.email)
     current_user = await user_crud.get_user_by_username(db, username)
     if not current_user.is_active:
@@ -108,8 +138,15 @@ async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(
     await user_crud.update_user_login_time(db, username)
     # 创建token
     access_token = create_access_token(current_user.id)
+    uid = current_user.user_id
+    rd_token = await redis_client.get(uid)
+    if not rd_token:
+        await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        token = access_token
+    else:
+        token = rd_token
     log.success('用户 {} 登陆成功', username)
-    return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
+    return Token(code=200, msg='success', access_token=token, token_type='Bearer',
                  is_superuser=current_user.is_superuser)
 
 
@@ -241,6 +278,18 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
             validate_email(put.email).email
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
+    if put.mobile_number is not None:
+        tel_re = re.compile(r"^1[3-9]\d{9}$")
+        if not tel_re.findall(str(put.mobile_number)):
+            raise HTTPException(status_code=403, detail='手机号码格式错误')
+    if put.wechat is not None:
+        tel_re = re.compile(r"^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$")
+        if not tel_re.findall(str(put.wechat)):
+            raise HTTPException(status_code=403, detail='微信号码输入有误')
+    if put.qq is not None:
+        tel_re = re.compile(r"^[1-9][0-9]{4,10}$")
+        if not tel_re.findall(str(put.qq)):
+            raise HTTPException(status_code=403, detail='QQ号码输入有误')
     current_filename = await user_crud.get_avatar_by_username(db, current_user.username)
     if file is not None:
         if current_filename is not None:
@@ -310,7 +359,8 @@ async def user_delete(current_user=Depends(get_current_user), db: AsyncSession =
         current_filename = await user_crud.get_avatar_by_username(db, current_user.username)
         os.remove(ImgPath + current_filename)
     except FileExistsError:
-        log.warning(f'清除用户头像文件:{current_filename}失败，未在本地找到相关图片')
+        pass
     finally:
         await user_crud.delete_user(db, current_user.id)
+        log.info('用户 {} 已注销, 用户信息清除完成', current_user.username)
         return Response200(msg='用户注销成功')

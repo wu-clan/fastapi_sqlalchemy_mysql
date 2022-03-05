@@ -4,7 +4,6 @@
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, select, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Query
 from sqlalchemy.sql import Select
 
 from backend.app.api import jwt_security
