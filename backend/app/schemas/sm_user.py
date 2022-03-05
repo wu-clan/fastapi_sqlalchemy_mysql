@@ -27,7 +27,7 @@ class UpdateUser(BaseModel):
     username: str
     email: str
     mobile_number: Optional[int] = None
-    we_chart: Optional[str] = None
+    wechat: Optional[str] = None
     qq: Optional[str] = None
     blog_address: Optional[str] = None
     introduction: Optional[str] = None
