@@ -14,3 +14,4 @@ python-jose==3.3.0
 fast-captcha==0.1.1
 APScheduler==3.8.1
 tzlocal==2.1
+fastapi-pagination==0.9.1

@@ -6,6 +6,12 @@ from fastapi import Form
 def encode_as_form(cls):
     """
     pydantic 类装饰器，将 pydantic 类转化为 form_data
+    ***
+    使用方法:
+    @encode_as_form
+    class Pydantic(BaseModel):
+        pass
+    ***
     :param cls:
     :return:
     """
