@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import uuid
 
 from fast_captcha import iCaptcha
 from fastapi import APIRouter, Request
 from starlette.responses import StreamingResponse
 
 from backend.app.common.sys_redis import redis_client
+from backend.app.utils.generate_uuid import get_uuid
 
 captcha = APIRouter()
 
@@ -14,7 +14,7 @@ captcha = APIRouter()
 @captcha.get('/captcha', summary='验证码')
 async def get_captcha(request: Request):
     img, code = iCaptcha()
-    uid = str(uuid.uuid4())
+    uid = get_uuid()
     request.app.state.captcha_uid = uid
     await redis_client.set(uid, code, 60)
     return StreamingResponse(content=img, media_type='image/jpeg')

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
+import re
 from hashlib import sha256
 
 from email_validator import EmailNotValidError, validate_email
@@ -44,8 +45,16 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
     await user_crud.update_user_login_time(db, form_data.username)
     # 创建token
     access_token = create_access_token(current_user.id)
+    # token存放redis
+    uid = current_user.user_id
+    rd_token = await redis_client.get(uid)
+    if not rd_token:
+        await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        token = access_token
+    else:
+        token = rd_token
     log.success('用户 {} 登陆成功', form_data.username)
-    return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
+    return Token(code=200, msg='success', access_token=token, token_type='Bearer',
                  is_superuser=current_user.is_superuser)
 
 
@@ -62,11 +71,19 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     await user_crud.update_user_login_time(db, user_info.username)
 #     # 创建token
 #     access_token = create_access_token(current_user.id)
+#     # token存放redis
+#     uid = current_user.user_id
+#     rd_token = await redis_client.get(uid)
+#     if not rd_token:
+#         await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         token = access_token
+#     else:
+#         token = rd_token
 #     log.success('用户 {} 登陆成功', user_info.username)
-#     return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
+#     return Token(code=200, msg='success', access_token=token, token_type='Bearer',
 #                  is_superuser=current_user.is_superuser)
-
-
+#
+#
 # @user.post('/login', summary='用户登录', response_model=Token,
 #            description='带有图形验证码的json_data登录，登陆前需请求一下验证码，并以返回的图片内容输入，不能配合swagger-ui认证使用')
 # async def user_login(request: Request, user_info: Auth2, db: AsyncSession = Depends(get_db)):
@@ -78,7 +95,8 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     elif not current_user.is_active:
 #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
 #     try:
-#         redis_code = await redis_client.get(f"{request.app.state.captcha_uid}")
+#         rd_captcha = request.app.state.captcha_uid
+#         redis_code = await redis_client.get(f"{rd_captcha}")
 #     except AttributeError:
 #         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取', headers=headers)
 #     if redis_code.lower() != user_info.captcha.lower() or redis_code.upper() != user_info.captcha.upper():
@@ -87,10 +105,18 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     await user_crud.update_user_login_time(db, user_info.username)
 #     # 创建token
 #     access_token = create_access_token(current_user.id)
+#     # token存放redis
+#     uid = current_user.user_id
+#     rd_token = await redis_client.get(uid)
+#     if not rd_token:
+#         await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         token = access_token
+#     else:
+#         token = rd_token
 #     log.success('用户 {} 登陆成功', user_info.username)
 #     # 登陆成功后删除附加的验证码
-#     del request.app.state.captcha_uid
-#     return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
+#     del rd_captcha
+#     return Token(code=200, msg='success', access_token=token, token_type='Bearer',
 #                  is_superuser=current_user.is_superuser)
 
 
@@ -222,6 +248,18 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
             validate_email(put.email).email
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
+    if put.mobile_number is not None:
+        tel_re = re.compile(r"^1[3-9]\d{9}$")
+        if not tel_re.findall(str(put.mobile_number)):
+            raise HTTPException(status_code=403, detail='手机号码格式错误')
+    if put.wechat is not None:
+        tel_re = re.compile(r"^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$")
+        if not tel_re.findall(str(put.wechat)):
+            raise HTTPException(status_code=403, detail='微信号码输入有误')
+    if put.qq is not None:
+        tel_re = re.compile(r"^[1-9][0-9]{4,10}$")
+        if not tel_re.findall(str(put.qq)):
+            raise HTTPException(status_code=403, detail='QQ号码输入有误')
     current_filename = await user_crud.get_avatar_by_username(db, current_user.username)
     if file is not None:
         if current_filename is not None:
