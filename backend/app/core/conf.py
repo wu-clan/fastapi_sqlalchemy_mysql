@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     DB_CHARSET: str = 'utf8mb4'
 
     # redis
-    REDIS_OPEN: bool = True
+    REDIS_OPEN: bool = True  # 如果你扩展API时使用了redis,就必须开启;如果你未使用到redis,则可以选择关闭(False)
     REDIS_HOST: str = '127.0.0.1'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
