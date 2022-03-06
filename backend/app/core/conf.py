@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     REDIS_DATABASE: int = 0
     REDIS_TIMEOUT: int = 5
 
+    # Casbin
+    CASBIN_MODEL_NAME: str = 'rbac_model.conf'
+
     # Token
     ALGORITHM: str = 'HS256'  # 算法
     SECRET_KEY: str = '1VkVF75nsNABBjK_7-qz7GtzNy3AMvktc9TCPwKczCk'  # 密钥 (py生成方法：print(secrets.token_urlsafe(32)))
