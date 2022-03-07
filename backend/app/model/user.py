@@ -23,4 +23,4 @@ class User(Base):
     blog_address = Column(String(128), default=None,  comment='博客地址')
     introduction = Column(LONGTEXT, default=None,  comment='自我介绍')
     time_joined = Column(DateTime, server_default=func.now(), comment='注册时间')
-    last_login = Column(DateTime, server_default=func.now(), onupdate=func.now(), comment='上次登录时间')
+    last_login = Column(DateTime, server_default=None, onupdate=func.now(), comment='上次登录时间')
