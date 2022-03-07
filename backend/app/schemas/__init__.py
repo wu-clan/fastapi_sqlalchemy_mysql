@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 """
 说明：统一响应状态码
@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 
 class ResponseBase(BaseModel):
-    msg: Optional[str] = None
+    msg: Optional[Any] = Field(default='success')
     data: Optional[Any] = None
 
 

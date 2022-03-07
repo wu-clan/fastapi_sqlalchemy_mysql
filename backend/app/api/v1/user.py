@@ -15,6 +15,7 @@ from backend.app.api import jwt_security
 from backend.app.api.jwt_security import create_access_token, get_current_user
 from backend.app.common.log import log
 from backend.app.common.pagination import Page
+from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
 from backend.app.crud import user_crud
@@ -22,7 +23,7 @@ from backend.app.datebase.db_mysql import get_db
 from backend.app.model.user import User
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
-from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser
+from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2
 from backend.app.utils.send_email_verification_code import send_email_verification_code
 
 user = APIRouter()
@@ -44,9 +45,22 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
     user_crud.update_user_login_time(db, form_data.username)
     # 创建token
     access_token = create_access_token(current_user.id)
-    log.success('用户 [{}] 登陆成功', form_data.username)
-    return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
-                 is_superuser=current_user.is_superuser)
+    # token存放redis
+    if settings.REDIS_OPEN:
+        uid = current_user.user_id
+        rd_token = redis_client.get(uid)
+        if not rd_token:
+            redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            token = access_token
+        else:
+            token = rd_token
+        log.success('用户 {} 登陆成功', form_data.username)
+        return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+                     is_superuser=current_user.is_superuser)
+    else:
+        log.success('用户 {} 登陆成功', form_data.username)
+        return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
+                     is_superuser=current_user.is_superuser)
 
 
 # @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
@@ -62,8 +76,57 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
 #     user_crud.update_user_login_time(db, user_info.username)
 #     # 创建token
 #     access_token = create_access_token(current_user.id)
-#     log.success('用户 [{}] 登陆成功', user_info.username)
-#     return Token(code=200, msg='登陆成功', access_token=access_token, token_type='Bearer',
+#     # token存放redis
+#     if settings.REDIS_OPEN:
+#         uid = current_user.user_id
+#         rd_token = redis_client.get(uid)
+#         if not rd_token:
+#             redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#             token = access_token
+#         else:
+#             token = rd_token
+#         log.success('用户 {} 登陆成功', user_info.username)
+#         return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+#                      is_superuser=current_user.is_superuser)
+#     else:
+#         log.success('用户 {} 登陆成功', user_info.username)
+#         return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
+#                      is_superuser=current_user.is_superuser)
+
+
+# @user.post('/login', summary='用户登录', response_model=Token,
+#            description='带有图形验证码的json_data登录，登陆前需请求一下验证码，并以返回的图片内容输入，不能配合swagger-ui认证使用')
+# async def user_login(request: Request, user_info: Auth2, db: Session = Depends(get_db)):
+#     current_user = user_crud.get_user_by_username(db, user_info.username)
+#     if not current_user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户名不存在', headers=headers)
+#     elif not jwt_security.verity_password(user_info.password, current_user.password):
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='密码错误', headers=headers)
+#     elif not current_user.is_active:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
+#     try:
+#         rd_captcha = request.app.state.captcha_uid
+#         redis_code = redis_client.get(f"{rd_captcha}")
+#     except AttributeError:
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取', headers=headers)
+#     if redis_code.lower() != user_info.captcha.lower() or redis_code.upper() != user_info.captcha.upper():
+#         raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail='验证码输入错误', headers=headers)
+#     # 更新登陆时间
+#     user_crud.update_user_login_time(db, user_info.username)
+#     # 创建token
+#     access_token = create_access_token(current_user.id)
+#     # token存放redis
+#     uid = current_user.user_id
+#     rd_token = redis_client.get(uid)
+#     if not rd_token:
+#         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         token = access_token
+#     else:
+#         token = rd_token
+#     log.success('用户 {} 登陆成功', user_info.username)
+#     # 登陆成功后删除附加的验证码
+#     del rd_captcha
+#     return Token(code=200, msg='success', access_token=token, token_type='Bearer',
 #                  is_superuser=current_user.is_superuser)
 
 
