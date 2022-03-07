@@ -5,6 +5,7 @@ import os
 import re
 from hashlib import sha256
 
+import aiofiles
 from email_validator import EmailNotValidError, validate_email
 from fast_captcha import tCaptcha
 from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, status, UploadFile, BackgroundTasks
@@ -303,8 +304,8 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
         _file = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S.%f')) + '_' + file.filename
         if not os.path.exists(ImgPath):
             os.makedirs(ImgPath)
-        with open(ImgPath + f'{_file}', 'wb') as f:
-            f.write(new_file)
+        async with aiofiles.open(ImgPath + f'{_file}', 'wb') as f:
+            await f.write(new_file)
     else:
         _file = current_filename
     if current_user:
