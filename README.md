@@ -3,11 +3,17 @@
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
+PS: 含 redis 邮箱验证码登录
+
 ### async -> [APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
 fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
+PS: 含 redis 图片验证码登录
+
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
-fastapi + sqlalchyme + alembic + mysql + aioredis
+fastapi + sqlalchyme + alembic + mysql + redis
+
+PS: 含 redis 图片验证码登录
 
 ## 迁移:
 first > 项目根目录下安装所需依赖包
@@ -29,3 +35,43 @@ next > 配置数据库，执行迁移
 
 
 end > 运行 main.py 文件启动 FastAPI
+
+## 结构树
+
+结构树基本大致相同，详情查看源代码
+
+```text
+D:.
+├─.idea
+│  └─inspectionProfiles
+└─backend
+    └─app
+        ├─alembic
+        ├─api
+        │  ├─v1
+        │  │  └─__pycache__
+        │  └─__pycache__
+        ├─common
+        │  └─__pycache__
+        ├─core
+        │  └─__pycache__
+        ├─crud
+        │  └─__pycache__
+        ├─datebase
+        │  └─__pycache__
+        ├─log
+        ├─middleware
+        │  └─__pycache__
+        ├─model
+        │  └─__pycache__
+        ├─schemas
+        │  └─__pycache__
+        ├─static
+        │  └─media
+        │      └─uploads
+        ├─test
+        ├─utils
+        │  └─__pycache__
+        └─__pycache__
+
+```
