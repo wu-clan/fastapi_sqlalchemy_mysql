@@ -10,20 +10,20 @@ rd = APIRouter()
 
 @rd.post('/redis')
 async def test_redis():
-    result = await redis_client.set('test', 'test')
+    result = redis_client.set('test', 'test')
     if result:
         return Response200(data=result)
 
 
 @rd.get('/redis')
 async def get_redis():
-    result = await redis_client.get('test')
+    result = redis_client.get('test')
     if result:
         return Response200(data=result)
 
 
 @rd.delete('/redis')
 async def test_redis():
-    result = await redis_client.delete('test')
+    result = redis_client.delete('test')
     if result:
         return Response200(data=result)
