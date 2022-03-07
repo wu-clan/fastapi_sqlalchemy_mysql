@@ -17,7 +17,7 @@ class User(Base):
     is_superuser = Column(Boolean(), default=False, comment='超级权限')
     is_active = Column(Boolean(), default=True, comment='用户账号状态')
     avatar = Column(String(256), default=None, comment='头像')
-    mobile_number = Column(SmallInteger, default=None,  comment='手机号')
+    mobile_number = Column(String(16), default=None,  comment='手机号')
     wechat = Column(String(128), default=None,  comment='微信')
     qq = Column(String(128), default=None,  comment='QQ')
     blog_address = Column(String(128), default=None,  comment='博客地址')
