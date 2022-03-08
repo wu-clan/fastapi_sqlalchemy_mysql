@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     REDIS_TIMEOUT: int = 5
 
     # APScheduler DB
-    APS_OPEN: bool = True
+    APS_OPEN: bool = True  # 想使用它，就必须启用redis
     APS_REDIS_HOST: str = '127.0.0.1'
     APS_REDIS_PORT: int = 6379
     APS_REDIS_PASSWORD: str = ''
