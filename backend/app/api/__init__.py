@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import sys
+
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
@@ -75,13 +77,13 @@ def register_init(app):
     async def startup_event():
         if settings.REDIS_OPEN:
             # 连接redis
-            await redis_client.initialize()
+            await redis_client.init_redis_connect()
 
     @app.on_event("shutdown")
     async def shutdown_event():
         if settings.REDIS_OPEN:
             # 关闭redis连接
-            await redis_client.close()
+            await redis_client.init_redis_connect().close()
 
 
 def register_page(app):
