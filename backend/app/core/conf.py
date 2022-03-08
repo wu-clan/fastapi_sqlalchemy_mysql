@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     # Uvicorn
     HOST: str = '127.0.0.1'
     PORT: int = 8000
-    RELOAD: bool = True
+    RELOAD: bool = True  # 如果此处为True，在 @app.on_event("startup") 时发生异常，则程序不会终止，详情：https://github.com/encode/starlette/issues/486
 
     # DEBUG
     STATIC_FILES = True
