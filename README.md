@@ -1,5 +1,8 @@
 # fastapi 项目脚手架
 
+开箱即用，所有分支持续同步更新
+
+## 异步
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
@@ -10,17 +13,40 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
 PS: 含 redis 图片验证码登录
 
+### async -> [Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + PyCasbin
+
+###### rbac仅为简单嵌入，实际使用待后续完善
+
+PS: 含 redis 邮箱验证码登录
+
+## 同步
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
-fastapi + sqlalchyme + alembic + mysql + redis
+fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同Casbin-RBAC) + APScheduler
 
 PS: 含 redis 图片验证码登录
 
-## 迁移:
+### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
+fastapi + sqlalchyme + alembic + mysql + redis ......
+
+PS: 将普通 CRUD 操作进行封装，间接减少重复代码量，其余功能各方面与 
+[sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/) 分支完全一致
+
+## 下载：
+```shell
+windows:
+git clone https://gitee.com/wu_cl/fastapi_mysql_demo.git
+
+linux:
+wget https://gitee.com/wu_cl/fastapi_mysql_demo/repository/archive/master.zip
+```
+
+## 安装使用:
+### 1：传统：
 first > 项目根目录下安装所需依赖包
 ```shell
 pip install -r requirements.txt
 ```
-
 next > 配置数据库，执行迁移
 ```text
 1 > 修改 core/conf.py 文件中数据库配置: # DB
@@ -32,46 +58,65 @@ next > 配置数据库，执行迁移
 
 4 > 运行 init_test_data.py 文件，初始化用户数据
 ```
-
-
 end > 运行 main.py 文件启动 FastAPI
+### 2：docker
+###### 待完善
 
 ## 结构树
-
 结构树基本大致相同，详情查看源代码
 
 ```text
-D:.
-├─.idea
-│  └─inspectionProfiles
-└─backend
-    └─app
-        ├─alembic
-        ├─api
-        │  ├─v1
-        │  │  └─__pycache__
-        │  └─__pycache__
-        ├─common
-        │  └─__pycache__
-        ├─core
-        │  └─__pycache__
-        ├─crud
-        │  └─__pycache__
-        ├─datebase
-        │  └─__pycache__
-        ├─log
-        ├─middleware
-        │  └─__pycache__
-        ├─model
-        │  └─__pycache__
-        ├─schemas
-        │  └─__pycache__
-        ├─static
-        │  └─media
-        │      └─uploads
-        ├─test
-        ├─utils
-        │  └─__pycache__
-        └─__pycache__
-
+├── backend
+│   └── app
+│       ├── alembic
+│       │   ├── env.py
+│       │   ├── README
+│       │   └── script.py.mako
+│       ├── alembic.ini
+│       ├── api
+│       │   ├── __init__.py
+│       │   ├── jwt_security.py
+│       │   └── v1
+│       │       ├── __init__.py
+│       │       ├── test_redis.py
+│       │       └── user.py
+│       ├── common
+│       │   ├── __init__.py
+│       │   ├── log.py
+│       │   ├── pagination.py
+│       │   └── sys_redis.py
+│       ├── core
+│       │   ├── conf.py
+│       │   ├── __init__.py
+│       │   └── path_conf.py
+│       ├── crud
+│       │   ├── __init__.py
+│       │   └── user_crud.py
+│       ├── datebase
+│       │   ├── base_class.py
+│       │   ├── db_mysql.py
+│       │   └── __init__.py
+│       ├── middleware
+│       │   ├── access_middle.py
+│       │   └── __init__.py
+│       ├── model
+│       │   ├── __init__.py
+│       │   └── user.py
+│       ├── schemas
+│       │   ├── __init__.py
+│       │   ├── sm_token.py
+│       │   └── sm_user.py
+│       ├── test
+│       │   └── __init__.py
+│       |── utils
+│       |   ├── generate_uuid.py
+│       |   ├── __init__.py
+│       |   ├── pydantic_as_form.py
+│       |   └── send_email_verification_code.py
+│       ├── __init__.py
+│       ├── init_test_data.py
+│       └─ main.py
+├── LICENSE
+├── README.md
+└── requirements.txt
 ```
