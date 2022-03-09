@@ -13,7 +13,7 @@ captcha = APIRouter()
 
 
 @captcha.get('/captcha', summary='验证码')
-async def get_captcha(request: Request):
+def get_captcha(request: Request):
     img, code = iCaptcha()
     uid = get_uuid()
     request.app.state.captcha_uid = uid
@@ -22,9 +22,9 @@ async def get_captcha(request: Request):
 
 
 @captcha.post('/captcha', summary='验证码验证')
-async def check_captcha(request: Request):
+def check_captcha(request: Request):
     try:
         code = request.app.state.captcha_uid
-        return {'captcha_uid': code}
+        return {'code': 200, 'captcha_uid': code}
     except AttributeError:
         return {'msg': '请先获取验证码'}

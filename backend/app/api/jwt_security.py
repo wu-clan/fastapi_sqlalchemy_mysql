@@ -53,7 +53,7 @@ def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta
     return encoded_jwt
 
 
-async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_schema)) -> User:
+def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_schema)) -> User:
     """
     通过token获取当前用户
     :param db:
@@ -77,7 +77,7 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
     return user
 
 
-async def get_current_is_superuser(user: User = Depends(get_current_user)) -> bool:
+def get_current_is_superuser(user: User = Depends(get_current_user)) -> bool:
     """
     通过token验证当前用户权限
     :param user:

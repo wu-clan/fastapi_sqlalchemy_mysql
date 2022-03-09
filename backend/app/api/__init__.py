@@ -73,7 +73,7 @@ def register_init(app):
     """
 
     @app.on_event("startup")
-    async def startup_event():
+    def startup_event():
         if settings.REDIS_OPEN:
             # 连接redis
             redis_client.init_redis_connect()
@@ -82,7 +82,7 @@ def register_init(app):
                 scheduler.start()
 
     @app.on_event("shutdown")
-    async def shutdown_event():
+    def shutdown_event():
         if settings.REDIS_OPEN:
             # 关闭redis连接
             redis_client.init_redis_connect().close()

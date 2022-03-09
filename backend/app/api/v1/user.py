@@ -34,7 +34,7 @@ headers = {"WWW-Authenticate": "Bearer"}
 
 @user.post('/login', summary='用户登录调试', response_model=Token,
            description='form_data登录，为直接配合swagger-ui认证使用，接口数据与json_data登录一致，自由选择，注释其一即可', )
-async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     current_user = user_crud.get_user_by_username(db, form_data.username)
     if not current_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户名不存在', headers=headers)
@@ -65,7 +65,7 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
 
 
 # @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
-# async def user_login(user_info: Auth, db: Session = Depends(get_db)):
+# def user_login(user_info: Auth, db: Session = Depends(get_db)):
 #     current_user = user_crud.get_user_by_username(db, user_info.username)
 #     if not current_user:
 #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户名不存在', headers=headers)
@@ -97,7 +97,7 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
 
 # @user.post('/login', summary='用户登录', response_model=Token,
 #            description='带有图形验证码的json_data登录，登陆前需请求一下验证码，并以返回的图片内容输入，不能配合swagger-ui认证使用')
-# async def user_login(request: Request, user_info: Auth2, db: Session = Depends(get_db)):
+# def user_login(request: Request, user_info: Auth2, db: Session = Depends(get_db)):
 #     current_user = user_crud.get_user_by_username(db, user_info.username)
 #     if not current_user:
 #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户名不存在', headers=headers)
@@ -108,6 +108,8 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
 #     try:
 #         rd_captcha = request.app.state.captcha_uid
 #         redis_code = redis_client.get(f"{rd_captcha}")
+#         if not redis_code:
+#             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取', headers=headers)
 #     except AttributeError:
 #         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取', headers=headers)
 #     if redis_code.lower() != user_info.captcha.lower() or redis_code.upper() != user_info.captcha.upper():
@@ -130,17 +132,21 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
 #         del rd_captcha
 #         return Token(code=200, msg='success', access_token=token, token_type='Bearer',
 #                      is_superuser=current_user.is_superuser)
+#     else:
+#         log.success('用户 {} 登陆成功', user_info.username)
+#         return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
+#                      is_superuser=current_user.is_superuser)
 
 
 @user.post('/logout', summary='用户退出')
-async def logout(current_user=Depends(get_current_user)):
+def logout(current_user=Depends(get_current_user)):
     if current_user:
         return Response200(msg='退出登录成功')
     Response500(msg='退出登陆失败')
 
 
 @user.post('/register', summary='用户注册')
-async def user_register(create: CreateUser, db: Session = Depends(get_db)):
+def user_register(create: CreateUser, db: Session = Depends(get_db)):
     username = user_crud.get_user_by_username(db, create.username)
     if username:
         raise HTTPException(status_code=403, detail='该用户名已被注册~ 换一个吧')
@@ -163,8 +169,8 @@ async def user_register(create: CreateUser, db: Session = Depends(get_db)):
 
 
 @user.post('/password_reset_code', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
-async def password_reset_code(username_or_email: str, response: Response, tasks: BackgroundTasks,
-                              db: Session = Depends(get_db)):
+def password_reset_code(username_or_email: str, response: Response, tasks: BackgroundTasks,
+                        db: Session = Depends(get_db)):
     code = tCaptcha()
     if user_crud.get_user_by_username(db, username_or_email):
         try:
@@ -210,8 +216,8 @@ async def password_reset_code(username_or_email: str, response: Response, tasks:
 
 
 @user.post('/password_reset_req', summary='密码重置请求')
-async def password_reset(resetpwd: ResetPassword, request: Request, response: Response,
-                         db: Session = Depends(get_db)):
+def password_reset(resetpwd: ResetPassword, request: Request, response: Response,
+                   db: Session = Depends(get_db)):
     pwd1 = resetpwd.password1
     pwd2 = resetpwd.password2
     if pwd1 != pwd2:
@@ -231,12 +237,12 @@ async def password_reset(resetpwd: ResetPassword, request: Request, response: Re
 
 
 @user.get('/password_reset_done', summary='重置密码完成')
-async def password_reset_done():
+def password_reset_done():
     return HTTPException(status_code=200, detail='重置密码完成')
 
 
 @user.get('/userinfo', summary='查看用户信息')
-async def userinfo(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def userinfo(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     if current_user:
         if user_crud.get_user_by_id(db, current_user.id):
             return Response200(msg='查看用户信息成功', data=current_user)
@@ -244,9 +250,9 @@ async def userinfo(db: Session = Depends(get_db), current_user=Depends(get_curre
 
 
 @user.put('/update_userinfo', summary='更新用户信息')
-async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = File(None),
-                          current_user=Depends(get_current_user),
-                          db: Session = Depends(get_db)):
+def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = File(None),
+                    current_user=Depends(get_current_user),
+                    db: Session = Depends(get_db)):
     if current_user.username == put.username:
         pass
     else:
@@ -282,7 +288,7 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
                 os.remove(ImgPath + current_filename)
             except Exception as e:
                 log.error('用户 {} 更新头像时，原头像文件 {} 删除失败\n{}', current_user.username, current_filename, e)
-        new_file = await file.read()
+        new_file = file.file.read()
         if 'image' not in file.content_type:
             raise HTTPException(status_code=403, detail='图片格式错误，请重新选择图片')
         _file = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S.%f')) + '_' + file.filename
@@ -299,7 +305,7 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
 
 
 @user.delete('/delete_avatar', summary='删除头像文件')
-async def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Session = Depends(get_db)):
+def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Session = Depends(get_db)):
     if current_user:
         current_filename = user_crud.get_avatar_by_username(db, current_user.username)
         if current_filename is not None:
@@ -315,8 +321,8 @@ async def delete_avatar(current_user=Depends(jwt_security.get_current_user), db:
 
 
 @user.get('/user_list', summary='获取用户列表', response_model=Page[GetUserInfo])
-async def get_user_list(current_user=Depends(jwt_security.get_current_is_superuser),
-                        db: Session = Depends(get_db)):
+def get_user_list(current_user=Depends(jwt_security.get_current_is_superuser),
+                  db: Session = Depends(get_db)):
     if current_user:
         user_list = user_crud.get_users(db)
         if user_list:
@@ -324,7 +330,7 @@ async def get_user_list(current_user=Depends(jwt_security.get_current_is_superus
 
 
 @user.post('/user_super_set/{pk}', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
-async def super_set(pk: int, db: Session = Depends(get_db)):
+def super_set(pk: int, db: Session = Depends(get_db)):
     if user_crud.get_user_by_id(db, pk):
         if user_crud.super_set(db, pk):
             return Response200(msg=f'修改超级权限成功，当前：{user_crud.get_user_is_super(db, pk)}')
@@ -333,7 +339,7 @@ async def super_set(pk: int, db: Session = Depends(get_db)):
 
 
 @user.post('/user_action_set/{pk}', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
-async def active_set(pk: int, db: Session = Depends(get_db)):
+def active_set(pk: int, db: Session = Depends(get_db)):
     if user_crud.get_user_by_id(db, pk):
         if user_crud.active_set(db, pk):
             return Response200(msg=f'修改用户状态成功, 当前：{user_crud.get_user_is_action(db, pk)}')
@@ -342,7 +348,7 @@ async def active_set(pk: int, db: Session = Depends(get_db)):
 
 
 @user.delete('/user_delete', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
-async def user_delete(current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+def user_delete(current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user:
         try:
             current_filename = user_crud.get_avatar_by_username(db, current_user.username)

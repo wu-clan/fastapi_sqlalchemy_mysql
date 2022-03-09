@@ -20,7 +20,7 @@ def test_scheduler_write_log():
 
 
 @aps.get("/jobs/all", summary="获取所有jobs")
-async def get_jobs_all():
+def get_jobs_all():
     schedules = []
     for job in scheduler.get_jobs():
         schedules.append(
@@ -30,7 +30,7 @@ async def get_jobs_all():
 
 
 @aps.get("/jobs/is", summary="获取指定的job")
-async def get_target_job(job_id: str):
+def get_target_job(job_id: str):
     job = scheduler.get_job(job_id=job_id)
     if not job:
         return Response404(msg=f"没有 job {job_id}")
@@ -38,7 +38,7 @@ async def get_target_job(job_id: str):
 
 
 @aps.post("/job/schedule", summary="启动定时任务")
-async def add_job_to_scheduler(job_id: str = Body(...), seconds: int = Body(default=120, gt=1)):
+def add_job_to_scheduler(job_id: str = Body(...), seconds: int = Body(default=120, gt=1)):
     res = scheduler.get_job(job_id=job_id)
     if res:
         return Response403(msg=f"job {job_id} is exist")
@@ -48,7 +48,7 @@ async def add_job_to_scheduler(job_id: str = Body(...), seconds: int = Body(defa
 
 
 @aps.delete("/job/del", summary="移除定时任务")
-async def remove_schedule(job_id: str):
+def remove_schedule(job_id: str):
     res = scheduler.get_job(job_id=job_id)
     if not res:
         return Response404(msg=f"没有 job {job_id}")

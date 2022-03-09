@@ -3,7 +3,7 @@
 import tzlocal
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.redis import RedisJobStore
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from backend.app.core.conf import settings
 
@@ -51,6 +51,6 @@ _interval_task = {
     "timezone": str(tzlocal.get_localzone())
 }
 
-scheduler = AsyncIOScheduler(**_interval_task)
+scheduler = BackgroundScheduler(**_interval_task)
 
 __all__ = ['scheduler']
