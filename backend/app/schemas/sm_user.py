@@ -41,10 +41,6 @@ class GetUserInfo(UpdateUser):
         orm_mode = True
 
 
-class DeleteUser(BaseModel):
-    id: int
-
-
 class ResetPassword(BaseModel):
     code: str
     password1: str
