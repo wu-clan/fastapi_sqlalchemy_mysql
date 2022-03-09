@@ -98,6 +98,8 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     try:
 #         rd_captcha = request.app.state.captcha_uid
 #         redis_code = await redis_client.get(f"{rd_captcha}")
+#         if not redis_code:
+#             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取', headers=headers)
 #     except AttributeError:
 #         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取', headers=headers)
 #     if redis_code.lower() != user_info.captcha.lower() or redis_code.upper() != user_info.captcha.upper():
