@@ -19,7 +19,7 @@ from backend.app.common.pagination import Page
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
-from backend.app.crud import user_crud
+from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.model.user import User
 from backend.app.schemas import Response200, Response500, Response404
@@ -150,7 +150,7 @@ def user_register(create: CreateUser, db: Session = Depends(get_db)):
     username = user_crud.get_user_by_username(db, create.username)
     if username:
         raise HTTPException(status_code=403, detail='该用户名已被注册~ 换一个吧')
-    email = db.query(User).filter(User.email == create.email).first()
+    email = user_crud.check_email(db, create.email)
     if email:
         raise HTTPException(status_code=403, detail='该邮箱已被注册~ 换一个吧')
     try:
@@ -262,7 +262,7 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
     if current_user.email == put.email:
         pass
     else:
-        _email = db.query(User).filter(User.email == put.email).first()
+        _email = user_crud.check_email(db, put.email)
         if _email:
             raise HTTPException(status_code=403, detail='该邮箱已存在~ 换一个吧')
         try:
