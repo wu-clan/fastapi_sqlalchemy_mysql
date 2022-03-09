@@ -36,8 +36,8 @@ class UpdateUser(BaseModel):
 class GetUserInfo(UpdateUser):
     id: int
     avatar: Optional[str] = None
-    time_joined: datetime.datetime
-    last_login: datetime.datetime
+    time_joined: Optional[datetime.datetime] = None
+    last_login: Optional[datetime.datetime] = None
     is_superuser: bool
     is_active: bool
 
