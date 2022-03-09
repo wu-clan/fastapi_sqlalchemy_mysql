@@ -2,6 +2,7 @@
 
 开箱即用，所有分支持续同步更新
 
+## 异步
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
@@ -19,10 +20,17 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis + PyCasbin
 
 PS: 含 redis 邮箱验证码登录
 
+## 同步
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
-fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同上) + APScheduler
+fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同Casbin-RBAC) + APScheduler
 
 PS: 含 redis 图片验证码登录
+
+### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
+fastapi + sqlalchyme + alembic + mysql + redis ......
+
+PS: 将普通 CRUD 操作进行封装，间接减少重复代码量，其余功能各方面与 
+[sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/) 分支完全一致
 
 ## 下载：
 ```shell
