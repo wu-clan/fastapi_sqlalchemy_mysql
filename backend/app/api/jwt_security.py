@@ -3,16 +3,15 @@
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from backend.app.core.conf import settings
-from backend.app.crud import user_crud
+from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.model import User
 
