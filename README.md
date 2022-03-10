@@ -10,7 +10,7 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis
 📢: 含 redis 邮箱验证码登录
 ```
 
-### async -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
+### async -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async-CRUDBase/)
 ```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
@@ -41,7 +41,7 @@ fastapi + sqlalchyme + alembic + mysql + redis
 📢: 含 redis 图片验证码登录
 ```
 
-### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
+### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-CRUDBase/)
 ```text
 fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同Casbin-RBAC) + APScheduler
 
