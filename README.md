@@ -1,36 +1,52 @@
 # fastapi 项目脚手架
 
-开箱即用，所有分支持续同步更新
+开箱即用，所有分支持续同步更新，你也可以在同类型分支之间 cv 从而自定义demo
 
 ## 异步
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
+```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
-PS: 含 redis 邮箱验证码登录
+📢: 含 redis 邮箱验证码登录
+```
+
+### async -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
+```text
+fastapi + sqlalchyme + alembic + aiomysql + aioredis
+
+📢: 在 master 分支基础上扩展，对普通 CRUD 操作进行封装
+```
 
 ### async -> [APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
+```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
-PS: 含 redis 图片验证码登录
+📢: 在 master 分支基础上扩展，加入 APScheduler 定时任务，新增了 redis 图片验证码登录
+❌：去除了 redis 邮箱验证码登录方式
+```
 
 ### async -> [Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
-fastapi + sqlalchyme + alembic + aiomysql + aioredis + PyCasbin
+###### rbac仅为简单嵌入，实际使用待完善
+```text
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + pycasbin
 
-###### rbac仅为简单嵌入，实际使用待后续完善
-
-PS: 含 redis 邮箱验证码登录
+📢: 在 master 分支基础上扩展，加入 pycasbin 授权
+```
 
 ## 同步
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
-fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同Casbin-RBAC) + APScheduler
+```text
+fastapi + sqlalchyme + alembic + mysql + redis
 
-PS: 含 redis 图片验证码登录
+📢: 含 redis 图片验证码登录
+```
 
 ### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
-fastapi + sqlalchyme + alembic + mysql + redis ......
+```text
+fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同Casbin-RBAC) + APScheduler
 
-PS: 将普通 CRUD 操作进行封装，间接减少重复代码量，其余功能各方面与 
-[sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/) 分支完全一致
+📢: 在 sync 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务，加入 pycasbin 授权
+```
 
 ## 下载：
 ```shell
@@ -47,6 +63,7 @@ first > 项目根目录下安装所需依赖包
 ```shell
 pip install -r requirements.txt
 ```
+
 next > 配置数据库，执行迁移
 ```text
 1 > 修改 core/conf.py 文件中数据库配置: # DB
@@ -58,9 +75,11 @@ next > 配置数据库，执行迁移
 
 4 > 运行 init_test_data.py 文件，初始化用户数据
 ```
+
 end > 运行 main.py 文件启动 FastAPI
+
 ### 2：docker
-###### 待完善
+###### 😓待完善
 
 ## 结构树
 结构树基本大致相同，详情查看源代码
