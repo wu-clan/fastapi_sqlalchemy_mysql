@@ -17,6 +17,7 @@ class RedisCli(Redis):
             password=settings.REDIS_PASSWORD,
             db=settings.REDIS_DATABASE,
             socket_timeout=settings.REDIS_TIMEOUT,
+            decode_responses=True  # 转码 utf-8
         )
 
     async def init_redis_connect(self):
