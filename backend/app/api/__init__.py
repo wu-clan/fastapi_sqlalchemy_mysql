@@ -3,7 +3,6 @@
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
-from backend.app.common.sys_jobs import scheduler
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.api.v1 import v1
