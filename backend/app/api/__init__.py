@@ -77,18 +77,12 @@ def register_init(app):
         if settings.REDIS_OPEN:
             # 连接redis
             redis_client.init_redis_connect()
-            if settings.APS_OPEN:
-                # 启动定时任务
-                scheduler.start()
 
     @app.on_event("shutdown")
     def shutdown_event():
         if settings.REDIS_OPEN:
             # 关闭redis连接
             redis_client.init_redis_connect().close()
-            if settings.APS_OPEN:
-                # 关闭定时任务
-                scheduler.shutdown()
 
 
 def register_page(app):
