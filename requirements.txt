@@ -13,3 +13,4 @@ Faker==9.7.1
 python-jose==3.3.0
 fast-captcha==0.1.2
 fastapi-pagination==0.9.1
+aiofiles==0.8.0
