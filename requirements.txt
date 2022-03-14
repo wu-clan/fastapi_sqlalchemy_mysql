@@ -1,5 +1,6 @@
 fastapi==0.68.2
 SQLAlchemy==1.4.31
+python-jose==3.3.0
 passlib==1.7.4
 pydantic==1.8.2
 loguru==0.4.1
@@ -12,5 +13,6 @@ Faker==9.7.1
 python-jose==3.3.0
 fast-captcha==0.1.2
 casbin==1.15.4
+casbin_sqlalchemy_adapter==0.4.2
 tzlocal==2.1
 APScheduler==3.8.1
