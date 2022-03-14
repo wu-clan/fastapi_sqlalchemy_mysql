@@ -12,7 +12,7 @@ casbin = APIRouter()
 
 
 @casbin.get('/rbac_list', summary='获取所有权限规则')
-async def get_rbac():
+def get_rbac():
     e = get_casbin_enforcer()
     _rbac = e.get_policy()
     if _rbac:
@@ -22,7 +22,7 @@ async def get_rbac():
 
 
 @casbin.post('/add_policy', summary='添加访问权限')
-async def create_policy(p: RBACCreate):
+def create_policy(p: RBACCreate):
     e = get_casbin_enforcer()
     _pl = e.add_policy(p.sub, p.path, p.method)
     if _pl:
@@ -32,7 +32,7 @@ async def create_policy(p: RBACCreate):
 
 
 @casbin.delete('/del_policy', summary='删除访问权限')
-async def delete_policy(p: RBACDelete):
+def delete_policy(p: RBACDelete):
     e = get_casbin_enforcer()
     _pl = e.remove_policy(p.sub, p.path, p.method)
     if _pl:
