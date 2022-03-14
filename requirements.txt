@@ -1,5 +1,6 @@
 fastapi==0.68.2
 SQLAlchemy==1.4.31
+python-jose==3.3.0
 passlib==1.7.4
 pydantic==1.8.2
 loguru==0.4.1
@@ -15,3 +16,4 @@ fast-captcha==0.1.2
 APScheduler==3.8.1
 tzlocal==2.1
 fastapi-pagination==0.9.1
+aiofiles==0.8.0
