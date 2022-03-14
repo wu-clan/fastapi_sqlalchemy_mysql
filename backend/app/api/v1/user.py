@@ -20,7 +20,7 @@ from backend.app.common.pagination import Page
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
-from backend.app.crud import user_crud
+from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
@@ -127,10 +127,10 @@ async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(
     if not current_user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
     try:
-        code = request.app.state.email_login_code
+        uid = request.app.state.email_login_code
     except Exception:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='请先获取邮箱验证码再登陆')
-    r_code = await redis_client.get(f'{code}')
+    r_code = await redis_client.get(f'{uid}')
     if not r_code:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='验证码失效，请重新获取')
     if r_code != email.code:
