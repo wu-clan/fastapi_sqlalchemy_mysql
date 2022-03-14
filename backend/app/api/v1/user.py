@@ -219,7 +219,7 @@ async def password_reset(reset_pwd: ResetPassword, request: Request, response: R
 
 
 @user.get('/password_reset_done', summary='重置密码完成')
-async def password_reset_done():
+def password_reset_done():
     return HTTPException(status_code=200, detail='重置密码完成')
 
 

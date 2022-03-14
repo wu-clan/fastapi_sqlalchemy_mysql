@@ -20,8 +20,8 @@ async def get_captcha(request: Request):
     return StreamingResponse(content=img, media_type='image/jpeg')
 
 
-@captcha.post('/captcha', summary='验证码验证')
-async def check_captcha(request: Request):
+@captcha.get('/test_captcha', summary='验证码验证')
+def check_captcha(request: Request):
     try:
         code = request.app.state.captcha_uid
         return {'captcha_uid': code}

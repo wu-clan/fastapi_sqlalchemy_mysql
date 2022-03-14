@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from fastapi import APIRouter
 
-from .img_captcha import captcha
+from .captcha import captcha
 from .test_jobs import aps
 from .test_redis import rd
 from .user import user
