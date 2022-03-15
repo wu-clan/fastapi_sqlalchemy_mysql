@@ -1,8 +1,12 @@
 # fastapi 项目脚手架
 
-开箱即用，所有分支持续同步更新，你也可以在同类型分支之间 cv 从而自定义demo
+###### 声明：此仓库仅做为 FastAPI 入门级参考，对于不同需求，使用者请自由扩展
 
-## 异步
+📢 开箱即用，所有分支持续同步更新
+
+😓 由于分支过多，不易维护， 所以你也可以在同类型分支之间 cv 功能从而自定义demo
+
+## 异步：
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
 ```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
@@ -17,7 +21,7 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis
 📢: 在 master 分支基础上扩展，对普通 CRUD 操作进行封装
 ```
 
-### async -> [APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
+### async -> [async+APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
 ```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
@@ -25,15 +29,14 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 ❌：去除了 redis 邮箱验证码登录方式
 ```
 
-### async -> [Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
-###### rbac仅为简单嵌入，实际使用待完善
+### async -> [async+Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
 ```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis + pycasbin
 
-📢: 在 master 分支基础上扩展，加入 pycasbin 授权
+📢: 在 async-CRUDBase 分支基础上扩展，加入 pycasbin(RBAC) 授权
 ```
 
-## 同步
+## 同步：
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
 ```text
 fastapi + sqlalchyme + alembic + mysql + redis
@@ -43,9 +46,16 @@ fastapi + sqlalchyme + alembic + mysql + redis
 
 ### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-CRUDBase/)
 ```text
-fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同Casbin-RBAC) + APScheduler
+fastapi + sqlalchyme + alembic + mysql + redis + APScheduler
 
-📢: 在 sync 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务，加入 pycasbin 授权
+📢: 在 sync 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务
+```
+
+### sync -> [sync-Plus](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-Plus/)
+```text
+fastapi + sqlalchyme + alembic + mysql + redis + APScheduler + pycasbin
+
+📢: 在 sync-CRUDBase 分支基础上扩展，加入 pycasbin(RBAC) 授权
 ```
 
 ## 下载：
@@ -82,7 +92,7 @@ end > 运行 main.py 文件启动 FastAPI
 ###### 😓待完善
 
 ## 结构树
-结构树基本大致相同，详情查看源代码
+结构树基本大致相同，详情请查看源代码
 
 ```text
 ├── backend
