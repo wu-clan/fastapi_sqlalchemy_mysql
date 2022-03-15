@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Optional
 
+from fastapi import HTTPException, status
 from pydantic import BaseModel, Field
 
 """
@@ -40,3 +41,15 @@ class Response500(ResponseBase):
 
 class Response502(ResponseBase):
     code: int = 502
+
+
+"""
+说明：统一错误响应
+"""
+
+
+class AuthenticationError(HTTPException):
+    def __init__(self):
+        super(AuthenticationError, self).__init__(
+            status.HTTP_401_UNAUTHORIZED, detail='Permission denied'
+        )

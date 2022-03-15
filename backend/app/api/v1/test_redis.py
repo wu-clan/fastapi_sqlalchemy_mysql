@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from backend.app.common.sys_casbin import rbac
 from backend.app.common.sys_redis import redis_client
 from backend.app.schemas import Response200
 
-rd = APIRouter()
+rd = APIRouter(dependencies=[Depends(rbac.verify_rbac)])
 
 
 @rd.post('/redis')

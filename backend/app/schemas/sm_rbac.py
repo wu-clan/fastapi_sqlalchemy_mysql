@@ -7,7 +7,7 @@ class RBACBase(BaseModel):
     """
     rbac策略
     """
-    sub: str
+    role: str
 
 
 class RBACCreate(RBACBase):

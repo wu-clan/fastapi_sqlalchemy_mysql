@@ -17,7 +17,7 @@ from backend.app.model import User
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')  # 密码加密
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl='/v1/login')  # 指明客户端请求token的地址
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='/v1/user/login')  # 指明客户端请求token的地址
 
 headers = {"WWW-Authenticate": "Bearer"}  # 异常返回规范
 
@@ -48,7 +48,7 @@ def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta
         expires = datetime.utcnow() + expires_delta
     else:
         expires = datetime.utcnow() + timedelta(settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"exp": expires, "sub": str(data)}
+    to_encode = {"exp": expires, "sub": str(data[0]), 'role': str(data[1])}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
     return encoded_jwt
 
@@ -69,7 +69,10 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
         # 解密token
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get('sub')
+        role_id = payload.get('role')
         if not user_id:
+            raise credentials_exception
+        if not role_id:
             raise credentials_exception
     except (jwt.JWTError, ValidationError):
         raise credentials_exception

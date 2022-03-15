@@ -6,7 +6,7 @@ from email_validator import EmailNotValidError, validate_email
 from faker import Faker
 
 from backend.app.datebase.db_mysql import db_session
-from backend.app.model import User
+from backend.app.model import User, Department, Role
 from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password
 
@@ -18,6 +18,24 @@ class InitData:
 
     def __init__(self):
         self.fake = Faker('zh_CN')
+
+    @staticmethod
+    async def create_department():
+        """ 自动创建部门 """
+        dep_obj = Department(name='test')
+        db.add(dep_obj)
+        await db.commit()
+        await db.refresh(dep_obj)
+        print(f'部门 test 创建成功')
+
+    @staticmethod
+    async def create_role():
+        """ 自动创建部门 """
+        dep_obj = Role(name='test')
+        db.add(dep_obj)
+        await db.commit()
+        await db.refresh(dep_obj)
+        print(f'角色 test 创建成功')
 
     @staticmethod
     async def create_superuser_by_yourself():
@@ -41,6 +59,8 @@ class InitData:
             password=get_hash_password(password),
             email=new_email,
             is_superuser=True,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         await db.commit()
@@ -57,6 +77,8 @@ class InitData:
             password=get_hash_password(password),
             email=email,
             is_superuser=False,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         await db.commit()
@@ -74,6 +96,8 @@ class InitData:
             email=email,
             is_active=False,
             is_superuser=False,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         await db.commit()
@@ -90,6 +114,8 @@ class InitData:
             password=get_hash_password(password),
             email=email,
             is_superuser=True,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         await db.commit()
@@ -107,6 +133,8 @@ class InitData:
             email=email,
             is_active=False,
             is_superuser=True,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         await db.commit()
@@ -116,12 +144,15 @@ class InitData:
     async def init_data(self):
         """ 自动创建数据 """
         log.info('----------------开始初始化数据----------------')
+        await self.create_department()
+        await self.create_role()
         await self.create_superuser_by_yourself()
         await self.fake_user()
         await self.fake_no_active_user()
         await self.fake_superuser()
         await self.fake_no_active_superuser()
         log.info('----------------数据初始化完成----------------')
+        await db.close()
 
 
 if __name__ == '__main__':
