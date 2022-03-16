@@ -40,6 +40,7 @@ class RBAC:
         :param db:
         :return:
         """
+        user_id = user.user_id
         role_id = user.role_id
         path = request.url.path
         method = request.method.lower()
@@ -48,9 +49,15 @@ class RBAC:
             ...
         else:
             enforcer = self.get_casbin_enforcer()
-            role = await role_crud.get_role_by_id(db, role_id)  # 获取用户角色
-            if not enforcer.enforce(role.name, path, method):
-                raise AuthorizationError
+            if len(role_id) > 1:
+                for _ in role_id.split(','):
+                    role = await role_crud.get_role_by_id(db, _)  # 获取用户角色
+                    if not enforcer.enforce(role.name, path, method) and not enforcer.enforce(user_id, path, method):
+                        raise AuthorizationError
+            else:
+                role = await role_crud.get_role_by_id(db, role_id)  # 获取用户角色
+                if not enforcer.enforce(role.name, path, method) and not enforcer.enforce(user_id, path, method):
+                    raise AuthorizationError
 
 
 rbac = RBAC()

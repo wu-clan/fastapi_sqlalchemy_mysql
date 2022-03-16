@@ -13,7 +13,7 @@ class User(Base):
     user_id = Column(String(128), default=use_uuid, unique=True, comment='用户id')
     username = Column(String(128), nullable=False, unique=True, index=True, comment='用户名')
     department_id = Column(Integer, nullable=False, comment='部门id')
-    role_id = Column(Integer, nullable=False, comment='角色id')
+    role_id = Column(String(32), nullable=False, comment='角色id')
     password = Column(String(128), nullable=False, comment='密码')
     email = Column(String(128), nullable=False, unique=True, index=True, comment='邮箱')
     is_superuser = Column(Boolean(), default=False, comment='超级权限')
