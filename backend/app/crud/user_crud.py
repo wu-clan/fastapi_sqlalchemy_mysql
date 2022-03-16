@@ -56,7 +56,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         return True
 
     async def delete_user(self, db: AsyncSession, user_id: int) -> None:
-        return await super().delete(db, user_id)
+        return await super().delete_one(db, user_id)
 
     async def check_email(self, db: AsyncSession, email: str) -> bool:
         mail = await db.execute(select(User).where(User.email == email))
