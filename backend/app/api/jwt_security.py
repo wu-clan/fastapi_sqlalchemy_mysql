@@ -14,6 +14,7 @@ from backend.app.core.conf import settings
 from backend.app.crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.model import User
+from backend.app.schemas import AuthorizationError, TokenError
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')  # 密码加密
 
@@ -60,19 +61,14 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
     :param token:
     :return:
     """
-    credentials_exception = HTTPException(
-        status.HTTP_401_UNAUTHORIZED,
-        detail="无法验证凭据",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     try:
         # 解密token
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get('sub')
         if not user_id:
-            raise credentials_exception
+            raise TokenError
     except (jwt.JWTError, ValidationError):
-        raise credentials_exception
+        raise TokenError
     user = user_crud.get_user_by_id(db, user_id)
     return user
 
@@ -85,5 +81,5 @@ def get_current_is_superuser(user: User = Depends(get_current_user)) -> bool:
     """
     is_superuser = user.is_superuser
     if not is_superuser:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='用户权限不足', headers=headers)
+        raise AuthorizationError
     return is_superuser
