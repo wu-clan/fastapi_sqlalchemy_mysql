@@ -60,7 +60,21 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.refresh(db_obj)
         return db_obj
 
-    def delete(self, db: Session, id: int) -> ModelType:
+    def update_one(self, db: Session, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+        """
+        通过 主键id 更新一条数据
+        :param db: session
+        :param id: 主键id
+        :param obj_in: Pydantic 模型类 or 对应数据库字段的字典
+        :return:
+        """
+        model = db.query(self.model).filter(self.model.id == id).first()
+        for attr, value in dict(obj_in).items():
+            setattr(model, attr, value)
+        db.commit()
+        return model
+
+    def delete_one(self, db: Session, id: int) -> ModelType:
         """
         通过id删除一条数据
         :param db: session

@@ -50,7 +50,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         return userinfo.first()
 
     def delete_user(self, db: Session, user_id: int) -> None:
-        return super().delete(db, user_id)
+        return super().delete_one(db, user_id)
 
     def check_email(self, db: Session, email: str) -> bool:
         return db.query(User).filter(User.email == email).first()
