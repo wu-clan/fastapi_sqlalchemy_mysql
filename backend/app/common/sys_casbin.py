@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.api.jwt_security import get_current_user
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import RBAC_MODEL_CONF
-from backend.app.crud.role import role_crud
+from backend.app.crud.role_crud import role_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.model import User, CasbinRule
 from backend.app.schemas import AuthorizationError
@@ -48,7 +48,7 @@ class RBAC:
             ...
         else:
             enforcer = self.get_casbin_enforcer()
-            role = await role_crud.get(db, role_id)
+            role = await role_crud.get_role_by_id(db, role_id)  # 获取用户角色
             if not enforcer.enforce(role.name, path, method):
                 raise AuthorizationError
 

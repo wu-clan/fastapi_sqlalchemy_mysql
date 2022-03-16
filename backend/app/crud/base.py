@@ -27,6 +27,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
         """
         通过id查询一条数据
+        :rtype: object
         :param db: session
         :param id: 主键id
         :return:
@@ -52,7 +53,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def update(self, db: AsyncSession, db_obj: ModelType,
                      obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
-        通过schema类更新一条数据
+        通过schema类更新数据
         :param db: session
         :param db_obj: SQLAlchemy 模型类
         :param obj_in: Pydantic 模型类 or 对应数据库字段的字典
@@ -64,7 +65,22 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await db.refresh(db_obj)
         return db_obj
 
-    async def delete(self, db: AsyncSession, id: int) -> Optional[bool]:
+    async def update_one(self, db: AsyncSession, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+        """
+        通过 主键id 更新一条数据
+        :param db: session
+        :param id: 主键id
+        :param obj_in: Pydantic 模型类 or 对应数据库字段的字典
+        :return:
+        """
+        sql = await db.execute(select(self.model).where(self.model.id == id))
+        model = sql.scalars().first()
+        for attr, value in dict(obj_in).items():
+            setattr(model, attr, value)
+        await db.commit()
+        return model
+
+    async def delete_one(self, db: AsyncSession, id: int) -> Optional[bool]:
         """
         通过id删除一条数据
         :param db: session

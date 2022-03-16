@@ -10,4 +10,4 @@ class API(Base):
     __tablename__ = 'api'
     path = Column(String(256), nullable=False, unique=True, comment='api路径')
     description = Column(String(128), comment='api描述')
-    method = Column(String(16), comment='请求方法')
+    method = Column(String(16), nullable=True, comment='请求方法')
