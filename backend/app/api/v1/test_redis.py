@@ -24,6 +24,6 @@ async def get_redis():
 
 @rd.delete('/redis')
 async def test_redis():
-    result = await redis_client.delete_one('test')
+    result = await redis_client.delete('test')
     if result:
         return Response200(data=result)
