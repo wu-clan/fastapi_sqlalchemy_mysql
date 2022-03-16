@@ -13,9 +13,9 @@ class Settings(BaseSettings):
     TITLE: str = 'FastAPI'
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
-    DEMO：fastapi + sqlalchemy(异步) + alembic + aiomysql + aioredis + APScheduler 项目脚手架
-    
-    src: https://gitee.com/wu_cl/fastapi_mysql_demo
+ fastapi_mysql_demo. 🚀
+ 
+ ### 点击跳转 -> [async+APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
     """
     DOCS_URL: str = '/v1/docs'
     REDOCS_URL: bool = False
