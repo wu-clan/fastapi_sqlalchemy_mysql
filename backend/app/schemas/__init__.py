@@ -48,8 +48,15 @@ class Response502(ResponseBase):
 """
 
 
-class AuthenticationError(HTTPException):
+class AuthorizationError(HTTPException):
     def __init__(self):
-        super(AuthenticationError, self).__init__(
-            status.HTTP_401_UNAUTHORIZED, detail='Permission denied'
+        super(AuthorizationError, self).__init__(
+            status.HTTP_401_UNAUTHORIZED, detail='Permission denied', headers={"WWW-Authenticate": "Bearer"}
+        )
+
+
+class TokenError(HTTPException):
+    def __init__(self):
+        super(TokenError, self).__init__(
+            status.HTTP_401_UNAUTHORIZED, detail='Token Verification Failed', headers={"WWW-Authenticate": "Bearer"}
         )

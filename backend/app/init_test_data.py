@@ -67,6 +67,23 @@ class InitData:
         await db.refresh(user_obj)
         print(f'管理员用户创建成功，账号：{username}，密码：{password}')
 
+    async def create_test_user(self):
+        """ 自动创建普通test用户 """
+        text = 'test'
+        email = self.fake.email()
+        user_obj = User(
+            username=text,
+            password=get_hash_password(text),
+            email=email,
+            is_superuser=False,
+            department_id=1,
+            role_id=1
+        )
+        db.add(user_obj)
+        await db.commit()
+        await db.refresh(user_obj)
+        log.info(f"普通用户创建成功，账号：{text}，密码：{text}")
+
     async def fake_user(self):
         """ 自动创建普通用户 """
         username = self.fake.user_name()
@@ -147,6 +164,7 @@ class InitData:
         await self.create_department()
         await self.create_role()
         await self.create_superuser_by_yourself()
+        await self.create_test_user()
         await self.fake_user()
         await self.fake_no_active_user()
         await self.fake_superuser()
