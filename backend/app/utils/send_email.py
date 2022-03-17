@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
-from backend.app.utils.generate_uuid import get_uuid
+from backend.app.utils.generate_string import get_uuid
 
 _only_one = get_uuid()
 
@@ -30,14 +30,15 @@ def send_email_verification_code(send_to, code, text=SEND_RESET_PASSWORD_TEXT):
     message.attach(content)
 
     # 登录smtp服务器并发送邮件
+    smtp = smtplib.SMTP()
     try:
-        smtp = smtplib.SMTP()
         smtp.connect(settings.EMAIL_SERVER)
         smtp.login(settings.EMAIL_USER, settings.EMAIL_PASSWORD)
         smtp.sendmail(message['from'], send_to, message.as_string())
     except Exception as e:
         log.error('邮件发送失败 {}', e)
-    smtp.quit()
+    finally:
+        smtp.quit()
 
 
 if __name__ == '__main__':
