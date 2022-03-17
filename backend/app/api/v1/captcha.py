@@ -11,8 +11,8 @@ from backend.app.utils.generate_string import get_uuid
 captcha = APIRouter()
 
 
-@captcha.get('/captcha', summary='验证码')
-async def get_captcha(request: Request):
+@captcha.get('/get_captcha', summary='获取验证码')
+async def get_ca(request: Request):
     img, code = iCaptcha()
     uid = get_uuid()
     request.app.state.captcha_uid = uid
