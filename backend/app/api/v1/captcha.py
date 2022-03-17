@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request
 from starlette.responses import StreamingResponse
 
 from backend.app.common.sys_redis import redis_client
-from backend.app.utils.generate_uuid import get_uuid
+from backend.app.utils.generate_string import get_uuid
 
 captcha = APIRouter()
 

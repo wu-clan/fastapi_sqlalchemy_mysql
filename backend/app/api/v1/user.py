@@ -25,7 +25,8 @@ from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
 from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2
-from backend.app.utils.send_email_verification_code import send_email_verification_code
+from backend.app.utils import process_string
+from backend.app.utils.send_email import send_email_verification_code
 
 user = APIRouter()
 
@@ -252,16 +253,13 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
     if put.mobile_number is not None:
-        tel_re = re.compile(r"^1[3-9]\d{9}$")
-        if not tel_re.findall(str(put.mobile_number)):
+        if not process_string.is_mobile(put.mobile_number):
             raise HTTPException(status_code=403, detail='手机号码格式错误')
     if put.wechat is not None:
-        tel_re = re.compile(r"^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$")
-        if not tel_re.findall(str(put.wechat)):
+        if not process_string.is_wechat(put.wechat):
             raise HTTPException(status_code=403, detail='微信号码输入有误')
     if put.qq is not None:
-        tel_re = re.compile(r"^[1-9][0-9]{4,10}$")
-        if not tel_re.findall(str(put.qq)):
+        if not process_string.is_QQ(put.qq):
             raise HTTPException(status_code=403, detail='QQ号码输入有误')
     current_filename = await user_crud.get_avatar_by_username(db, current_user.username)
     if file is not None:

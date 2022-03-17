@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
-from backend.app.utils.generate_uuid import get_uuid
+from backend.app.utils.generate_string import get_uuid
 
 _only_one = get_uuid()
 

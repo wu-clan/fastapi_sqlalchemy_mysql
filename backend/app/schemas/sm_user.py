@@ -22,7 +22,7 @@ class CreateUser(Auth):
 class UpdateUser(BaseModel):
     username: str
     email: str
-    mobile_number: Optional[int] = None
+    mobile_number: Optional[str] = None
     wechat: Optional[str] = None
     qq: Optional[str] = None
     blog_address: Optional[str] = None
@@ -31,6 +31,7 @@ class UpdateUser(BaseModel):
 
 class GetUserInfo(UpdateUser):
     id: int
+    user_id: str
     avatar: Optional[str] = None
     time_joined: Optional[datetime.datetime] = None
     last_login: Optional[datetime.datetime] = None
