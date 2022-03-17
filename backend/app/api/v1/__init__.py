@@ -11,9 +11,9 @@ from .user import user
 
 v1 = APIRouter(prefix='/v1')
 
-v1.include_router(user, tags=['用户'])
-v1.include_router(captcha, tags=['图片验证码'])
-v1.include_router(casbin, tags=['RBAC-授权'])
-v1.include_router(rd, tags=['测试-Redis'])
-v1.include_router(aps, tags=['测试-APScheduler'])
-v1.include_router(crud, tags=['仅用作补充测试CRUDBase'])
+v1.include_router(user, prefix='/user', tags=['用户'])
+v1.include_router(captcha, prefix='/captcha', tags=['图片验证码'])
+v1.include_router(casbin, prefix='/rbac', tags=['RBAC-授权'])
+v1.include_router(rd, prefix='/redis', tags=['测试-Redis'])
+v1.include_router(aps, prefix='/job', tags=['测试-APScheduler'])
+v1.include_router(crud, prefix='/crud', tags=['仅用作补充测试CRUDBase'])
