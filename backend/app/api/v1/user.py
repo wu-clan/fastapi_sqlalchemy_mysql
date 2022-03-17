@@ -20,13 +20,16 @@ from backend.app.common.pagination import Page
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
+from backend.app.crud.depm_crud import depm_crud
+from backend.app.crud.role_crud import role_crud
 from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
 from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2, ELCode
-from backend.app.utils.generate_uuid import get_uuid
-from backend.app.utils.send_email_verification_code import send_email_verification_code, SEND_EMAIL_LOGIN_TEXT
+from backend.app.utils import process_string
+from backend.app.utils.generate_string import get_uuid
+from backend.app.utils.send_email import send_email_verification_code, SEND_EMAIL_LOGIN_TEXT
 
 user = APIRouter()
 
@@ -170,6 +173,16 @@ async def user_register(create: CreateUser, db: AsyncSession = Depends(get_db)):
         validate_email(create.email).email
     except EmailNotValidError:
         raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
+    depm = await depm_crud.get_one_depm_by_id(db, create.department_id)
+    if not depm:
+        raise HTTPException(status_code=404, detail='所选部门不存在')
+    if len(create.role_id) == 1:
+        if not await role_crud.get_one_role_by_id(db, create.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {create.role_id} 不存在')
+    elif len(create.role_id) > 1:
+        for _ in create.role_id.split(','):
+            if not await role_crud.get_one_role_by_id(db, _):
+                raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     new_user = await user_crud.create_user(db, create)
     if new_user:
         log.success('用户 %s 注册成功' % create.username)
@@ -279,17 +292,24 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
             validate_email(put.email).email
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
+    depm = await depm_crud.get_one_depm_by_id(db, put.department_id)
+    if not depm:
+        raise HTTPException(status_code=404, detail='所选部门不存在')
+    if len(put.role_id) == 1:
+        if not await role_crud.get_one_role_by_id(db, put.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {put.role_id} 不存在')
+    elif len(put.role_id) > 1:
+        for _ in put.role_id.split(','):
+            if not await role_crud.get_one_role_by_id(db, _):
+                raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     if put.mobile_number is not None:
-        tel_re = re.compile(r"^1[3-9]\d{9}$")
-        if not tel_re.findall(str(put.mobile_number)):
+        if not process_string.is_mobile(put.mobile_number):
             raise HTTPException(status_code=403, detail='手机号码格式错误')
     if put.wechat is not None:
-        tel_re = re.compile(r"^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$")
-        if not tel_re.findall(str(put.wechat)):
+        if not process_string.is_wechat(put.wechat):
             raise HTTPException(status_code=403, detail='微信号码输入有误')
     if put.qq is not None:
-        tel_re = re.compile(r"^[1-9][0-9]{4,10}$")
-        if not tel_re.findall(str(put.qq)):
+        if not process_string.is_mobile(put.qq):
             raise HTTPException(status_code=403, detail='QQ号码输入有误')
     current_filename = await user_crud.get_avatar_by_username(db, current_user.username)
     if file is not None:
