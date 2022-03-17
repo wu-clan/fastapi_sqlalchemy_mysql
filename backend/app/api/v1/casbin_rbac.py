@@ -15,12 +15,12 @@ from backend.app.schemas.sm_casbin import RBACCreate, RBACDelete, RBACAll
 casbin = APIRouter()
 
 
-@casbin.get('/rbac/all', summary='获取所有权限规则', response_model=Page[RBACAll])
+@casbin.get('/all', summary='获取所有权限规则', response_model=Page[RBACAll])
 async def get_rbac(db: AsyncSession = Depends(get_db)):
     return await paginate(db, rbac_crud.get_all_rbac())
 
 
-@casbin.post('/rbac/add_policy', summary='添加访问权限')
+@casbin.post('/add_policy', summary='添加访问权限')
 def create_policy(p: RBACCreate):
     enforcer = rbac.get_casbin_enforcer()
     data = enforcer.add_policy(p.role, p.path, p.method)
@@ -30,7 +30,7 @@ def create_policy(p: RBACCreate):
         return Response403(msg='添加失败,访问权限已存在', data=data)
 
 
-@casbin.delete('/rbac/del_policy', summary='删除访问权限')
+@casbin.delete('/del_policy', summary='删除访问权限')
 def delete_policy(p: RBACDelete):
     enforcer = rbac.get_casbin_enforcer()
     data = enforcer.remove_policy(p.role, p.path, p.method)

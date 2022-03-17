@@ -14,12 +14,12 @@ from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleAll
 role = APIRouter()
 
 
-@role.get('/role/all', summary='获取所有角色', response_model=Page[RoleAll])
+@role.get('/all', summary='获取所有角色', response_model=Page[RoleAll])
 async def get_all_role(db: AsyncSession = Depends(get_db)):
     return await paginate(db, role_crud.get_all_role())
 
 
-@role.post('/role/add', summary='创建角色')
+@role.post('/add', summary='创建角色')
 async def create_depm(obj: RoleCreate, db: AsyncSession = Depends(get_db)):
     check = await role_crud.get_one_role_by_name(db, obj.name)
     if check:
@@ -36,7 +36,7 @@ async def create_depm(obj: RoleCreate, db: AsyncSession = Depends(get_db)):
         return Response200(data=data)
 
 
-@role.put('/role/put/{id}', summary='修改角色')
+@role.put('/put/{id}', summary='修改角色')
 async def create_depm(obj: RoleUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await role_crud.get_one_role_by_id(db, id)
     if not check:
@@ -56,7 +56,7 @@ async def create_depm(obj: RoleUpdate, id: int = Query(...), db: AsyncSession = 
     return Response200(data=data)
 
 
-@role.delete('/role/delete/{id}', summary='删除角色')
+@role.delete('/delete/{id}', summary='删除角色')
 async def get_depm(id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await role_crud.get_one_role_by_id(db, id)
     if not check:

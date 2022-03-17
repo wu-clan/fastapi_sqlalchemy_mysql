@@ -36,7 +36,7 @@ user = APIRouter()
 headers = {"WWW-Authenticate": "Bearer"}
 
 
-@user.post('/user/login', summary='用户登录调试', response_model=Token,
+@user.post('/login', summary='用户登录调试', response_model=Token,
            description='form_data登录，为直接配合swagger-ui认证使用，接口数据与json_data登录一致，自由选择，注释其一即可', )
 async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     current_user = await user_crud.get_user_by_username(db, form_data.username)
@@ -68,7 +68,7 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
                      is_superuser=current_user.is_superuser)
 
 
-# @user.post('/user/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
+# @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
 # async def user_login(user_info: Auth, db: AsyncSession = Depends(get_db)):
 #     current_user = await user_crud.get_user_by_username(db, user_info.username)
 #     if not current_user:
@@ -99,7 +99,7 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #                      is_superuser=current_user.is_superuser)
 
 
-@user.post('/user/email_login_code', summary='获取邮箱登录验证码')
+@user.post('/email_login_code', summary='获取邮箱登录验证码')
 async def get_email_login_code(request: Request, email: ELCode, tasks: BackgroundTasks,
                                db: AsyncSession = Depends(get_db)):
     if not await user_crud.check_email(db, email.email):
@@ -121,7 +121,7 @@ async def get_email_login_code(request: Request, email: ELCode, tasks: Backgroun
     return Response200(msg='验证码发送成功')
 
 
-@user.post('/user/login2', summary='邮箱登录', description='邮箱登录，使用此方式必须开启redis，不能配合swagger-ui认证使用', response_model=Token)
+@user.post('/login2', summary='邮箱登录', description='邮箱登录，使用此方式必须开启redis，不能配合swagger-ui认证使用', response_model=Token)
 async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(get_db)):
     if not settings.REDIS_OPEN:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='登陆失败, 服务器未启用此服务')
@@ -154,14 +154,14 @@ async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(
                  is_superuser=current_user.is_superuser)
 
 
-@user.post('/user/logout', summary='用户退出')
+@user.post('/logout', summary='用户退出')
 async def logout(current_user=Depends(get_current_user)):
     if current_user:
         return Response200(msg='退出登录成功')
     return Response500(msg='退出登陆失败')
 
 
-@user.post('/user/register', summary='用户注册')
+@user.post('/register', summary='用户注册')
 async def user_register(create: CreateUser, db: AsyncSession = Depends(get_db)):
     username = await user_crud.get_user_by_username(db, create.username)
     if username:
@@ -194,7 +194,7 @@ async def user_register(create: CreateUser, db: AsyncSession = Depends(get_db)):
     return Response500(msg='用户注册失败')
 
 
-@user.post('/user/password_reset_code', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
+@user.post('/password_reset_code', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
 async def password_reset_code(username_or_email: str, response: Response, tasks: BackgroundTasks,
                               db: AsyncSession = Depends(get_db)):
     code = tCaptcha()
@@ -241,7 +241,7 @@ async def password_reset_code(username_or_email: str, response: Response, tasks:
         return Response200(msg='验证码发送成功')
 
 
-@user.post('/user/password_reset_req', summary='密码重置请求')
+@user.post('/password_reset_req', summary='密码重置请求')
 async def password_reset(reset_pwd: ResetPassword, request: Request, response: Response,
                          db: AsyncSession = Depends(get_db)):
     pwd1 = reset_pwd.password1
@@ -259,12 +259,12 @@ async def password_reset(reset_pwd: ResetPassword, request: Request, response: R
     return Response200(msg='密码重置成功')
 
 
-@user.get('/user/password_reset_done', summary='重置密码完成')
+@user.get('/password_reset_done', summary='重置密码完成')
 def password_reset_done():
     return HTTPException(status_code=200, detail='重置密码完成')
 
 
-@user.get('/user/userinfo', summary='查看用户信息')
+@user.get('/userinfo', summary='查看用户信息')
 async def userinfo(db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
     if current_user:
         if await user_crud.get_user_by_id(db, current_user.id):
@@ -272,7 +272,7 @@ async def userinfo(db: AsyncSession = Depends(get_db), current_user=Depends(get_
         return Response404(msg='用户不存在')
 
 
-@user.put('/user/update_userinfo', summary='更新用户信息')
+@user.put('/update_userinfo', summary='更新用户信息')
 async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = File(None),
                           current_user=Depends(get_current_user),
                           db: AsyncSession = Depends(get_db)):
@@ -334,7 +334,7 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
     return Response500(msg='用户信息更新失败')
 
 
-@user.delete('/user/delete_avatar', summary='删除头像文件')
+@user.delete('/delete_avatar', summary='删除头像文件')
 async def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: AsyncSession = Depends(get_db)):
     if current_user:
         current_filename = await user_crud.get_avatar_by_username(db, current_user.username)
@@ -350,13 +350,13 @@ async def delete_avatar(current_user=Depends(jwt_security.get_current_user), db:
     return Response500(msg='删除用户头像失败')
 
 
-@user.get('/user/user_list', summary='获取用户列表', response_model=Page[GetUserInfo],
+@user.get('/user_list', summary='获取用户列表', response_model=Page[GetUserInfo],
           dependencies=[Depends(jwt_security.get_current_is_superuser)])
 async def get_user_list(db: AsyncSession = Depends(get_db)):
     return await paginate(db, user_crud.get_users())
 
 
-@user.post('/user/user_super_set/{pk}', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+@user.post('/user_super_set/{pk}', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 async def super_set(pk: int, db: AsyncSession = Depends(get_db)):
     if await user_crud.get_user_by_id(db, pk):
         if await user_crud.super_set(db, pk):
@@ -365,7 +365,7 @@ async def super_set(pk: int, db: AsyncSession = Depends(get_db)):
     return Response404(msg=f'用户 {pk} 不存在')
 
 
-@user.post('/user/user_action_set/{pk}', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+@user.post('/user_action_set/{pk}', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 async def active_set(pk: int, db: AsyncSession = Depends(get_db)):
     if await user_crud.get_user_by_id(db, pk):
         if await user_crud.active_set(db, pk):
@@ -374,7 +374,7 @@ async def active_set(pk: int, db: AsyncSession = Depends(get_db)):
     return Response404(msg=f'用户 {pk} 不存在')
 
 
-@user.delete('/user/user_delete', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
+@user.delete('/user_delete', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
 async def user_delete(current_user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         current_filename = await user_crud.get_avatar_by_username(db, current_user.username)

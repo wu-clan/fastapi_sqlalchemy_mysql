@@ -13,12 +13,12 @@ from backend.app.schemas.sm_department import DepmCreate, DepmUpdate, DepmAll
 depm = APIRouter()
 
 
-@depm.get('/depm/all', summary='获取所有部门', response_model=Page[DepmAll])
+@depm.get('/all', summary='获取所有部门', response_model=Page[DepmAll])
 async def get_depm(db: AsyncSession = Depends(get_db)):
     return await paginate(db, depm_crud.get_all_depm())
 
 
-@depm.post('/depm/add', summary='创建部门')
+@depm.post('/add', summary='创建部门')
 async def create_depm(obj: DepmCreate, db: AsyncSession = Depends(get_db)):
     check = await depm_crud.get_one_depm_by_name(db, obj.name)
     if check:
@@ -28,7 +28,7 @@ async def create_depm(obj: DepmCreate, db: AsyncSession = Depends(get_db)):
         return Response200(data=data)
 
 
-@depm.put('/depm/put/{id}', summary='修改部门')
+@depm.put('/put/{id}', summary='修改部门')
 async def create_depm(obj: DepmUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await depm_crud.get_one_depm_by_id(db, id)
     if not check:
@@ -41,7 +41,7 @@ async def create_depm(obj: DepmUpdate, id: int = Query(...), db: AsyncSession = 
     return Response200(data=data)
 
 
-@depm.delete('/depm/delete/{id}', summary='删除部门')
+@depm.delete('/delete/{id}', summary='删除部门')
 async def get_depm(id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await depm_crud.get_one_depm_by_id(db, id)
     if not check:
