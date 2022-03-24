@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends, Query
 from fastapi_pagination.ext.async_sqlalchemy import paginate
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.api.jwt_security import get_current_user
 from backend.app.common.pagination import Page
+from backend.app.common.sys_casbin import rbac
 from backend.app.crud.api_crud import api_crud
 from backend.app.crud.role_crud import role_crud
 from backend.app.datebase.db_mysql import get_db
@@ -14,12 +16,12 @@ from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleAll
 role = APIRouter()
 
 
-@role.get('/all', summary='获取所有角色', response_model=Page[RoleAll])
+@role.get('/all', summary='获取所有角色', response_model=Page[RoleAll], dependencies=Depends(get_current_user))
 async def get_all_role(db: AsyncSession = Depends(get_db)):
     return await paginate(db, role_crud.get_all_role())
 
 
-@role.post('/add', summary='创建角色')
+@role.post('/add', summary='创建角色', dependencies=[Depends(rbac.verify_rbac)])
 async def create_depm(obj: RoleCreate, db: AsyncSession = Depends(get_db)):
     check = await role_crud.get_one_role_by_name(db, obj.name)
     if check:
@@ -32,11 +34,11 @@ async def create_depm(obj: RoleCreate, db: AsyncSession = Depends(get_db)):
             if not await api_crud.get_one_api_by_id(db, _):
                 return Response404(data=_)
     else:
-        data = await role_crud.create_depm(db, obj)
+        data = await role_crud.create_role(db, obj)
         return Response200(data=data)
 
 
-@role.put('/put/{id}', summary='修改角色')
+@role.put('/put/{id}', summary='修改角色', dependencies=[Depends(rbac.verify_rbac)])
 async def create_depm(obj: RoleUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await role_crud.get_one_role_by_id(db, id)
     if not check:
@@ -56,7 +58,7 @@ async def create_depm(obj: RoleUpdate, id: int = Query(...), db: AsyncSession = 
     return Response200(data=data)
 
 
-@role.delete('/delete/{id}', summary='删除角色')
+@role.delete('/delete/{id}', summary='删除角色', dependencies=[Depends(rbac.verify_rbac)])
 async def get_depm(id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await role_crud.get_one_role_by_id(db, id)
     if not check:
