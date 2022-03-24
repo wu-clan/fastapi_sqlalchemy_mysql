@@ -19,6 +19,8 @@ from backend.app.common.pagination import Page
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
+from backend.app.crud.depm_crud import depm_crud
+from backend.app.crud.role_crud import role_crud
 from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.model.user import User
@@ -46,7 +48,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     # 更新登陆时间
     user_crud.update_user_login_time(db, form_data.username)
     # 创建token
-    access_token = create_access_token(current_user.id)
+    access_token = create_access_token([current_user.id, current_user.role_id])
     # token存放redis
     if settings.REDIS_OPEN:
         uid = current_user.user_id
@@ -77,7 +79,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #     # 更新登陆时间
 #     user_crud.update_user_login_time(db, user_info.username)
 #     # 创建token
-#     access_token = create_access_token(current_user.id)
+#     access_token = create_access_token([current_user.id, current_user.role_id])
 #     # token存放redis
 #     if settings.REDIS_OPEN:
 #         uid = current_user.user_id
@@ -118,7 +120,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #     # 更新登陆时间
 #     user_crud.update_user_login_time(db, user_info.username)
 #     # 创建token
-#     access_token = create_access_token(current_user.id)
+#     access_token = create_access_token([current_user.id, current_user.role_id])
 #     # token存放redis
 #     if settings.REDIS_OPEN:
 #         uid = current_user.user_id
@@ -158,6 +160,16 @@ def user_register(create: CreateUser, db: Session = Depends(get_db)):
         validate_email(create.email).email
     except EmailNotValidError:
         raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
+    depm = depm_crud.get_one_depm_by_id(db, create.department_id)
+    if not depm:
+        raise HTTPException(status_code=404, detail='所选部门不存在')
+    if len(create.role_id) == 1:
+        if not role_crud.get_one_role_by_id(db, create.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {create.role_id} 不存在')
+    elif len(create.role_id) > 1:
+        for _ in create.role_id.split(','):
+            if not role_crud.get_one_role_by_id(db, _):
+                raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     new_user = user_crud.create_user(db, create)
     if new_user:
         log.success('用户 %s 注册成功' % create.username)
@@ -270,6 +282,16 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
             validate_email(put.email).email
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
+    depm = depm_crud.get_one_depm_by_id(db, put.department_id)
+    if not depm:
+        raise HTTPException(status_code=404, detail='所选部门不存在')
+    if len(put.role_id) == 1:
+        if not role_crud.get_one_role_by_id(db, put.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {put.role_id} 不存在')
+    elif len(put.role_id) > 1:
+        for _ in put.role_id.split(','):
+            if not role_crud.get_one_role_by_id(db, _):
+                raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     if put.mobile_number is not None:
         if not process_string.is_mobile(put.mobile_number):
             raise HTTPException(status_code=403, detail='手机号码格式错误')
@@ -352,7 +374,7 @@ def user_delete(current_user=Depends(get_current_user), db: Session = Depends(ge
             current_filename = user_crud.get_avatar_by_username(db, current_user.username)
             os.remove(ImgPath + current_filename)
         except FileExistsError:
-            log.warning(f'删除图片:{current_filename}失败，未在本地找到相关图片')
+            log.warning(f'删除图片:{current_user.avatar}失败，未在本地找到相关图片')
         finally:
             user_crud.delete_user(db, current_user.id)
             return Response200(msg='用户注销成功')

@@ -13,9 +13,9 @@ class Settings(BaseSettings):
     TITLE: str = 'FastAPI'
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
-    DEMO：fastapi + sqlalchemy(同步) + alembic + mysql + aioredis 项目脚手架
+fastapi_mysql_demo. 🚀
     
-    src: https://gitee.com/wu_cl/fastapi_mysql_demo
+### 点击跳转 -> [sync-Plus](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-Plus)
     """
     DOCS_URL: str = '/v1/docs'
     REDOCS_URL: bool = False

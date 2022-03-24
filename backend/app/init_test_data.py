@@ -4,7 +4,7 @@ from email_validator import EmailNotValidError, validate_email
 from faker import Faker
 
 from backend.app.datebase.db_mysql import db_session
-from backend.app.model import User
+from backend.app.model import User, Department, Role
 from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password
 
@@ -16,6 +16,24 @@ class InitData:
 
     def __init__(self):
         self.fake = Faker('zh_CN')
+
+    @staticmethod
+    def create_department():
+        """ 自动创建部门 """
+        dep_obj = Department(name='test')
+        db.add(dep_obj)
+        db.commit()
+        db.refresh(dep_obj)
+        print(f'部门 test 创建成功')
+
+    @staticmethod
+    def create_role():
+        """ 自动创建部门 """
+        dep_obj = Role(name='test')
+        db.add(dep_obj)
+        db.commit()
+        db.refresh(dep_obj)
+        print(f'角色 test 创建成功')
 
     @staticmethod
     def create_superuser_by_yourself():
@@ -39,6 +57,8 @@ class InitData:
             password=get_hash_password(password),
             email=new_email,
             is_superuser=True,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         db.commit()
@@ -55,6 +75,8 @@ class InitData:
             password=get_hash_password(password),
             email=email,
             is_superuser=False,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         db.commit()
@@ -72,6 +94,8 @@ class InitData:
             email=email,
             is_active=False,
             is_superuser=False,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         db.commit()
@@ -88,11 +112,30 @@ class InitData:
             password=get_hash_password(password),
             email=email,
             is_superuser=True,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         db.commit()
         db.refresh(user_obj)
         log.info(f"管理员用户创建成功，账号：{username}，密码：{password}")
+
+    def create_test_user(self):
+        """ 自动创建普通test用户 """
+        text = 'test'
+        email = self.fake.email()
+        user_obj = User(
+            username=text,
+            password=get_hash_password(text),
+            email=email,
+            is_superuser=False,
+            department_id=1,
+            role_id=1
+        )
+        db.add(user_obj)
+        db.commit()
+        db.refresh(user_obj)
+        log.info(f"普通用户创建成功，账号：{text}，密码：{text}")
 
     def fake_no_active_superuser(self):
         """ 自动创建锁定管理员用户 """
@@ -105,6 +148,8 @@ class InitData:
             email=email,
             is_active=False,
             is_superuser=True,
+            department_id=1,
+            role_id=1
         )
         db.add(user_obj)
         db.commit()
@@ -114,7 +159,10 @@ class InitData:
     def init_data(self):
         """ 自动创建数据 """
         log.info('----------------开始初始化数据----------------')
+        self.create_department()
+        self.create_role()
         self.create_superuser_by_yourself()
+        self.create_test_user()
         self.fake_user()
         self.fake_no_active_user()
         self.fake_superuser()

@@ -49,7 +49,7 @@ def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta
         expires = datetime.utcnow() + expires_delta
     else:
         expires = datetime.utcnow() + timedelta(settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"exp": expires, "sub": str(data)}
+    to_encode = {"exp": expires, "sub": str(data[0]), 'role': str(data[1])}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
     return encoded_jwt
 
@@ -65,7 +65,10 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
         # 解密token
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get('sub')
+        role_id = payload.get('role')
         if not user_id:
+            raise TokenError
+        if not role_id:
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError

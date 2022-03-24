@@ -1,41 +1,40 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy.orm import Session
 
-from backend.app.common.sys_casbin import get_casbin_enforcer
+from backend.app.common.pagination import Page
+from backend.app.common.sys_casbin import rbac
+from backend.app.crud.casbin_crud import rbac_crud
+from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response404, Response403
-from backend.app.schemas.sm_rbac import RBACCreate, RBACDelete
+from backend.app.schemas.sm_casbin import RBACCreate, RBACDelete, RBACAll
 
 casbin = APIRouter()
 
 
-@casbin.get('/rbac_list', summary='获取所有权限规则')
-def get_rbac():
-    e = get_casbin_enforcer()
-    _rbac = e.get_policy()
-    if _rbac:
-        return Response200(data=_rbac)
-    else:
-        return Response404(msg='授权规则为空')
+@casbin.get('/all', summary='获取所有权限规则', response_model=Page[RBACAll])
+async def get_rbac(db: Session = Depends(get_db)):
+    return paginate(rbac_crud.get_all_rbac(db))
 
 
 @casbin.post('/add_policy', summary='添加访问权限')
 def create_policy(p: RBACCreate):
-    e = get_casbin_enforcer()
-    _pl = e.add_policy(p.sub, p.path, p.method)
-    if _pl:
-        return Response200(data=_pl)
+    enforcer = rbac.get_casbin_enforcer()
+    data = enforcer.add_policy(p.role, p.path, p.method)
+    if data:
+        return Response200(data=data)
     else:
-        return Response403(msg='添加失败,访问权限已存在', data=_pl)
+        return Response403(msg='添加失败,访问权限已存在', data=data)
 
 
 @casbin.delete('/del_policy', summary='删除访问权限')
 def delete_policy(p: RBACDelete):
-    e = get_casbin_enforcer()
-    _pl = e.remove_policy(p.sub, p.path, p.method)
-    if _pl:
-        return Response200(data=_pl)
+    enforcer = rbac.get_casbin_enforcer()
+    data = enforcer.remove_policy(p.role, p.path, p.method)
+    if data:
+        return Response200(data=data)
     else:
-        return Response404(msg='删除失败,访问权限不存在', data=_pl)
+        return Response404(msg='删除失败,访问权限不存在', data=data)
