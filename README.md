@@ -16,22 +16,14 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
 ### async -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async-CRUDBase/)
 ```text
-fastapi + sqlalchyme + alembic + aiomysql + aioredis
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
 📢: 在 master 分支基础上扩展，对普通 CRUD 操作进行封装
 ```
 
-### async -> [async+APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
-```text
-fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
-
-📢: 在 master 分支基础上扩展，加入 APScheduler 定时任务，新增了 redis 图片验证码登录
-❌：去除了 redis 邮箱验证码登录方式
-```
-
 ### async -> [async+Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
 ```text
-fastapi + sqlalchyme + alembic + aiomysql + aioredis + pycasbin
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler + pycasbin
 
 📢: 在 async-CRUDBase 分支基础上扩展，加入 pycasbin(RBAC) 授权
 ```
@@ -39,21 +31,21 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis + pycasbin
 ## 同步：
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
 ```text
-fastapi + sqlalchyme + alembic + mysql + redis
+fastapi + sqlalchyme + alembic + pymysql + redis
 
 📢: 含 redis 图片验证码登录
 ```
 
 ### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-CRUDBase/)
 ```text
-fastapi + sqlalchyme + alembic + mysql + redis + APScheduler
+fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler
 
 📢: 在 sync 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务
 ```
 
 ### sync -> [sync-Plus](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-Plus/)
 ```text
-fastapi + sqlalchyme + alembic + mysql + redis + APScheduler + pycasbin
+fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler + pycasbin
 
 📢: 在 sync-CRUDBase 分支基础上扩展，加入 pycasbin(RBAC) 授权
 ```
@@ -83,10 +75,18 @@ next > 配置数据库，执行迁移
 
 3 > 执行迁移: alembic upgrade head
 
-4 > 运行 init_test_data.py 文件，初始化用户数据
+4 > 运行 init_test_data.py 文件，初始化数据
 ```
 
-end > 运行 main.py 文件启动 FastAPI
+next > 启动 redis
+
+next > 运行 main.py 文件启动 FastAPI
+
+end > 打开浏览器,访问 http://127.0.0.1:8000/v1/docs/
+
+example:
+![](doc/img.png)
+
 
 ### 2：docker
 ###### 😓待完善
