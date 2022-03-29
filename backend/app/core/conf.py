@@ -38,13 +38,29 @@ class Settings(BaseSettings):
     DB_DATABASE: str = 'fm'
     DB_CHARSET: str = 'utf8mb4'
 
-    # redis
-    REDIS_OPEN: bool = True  # 如果你扩展API时使用了redis,就必须开启;如果你未使用到redis,则可以选择关闭(False)
+    # redis (must be open)
     REDIS_HOST: str = '127.0.0.1'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
     REDIS_DATABASE: int = 0
     REDIS_TIMEOUT: int = 5
+
+    # APScheduler DB
+    APS_REDIS_HOST: str = '127.0.0.1'
+    APS_REDIS_PORT: int = 6379
+    APS_REDIS_PASSWORD: str = ''
+    APS_REDIS_DATABASE: int = 1
+    APS_REDIS_TIMEOUT: int = 10
+
+    # APScheduler Executor (TP:线程，PP:进程)
+    APS_TP: bool = True
+    APS_TP_EXECUTOR_NUM: int = 10  # 执行数 > 0
+    APS_PP: bool = True
+    APS_PP_EXECUTOR_NUM: int = 10  # 执行数 > 0
+
+    # APScheduler Default
+    APS_COALESCE: bool = False  # 是否合并运行
+    APS_MAX_INSTANCES: int = 3  # 最大实例数
 
     # Token
     ALGORITHM: str = 'HS256'  # 算法
