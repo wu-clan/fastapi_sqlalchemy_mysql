@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
-import re
 from hashlib import sha256
 
 from email_validator import EmailNotValidError, validate_email
@@ -23,7 +22,6 @@ from backend.app.crud.depm_crud import depm_crud
 from backend.app.crud.role_crud import role_crud
 from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
-from backend.app.model.user import User
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
 from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2
@@ -50,21 +48,16 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     # 创建token
     access_token = create_access_token([current_user.id, current_user.role_id])
     # token存放redis
-    if settings.REDIS_OPEN:
-        uid = current_user.user_id
-        rd_token = redis_client.get(uid)
-        if not rd_token:
-            redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-            token = access_token
-        else:
-            token = rd_token
-        log.success('用户 {} 登陆成功', form_data.username)
-        return Token(code=200, msg='success', access_token=token, token_type='Bearer',
-                     is_superuser=current_user.is_superuser)
+    uid = current_user.user_id
+    rd_token = redis_client.get(uid)
+    if not rd_token:
+        redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        token = access_token
     else:
-        log.success('用户 {} 登陆成功', form_data.username)
-        return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
-                     is_superuser=current_user.is_superuser)
+        token = rd_token
+    log.success('用户 {} 登陆成功', form_data.username)
+    return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+                 is_superuser=current_user.is_superuser)
 
 
 # @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
@@ -81,21 +74,16 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #     # 创建token
 #     access_token = create_access_token([current_user.id, current_user.role_id])
 #     # token存放redis
-#     if settings.REDIS_OPEN:
-#         uid = current_user.user_id
-#         rd_token = redis_client.get(uid)
-#         if not rd_token:
-#             redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-#             token = access_token
-#         else:
-#             token = rd_token
-#         log.success('用户 {} 登陆成功', user_info.username)
-#         return Token(code=200, msg='success', access_token=token, token_type='Bearer',
-#                      is_superuser=current_user.is_superuser)
+#     uid = current_user.user_id
+#     rd_token = redis_client.get(uid)
+#     if not rd_token:
+#         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         token = access_token
 #     else:
-#         log.success('用户 {} 登陆成功', user_info.username)
-#         return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
-#                      is_superuser=current_user.is_superuser)
+#         token = rd_token
+#     log.success('用户 {} 登陆成功', user_info.username)
+#     return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+#                  is_superuser=current_user.is_superuser)
 
 
 # @user.post('/login', summary='用户登录', response_model=Token,
@@ -122,23 +110,18 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #     # 创建token
 #     access_token = create_access_token([current_user.id, current_user.role_id])
 #     # token存放redis
-#     if settings.REDIS_OPEN:
-#         uid = current_user.user_id
-#         rd_token = redis_client.get(uid)
-#         if not rd_token:
-#             redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-#             token = access_token
-#         else:
-#             token = rd_token
-#         log.success('用户 {} 登陆成功', user_info.username)
-#         # 登陆成功后删除附加的验证码
-#         del rd_captcha
-#         return Token(code=200, msg='success', access_token=token, token_type='Bearer',
-#                      is_superuser=current_user.is_superuser)
+#     uid = current_user.user_id
+#     rd_token = redis_client.get(uid)
+#     if not rd_token:
+#         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         token = access_token
 #     else:
-#         log.success('用户 {} 登陆成功', user_info.username)
-#         return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
-#                      is_superuser=current_user.is_superuser)
+#         token = rd_token
+#     log.success('用户 {} 登陆成功', user_info.username)
+#     # 登陆成功后删除附加的验证码
+#     del rd_captcha
+#     return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+#                  is_superuser=current_user.is_superuser)
 
 
 @user.post('/logout', summary='用户退出')
