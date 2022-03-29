@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
-import re
 from hashlib import sha256
 
 import aiofiles
@@ -51,21 +50,16 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
     # 创建token
     access_token = create_access_token([current_user.id, current_user.role_id])
     # token存放redis
-    if settings.REDIS_OPEN:
-        uid = current_user.user_id
-        rd_token = await redis_client.get(uid)
-        if not rd_token:
-            await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-            token = access_token
-        else:
-            token = rd_token
-        log.success('用户 {} 登陆成功', form_data.username)
-        return Token(code=200, msg='success', access_token=token, token_type='Bearer',
-                     is_superuser=current_user.is_superuser)
+    uid = current_user.user_id
+    rd_token = await redis_client.get(uid)
+    if not rd_token:
+        await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        token = access_token
     else:
-        log.success('用户 {} 登陆成功', form_data.username)
-        return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
-                     is_superuser=current_user.is_superuser)
+        token = rd_token
+    log.success('用户 {} 登陆成功', form_data.username)
+    return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+                 is_superuser=current_user.is_superuser)
 
 
 # @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
@@ -82,21 +76,16 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     # 创建token
 #     access_token = create_access_token([current_user.id, current_user.role_id])
 #     # token存放redis
-#     if settings.REDIS_OPEN:
-#         uid = current_user.user_id
-#         rd_token = await redis_client.get(uid)
-#         if not rd_token:
-#             await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-#             token = access_token
-#         else:
-#             token = rd_token
-#         log.success('用户 {} 登陆成功', user_info.username)
-#         return Token(code=200, msg='success', access_token=token, token_type='Bearer',
-#                      is_superuser=current_user.is_superuser)
+#     uid = current_user.user_id
+#     rd_token = await redis_client.get(uid)
+#     if not rd_token:
+#         await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         token = access_token
 #     else:
-#         log.success('用户 {} 登陆成功', user_info.username)
-#         return Token(code=200, msg='success', access_token=access_token, token_type='Bearer',
-#                      is_superuser=current_user.is_superuser)
+#         token = rd_token
+#     log.success('用户 {} 登陆成功', user_info.username)
+#     return Token(code=200, msg='success', access_token=token, token_type='Bearer',
+#                  is_superuser=current_user.is_superuser)
 
 
 @user.post('/email_login_code', summary='获取邮箱登录验证码')
@@ -121,10 +110,8 @@ async def get_email_login_code(request: Request, email: ELCode, tasks: Backgroun
     return Response200(msg='验证码发送成功')
 
 
-@user.post('/login2', summary='邮箱登录', description='邮箱登录，使用此方式必须开启redis，不能配合swagger-ui认证使用', response_model=Token)
+@user.post('/login2', summary='邮箱登录', description='邮箱登录', response_model=Token)
 async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(get_db)):
-    if not settings.REDIS_OPEN:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='登陆失败, 服务器未启用此服务')
     username = await user_crud.get_username_by_email(db, email.email)
     current_user = await user_crud.get_user_by_username(db, username)
     if not current_user.is_active:
