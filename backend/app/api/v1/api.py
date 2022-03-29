@@ -16,13 +16,13 @@ from backend.app.schemas.sm_api import APIAll, APICreate, APIUpdate
 api = APIRouter()
 
 
-@api.get('/all', summary='获取所有API', response_model=Page[APIAll], dependencies=Depends(get_current_user))
+@api.get('/all', summary='获取所有API', response_model=Page[APIAll], dependencies=[Depends(get_current_user)])
 async def get_api(db: AsyncSession = Depends(get_db)):
     return await paginate(db, api_crud.get_all_api())
 
 
 @api.post('/add', summary='创建API', dependencies=[Depends(rbac.verify_rbac)])
-async def create_depm(obj: APICreate, db: AsyncSession = Depends(get_db)):
+async def create_api(obj: APICreate, db: AsyncSession = Depends(get_db)):
     check = await api_crud.get_one_api_by_name(db, obj.path)
     if check:
         return Response403(msg='API已存在')
@@ -32,7 +32,7 @@ async def create_depm(obj: APICreate, db: AsyncSession = Depends(get_db)):
 
 
 @api.put('/put/{id}', summary='修改API', dependencies=[Depends(rbac.verify_rbac)])
-async def create_depm(obj: APIUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
+async def update_api(obj: APIUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await api_crud.get_one_api_by_id(db, id)
     if not check:
         return Response404(data=obj)
@@ -45,7 +45,7 @@ async def create_depm(obj: APIUpdate, id: int = Query(...), db: AsyncSession = D
 
 
 @api.delete('/delete/{id}', summary='删除API', dependencies=[Depends(rbac.verify_rbac)])
-async def get_depm(id: int = Query(...), db: AsyncSession = Depends(get_db)):
+async def delete_api(id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await api_crud.get_one_api_by_id(db, id)
     if not check:
         return Response404()

@@ -15,7 +15,7 @@ from backend.app.schemas.sm_department import DepmCreate, DepmUpdate, DepmAll
 depm = APIRouter()
 
 
-@depm.get('/all', summary='获取所有部门', response_model=Page[DepmAll], dependencies=Depends(get_current_user))
+@depm.get('/all', summary='获取所有部门', response_model=Page[DepmAll], dependencies=[Depends(get_current_user)])
 async def get_depm(db: AsyncSession = Depends(get_db)):
     return await paginate(db, depm_crud.get_all_depm())
 
@@ -31,7 +31,7 @@ async def create_depm(obj: DepmCreate, db: AsyncSession = Depends(get_db)):
 
 
 @depm.put('/put/{id}', summary='修改部门', dependencies=[Depends(rbac.verify_rbac)])
-async def create_depm(obj: DepmUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
+async def update_depm(obj: DepmUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await depm_crud.get_one_depm_by_id(db, id)
     if not check:
         return Response404(data=obj)
@@ -44,7 +44,7 @@ async def create_depm(obj: DepmUpdate, id: int = Query(...), db: AsyncSession = 
 
 
 @depm.delete('/delete/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
-async def get_depm(id: int = Query(...), db: AsyncSession = Depends(get_db)):
+async def delete_depm(id: int = Query(...), db: AsyncSession = Depends(get_db)):
     check = await depm_crud.get_one_depm_by_id(db, id)
     if not check:
         return Response404()

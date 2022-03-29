@@ -16,7 +16,7 @@ from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleAll
 role = APIRouter()
 
 
-@role.get('/all', summary='获取所有角色', response_model=Page[RoleAll], dependencies=Depends(get_current_user))
+@role.get('/all', summary='获取所有角色', response_model=Page[RoleAll], dependencies=[Depends(get_current_user)])
 async def get_all_role(db: AsyncSession = Depends(get_db)):
     return await paginate(db, role_crud.get_all_role())
 

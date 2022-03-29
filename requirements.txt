@@ -17,3 +17,5 @@ fastapi-pagination==0.9.1
 aiofiles==0.8.0
 casbin==1.15.4
 casbin_sqlalchemy_adapter==0.4.2
+APScheduler==3.8.1
+tzlocal==2.1
