@@ -9,7 +9,7 @@ from backend.app.datebase.base_class import Base, use_uuid
 
 class User(Base):
     """ 用户 """
-    __tablename__ = 'user'
+    __tablename__ = 'sys_user'
     user_id = Column(String(128), default=use_uuid, unique=True, comment='用户id')
     username = Column(String(128), nullable=False, unique=True, index=True, comment='用户名')
     department_id = Column(Integer, nullable=False, comment='部门id')
