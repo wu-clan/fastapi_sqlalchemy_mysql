@@ -9,7 +9,7 @@ class CasbinRule(Base):
     """
     复刻 casbin_sqlalchemy_adapter 中的 casbinRule model类, 使用自定义Base, 避免产生 alembic 迁移问题
     """
-    __tablename__ = "casbin_rule"
+    __tablename__ = "sys_casbin_rule"
     ptype = Column(String(255))
     v0 = Column(String(255))
     v1 = Column(String(255))
