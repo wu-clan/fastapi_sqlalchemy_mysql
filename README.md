@@ -1,44 +1,70 @@
 # fastapi 项目脚手架
 
-开箱即用，所有分支持续同步更新
+###### 声明：此仓库仅做为 FastAPI 入门级参考，对于不同需求，使用者请自由扩展
 
-## 异步
+📢 开箱即用，所有分支持续同步更新
+
+😓 由于分支过多，不易维护， 所以你也可以在同类型分支之间 cv 功能从而自定义demo
+
+## 异步：
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
+```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis
 
-PS: 含 redis 邮箱验证码登录
+📢: 含 redis 邮箱验证码登录
+```
 
-### async -> [APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
+### async -> [async-APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
+```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
-PS: 含 redis 图片验证码登录
+📢: 在 master 分支基础上扩展, 加入 APScheduler 定时任务
+✨: 删除了邮箱验证码登录, 新增了图片验证码登录
+```
 
-### async -> [Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
-fastapi + sqlalchyme + alembic + aiomysql + aioredis + PyCasbin
+### async -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async-CRUDBase/)
+```text
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
-###### rbac仅为简单嵌入，实际使用待后续完善
+📢: 在 master 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务
+```
 
-PS: 含 redis 邮箱验证码登录
+### async -> [async+Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
+```text
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler + pycasbin
 
-## 同步
+📢: 在 async-CRUDBase 分支基础上扩展，加入 pycasbin(RBAC) 授权
+```
+
+## 同步：
 ### sync -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
-fastapi + sqlalchyme + alembic + mysql + redis + PyCasbin(同Casbin-RBAC) + APScheduler
+```text
+fastapi + sqlalchyme + alembic + pymysql + redis
 
-PS: 含 redis 图片验证码登录
+📢: 含 redis 图片验证码登录
+```
 
-### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
-fastapi + sqlalchyme + alembic + mysql + redis ......
+### sync -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-CRUDBase/)
+```text
+fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler
 
-PS: 将普通 CRUD 操作进行封装，间接减少重复代码量，其余功能各方面与 
-[sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/) 分支完全一致
+📢: 在 sync 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务
+```
+
+### sync -> [sync-Plus](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync-Plus/)
+```text
+fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler + pycasbin
+
+📢: 在 sync-CRUDBase 分支基础上扩展，加入 pycasbin(RBAC) 授权
+```
 
 ## 下载：
-```shell
-windows:
+```text
+全部分支:
 git clone https://gitee.com/wu_cl/fastapi_mysql_demo.git
 
-linux:
-wget https://gitee.com/wu_cl/fastapi_mysql_demo/repository/archive/master.zip
+指定分支:
+git clone -b 分支名 https://gitee.com/wu_cl/fastapi_mysql_demo.git
 ```
 
 ## 安装使用:
@@ -47,6 +73,7 @@ first > 项目根目录下安装所需依赖包
 ```shell
 pip install -r requirements.txt
 ```
+
 next > 配置数据库，执行迁移
 ```text
 1 > 修改 core/conf.py 文件中数据库配置: # DB
@@ -56,14 +83,20 @@ next > 配置数据库，执行迁移
 
 3 > 执行迁移: alembic upgrade head
 
-4 > 运行 init_test_data.py 文件，初始化用户数据
+4 > 运行 init_test_data.py 文件，初始化数据
 ```
-end > 运行 main.py 文件启动 FastAPI
+
+next > 启动 redis
+
+next > 运行 main.py 文件启动 FastAPI
+
+end > 打开浏览器,访问 http://127.0.0.1:8000/v1/docs/
+
 ### 2：docker
-###### 待完善
+###### 😓待完善
 
 ## 结构树
-结构树基本大致相同，详情查看源代码
+结构树基本大致相同，详情请查看源代码
 
 ```text
 ├── backend
