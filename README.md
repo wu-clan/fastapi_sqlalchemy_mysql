@@ -14,11 +14,19 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis
 📢: 含 redis 邮箱验证码登录
 ```
 
+### async -> [async-APScheduler](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BAPScheduler/)
+```text
+fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
+
+📢: 在 master 分支基础上扩展, 加入 APScheduler 定时任务
+✨: 删除了邮箱验证码登录, 新增了图片验证码登录
+```
+
 ### async -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async-CRUDBase/)
 ```text
 fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 
-📢: 在 master 分支基础上扩展，对普通 CRUD 操作进行封装
+📢: 在 master 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务
 ```
 
 ### async -> [async+Casbin-RBAC](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async%2BCasbin-RBAC/)
@@ -51,12 +59,12 @@ fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler + pycasbin
 ```
 
 ## 下载：
-```shell
-windows:
+```text
+全部分支:
 git clone https://gitee.com/wu_cl/fastapi_mysql_demo.git
 
-linux:
-wget https://gitee.com/wu_cl/fastapi_mysql_demo/repository/archive/master.zip
+指定分支:
+git clone -b 分支名 https://gitee.com/wu_cl/fastapi_mysql_demo.git
 ```
 
 ## 安装使用:
