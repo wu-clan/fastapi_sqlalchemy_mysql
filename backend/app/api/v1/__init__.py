@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 from fastapi import APIRouter
 
-from .test_jobs import aps
-from .test_redis import rd
-from .user import user
+from .v1_test_jobs import aps
+from .v1_test_redis import rd
+from .v1_user import user
 
 v1 = APIRouter(prefix='/v1')
 
