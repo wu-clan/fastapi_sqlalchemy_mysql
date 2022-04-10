@@ -8,7 +8,7 @@ from email_validator import EmailNotValidError, validate_email
 from fast_captcha import tCaptcha
 from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, status, UploadFile, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination.ext.sqlalchemy_future import paginate
 from sqlalchemy.orm import Session
 
 from backend.app.api import jwt_security
@@ -24,7 +24,8 @@ from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
-from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2
+from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2, CreateUserRole, \
+    UpdateUserRole
 from backend.app.utils import process_string
 from backend.app.utils.send_email import send_email_verification_code
 
@@ -45,10 +46,12 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
     # 更新登陆时间
     user_crud.update_user_login_time(db, form_data.username)
+    # 查询用户角色
+    user_roles = user_crud.get_user_roles(db, current_user.id)
     # 创建token
-    access_token = create_access_token([current_user.id, current_user.role_id])
+    access_token = create_access_token([current_user.id, user_roles])
     # token存放redis
-    uid = current_user.user_id
+    uid = current_user.user_uid
     rd_token = redis_client.get(uid)
     if not rd_token:
         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -71,10 +74,12 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
 #     # 更新登陆时间
 #     user_crud.update_user_login_time(db, user_info.username)
+#     # 查询用户角色
+#     user_roles = user_crud.get_user_roles(db, current_user.id)
 #     # 创建token
-#     access_token = create_access_token([current_user.id, current_user.role_id])
+#     access_token = create_access_token([current_user.id, user_roles])
 #     # token存放redis
-#     uid = current_user.user_id
+#     uid = current_user.user_uid
 #     rd_token = redis_client.get(uid)
 #     if not rd_token:
 #         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -107,10 +112,12 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #         raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail='验证码输入错误', headers=headers)
 #     # 更新登陆时间
 #     user_crud.update_user_login_time(db, user_info.username)
+#     # 查询用户角色
+#     user_roles = user_crud.get_user_roles(db, current_user.id)
 #     # 创建token
-#     access_token = create_access_token([current_user.id, current_user.role_id])
+#     access_token = create_access_token([current_user.id, user_roles])
 #     # token存放redis
-#     uid = current_user.user_id
+#     uid = current_user.user_uid
 #     rd_token = redis_client.get(uid)
 #     if not rd_token:
 #         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -132,7 +139,7 @@ def logout(current_user=Depends(get_current_user)):
 
 
 @user.post('/register', summary='用户注册')
-def user_register(create: CreateUser, db: Session = Depends(get_db)):
+def user_register(create: CreateUser, role: CreateUserRole, db: Session = Depends(get_db)):
     username = user_crud.get_user_by_username(db, create.username)
     if username:
         raise HTTPException(status_code=403, detail='该用户名已被注册~ 换一个吧')
@@ -146,14 +153,14 @@ def user_register(create: CreateUser, db: Session = Depends(get_db)):
     depm = depm_crud.get_one_depm_by_id(db, create.department_id)
     if not depm:
         raise HTTPException(status_code=404, detail='所选部门不存在')
-    if len(create.role_id) == 1:
-        if not role_crud.get_one_role_by_id(db, create.role_id):
-            raise HTTPException(status_code=404, detail=f'所选角色 {create.role_id} 不存在')
-    elif len(create.role_id) > 1:
-        for _ in create.role_id.split(','):
+    if len(role.role_id) == 1:
+        if not role_crud.get_one_role_by_id(db, role.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {role.role_id} 不存在')
+    elif len(role.role_id) > 1:
+        for _ in role.role_id.split(','):
             if not role_crud.get_one_role_by_id(db, _):
                 raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
-    new_user = user_crud.create_user(db, create)
+    new_user = user_crud.create_user(db, create, role)
     if new_user:
         log.success('用户 %s 注册成功' % create.username)
         return Response200(msg='用户注册成功', data={
@@ -241,13 +248,15 @@ def password_reset_done():
 def userinfo(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     if current_user:
         if user_crud.get_user_by_id(db, current_user.id):
-            return Response200(msg='查看用户信息成功', data=current_user)
+            info = user_crud.get_userinfo(db, current_user.id)
+            if info:
+                return Response200(msg='查看用户信息成功', data=info)
         return Response404(msg='用户不存在')
 
 
 @user.put('/update_userinfo', summary='更新用户信息')
-def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = File(None),
-                    current_user=Depends(get_current_user),
+def update_userinfo(put: UpdateUser = Depends(UpdateUser), role: UpdateUserRole = Depends(UpdateUserRole),
+                    file: UploadFile = File(None), current_user=Depends(get_current_user),
                     db: Session = Depends(get_db)):
     if current_user.username == put.username:
         pass
@@ -268,11 +277,11 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
     depm = depm_crud.get_one_depm_by_id(db, put.department_id)
     if not depm:
         raise HTTPException(status_code=404, detail='所选部门不存在')
-    if len(put.role_id) == 1:
-        if not role_crud.get_one_role_by_id(db, put.role_id):
-            raise HTTPException(status_code=404, detail=f'所选角色 {put.role_id} 不存在')
-    elif len(put.role_id) > 1:
-        for _ in put.role_id.split(','):
+    if len(role.role_id) == 1:
+        if not role_crud.get_one_role_by_id(db, role.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {role.role_id} 不存在')
+    elif len(role.role_id) > 1:
+        for _ in role.role_id.split(','):
             if not role_crud.get_one_role_by_id(db, _):
                 raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     if put.mobile_number is not None:
@@ -302,8 +311,8 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
     else:
         _file = current_filename
     if current_user:
-        user_crud.update_userinfo(db, current_user, put, _file)
-        return Response200(msg='用户信息更新成功', data={'info': put, 'avatar': _file})
+        user_crud.update_userinfo(db, current_user, put, role, _file)
+        return Response200(msg='用户信息更新成功', data={'info': put, 'role': role, 'avatar': _file})
     return Response500(msg='用户信息更新失败')
 
 
@@ -323,13 +332,11 @@ def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Sessi
     return Response500(msg='删除用户头像失败')
 
 
-@user.get('/user_list', summary='获取用户列表', response_model=Page[GetUserInfo])
-def get_user_list(current_user=Depends(jwt_security.get_current_is_superuser),
-                  db: Session = Depends(get_db)):
-    if current_user:
-        user_list = user_crud.get_users(db)
-        if user_list:
-            return paginate(user_list)
+@user.get('/user_list', summary='获取用户列表', dependencies=[Depends(jwt_security.get_current_user)],
+          response_model=Page[GetUserInfo])
+def get_user_list(db: Session = Depends(get_db)):
+    user_list = user_crud.get_users()
+    return paginate(db, user_list)
 
 
 @user.post('/user_super_set/{pk}', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])

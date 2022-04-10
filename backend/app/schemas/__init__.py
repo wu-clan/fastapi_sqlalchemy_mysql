@@ -66,3 +66,11 @@ class TokenError(HTTPException):
         super(TokenError, self).__init__(
             status.HTTP_401_UNAUTHORIZED, detail='Token Verification Failed', headers={"WWW-Authenticate": "Bearer"}
         )
+
+
+class RolePermissionError(HTTPException):
+    def __init__(self):
+        super(RolePermissionError, self).__init__(
+            status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Role Permission Verification Failed',
+            headers={"WWW-Authenticate": "Bearer"}
+        )

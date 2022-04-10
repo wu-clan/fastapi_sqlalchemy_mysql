@@ -64,15 +64,15 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
     try:
         # 解密token
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id = payload.get('sub')
-        role_id = payload.get('role')
-        if not user_id:
+        user_uid = payload.get('sub')
+        user_role = payload.get('role')
+        if not user_uid:
             raise TokenError
-        if not role_id:
+        if not user_role:
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError
-    user = user_crud.get_user_by_id(db, user_id)
+    user = user_crud.get_user_by_id(db, user_uid)
     return user
 
 
