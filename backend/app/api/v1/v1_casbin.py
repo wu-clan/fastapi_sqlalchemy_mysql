@@ -16,8 +16,16 @@ casbin = APIRouter()
 
 
 @casbin.get('/all', summary='获取所有权限规则', response_model=Page[RBACAll])
-async def get_rbac(db: Session = Depends(get_db)):
+def get_rbac(db: Session = Depends(get_db)):
     return paginate(rbac_crud.get_all_rbac(db))
+
+
+@casbin.get('/get_policy', summary='获取p策略')
+def get_policy():
+    enforcer = rbac.get_casbin_enforcer()
+    data = enforcer.get_policy()
+    if data:
+        return Response200(data=data)
 
 
 @casbin.post('/add_policy', summary='添加基于角色(主)/用户(次)的访问权限',
@@ -32,7 +40,7 @@ def create_policy(p: PolicyCreate):
 
 
 @casbin.put('/update_policy', summary='更新基于角色(主)/用户(次)的访问权限')
-def update_group(p_old: PolicyUpdate, p_new: PolicyUpdate):
+def update_policy(p_old: PolicyUpdate, p_new: PolicyUpdate):
     enforcer = rbac.get_casbin_enforcer()
     data = enforcer.update_policy([p_old.sub, p_old.path, p_old.method], [p_new.sub, p_new.path, p_new.method])
     if data:
@@ -49,6 +57,14 @@ def delete_policy(p: PolicyDelete):
         return Response200(data=data)
     else:
         return Response404(msg='删除失败,访问权限不存在', data=data)
+
+
+@casbin.get('/get_group', summary='获取g策略')
+def get_group():
+    enforcer = rbac.get_casbin_enforcer()
+    data = enforcer.get_grouping_policy()
+    if data:
+        return Response200(data=data)
 
 
 @casbin.post('/add_group', summary='添加基于用户组的访问权限',
