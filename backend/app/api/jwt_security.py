@@ -65,10 +65,10 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
         # 解密token
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get('sub')
-        role_id = payload.get('role')
+        user_role = payload.get('role')
         if not user_id:
             raise TokenError
-        if not role_id:
+        if not user_role:
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError

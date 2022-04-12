@@ -5,10 +5,10 @@ from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
 from backend.app.model import CasbinRule
-from backend.app.schemas.sm_casbin import RBACCreate, RBACUpdate
+from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate
 
 
-class RbacCRUD(CRUDBase[CasbinRule, RBACCreate, RBACUpdate]):
+class RbacCRUD(CRUDBase[CasbinRule, PolicyCreate, PolicyUpdate]):
 
     def get_all_rbac(self) -> Select:
         return select(CasbinRule)

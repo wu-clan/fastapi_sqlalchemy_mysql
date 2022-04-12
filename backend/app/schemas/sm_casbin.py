@@ -6,20 +6,25 @@ from pydantic import BaseModel, Field
 
 
 class RBACBase(BaseModel):
-    role: str = Field(..., description='角色')
+    sub: str = Field(..., description='用户uid或角色')
 
 
-class RBACCreate(RBACBase):
+class PolicyCreate(RBACBase):
     path: str = Field(..., description='api路径')
-    method: str = Field(..., description='请求方法')
+    method: str = Field(..., description='请求方法, 必须大写')
 
 
-class RBACUpdate(RBACCreate):
+class PolicyUpdate(PolicyCreate):
     pass
 
 
-class RBACDelete(RBACCreate):
+class PolicyDelete(PolicyCreate):
     pass
+
+
+class UserRole(BaseModel):
+    uid: str = Field(..., description='用户uid')
+    role: str = Field(..., description='角色')
 
 
 class RBACAll(BaseModel):
@@ -27,7 +32,7 @@ class RBACAll(BaseModel):
     ptype: str
     v0: str
     v1: str
-    v2: str
+    v2: Optional[str] = None
     v3: Optional[str] = None
     v4: Optional[str] = None
     v5: Optional[str] = None

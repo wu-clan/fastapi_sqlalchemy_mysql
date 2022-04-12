@@ -2,28 +2,39 @@
 # -*- coding: utf-8 -*-
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, select, update, desc
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
+from sqlalchemy.orm import joinedload, selectinload
 
 from backend.app.api import jwt_security
 from backend.app.crud.base import CRUDBase
-from backend.app.model import User
-from backend.app.schemas.sm_user import CreateUser, UpdateUser
+from backend.app.model import User, Role, Department
+from backend.app.model.role import User_Role
+from backend.app.schemas.sm_user import CreateUser, UpdateUser, CreateUserRole, UpdateUserRole
 
 
 class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
     async def get_user_by_id(self, db: AsyncSession, user_id: int) -> User:
         return await super().get(db, user_id)
 
+    async def get_user_roles(self, db: AsyncSession, user_id: int) -> list:
+        user_roles = await db.execute(select(User_Role.role_id).where(User_Role.user_id == user_id))
+        all_roles = user_roles.scalars().all()
+        ur_list = []
+        for _ in all_roles:
+            ur_list.append(_)
+        return ur_list
+
+    async def get_userinfo(self, db: AsyncSession, user_id: int) -> User:
+        user = await db.execute(select(User).where(User.id == user_id).options(joinedload(User.roles)))
+        return user.scalars().first()
+
     async def get_user_by_username(self, db: AsyncSession, username: str) -> User:
         user = await db.execute(select(User).where(User.username == username))
         return user.scalars().first()
 
-    async def update_user_login_time(self, db: AsyncSession, username: str) -> None:
-        user = await db.execute(select(User).where(User.username == username))
-        u = user.scalars().first()
-        u.last_login = func.now()
+    async def update_user_login_time(self, db: AsyncSession, user: User) -> None:
+        user.last_login = func.now()
         await db.commit()
 
     async def get_email_by_username(self, db: AsyncSession, username: str) -> str:
@@ -38,22 +49,44 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         user = await db.execute(select(User).where(User.username == username))
         return user.scalars().first().avatar
 
-    async def create_user(self, db: AsyncSession, create: CreateUser) -> User:
+    async def create_user(self, db: AsyncSession, create: CreateUser, role: CreateUserRole) -> User:
         create.password = jwt_security.get_hash_password(create.password)
         new_user = User(**create.dict())
+        if len(role.role_id) == 1:
+            new_user.roles = await db.get(Role, role.role_id)
+        else:
+            role_list = []
+            for _ in role.role_id.split(','):
+                role_list.append(await db.get(Role, _))
+            new_user.roles = role_list
         db.add(new_user)
-        await db.flush()
         await db.commit()
         await db.refresh(new_user)
         return new_user
 
-    async def update_userinfo(self, db: AsyncSession, current_user: User, put: UpdateUser, file: str) -> bool:
-        await db.execute(update(User).where(User.id == current_user.id).values(jsonable_encoder(put)))
-        await db.execute(update(User).where(User.id == current_user.id).values(jsonable_encoder({
-            'avatar': file
-        })))
+    async def update_userinfo(self, db: AsyncSession, current_user: User, put: UpdateUser, role: UpdateUserRole,
+                              file: str) -> User:
+        user = await db.scalars(select(User).where(User.id == current_user.id).options(selectinload(User.roles)))
+        await db.execute(
+            update(User).where(User.id == current_user.id).values(jsonable_encoder(put, exclude={'department_id'})))
+        # 更新部门
+        depm = await db.get(Department, put.department_id)
+        await db.execute(update(User).where(User.id == current_user.id).values(department_id=depm.id))
+        # 更新角色
+        # step1 删除用户与角色的关系
+        user_role = user.first().roles
+        for _ in list(user_role):
+            user_role.remove(_)
+        # step2 添加用户与角色的关系
+        if len(role.role_id) == 1:
+            user_role.append(await db.get(Role, role.role_id))
+        else:
+            for _ in role.role_id.split(','):
+                user_role.append(await db.get(Role, _))
+        # 更新头像
+        await db.execute(update(User).where(User.id == current_user.id).values({'avatar': file}))
         await db.commit()
-        return True
+        return user
 
     async def delete_user(self, db: AsyncSession, user_id: int) -> None:
         return await super().delete_one(db, user_id)
@@ -74,8 +107,8 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         await db.commit()
         return True
 
-    def get_users(self) -> Select:
-        return select(User).order_by(desc(User.time_joined))
+    async def get_users(self) -> list:
+        return select(User).order_by(User.time_joined.desc()).options(joinedload(User.roles))
 
     async def get_user_is_super(self, db: AsyncSession, user_id: int) -> bool:
         user = await db.execute(select(User).where(User.id == user_id))

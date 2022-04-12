@@ -10,10 +10,10 @@ class CasbinRule(Base):
     复刻 casbin_sqlalchemy_adapter 中的 casbinRule model类, 使用自定义Base, 避免产生 alembic 迁移问题
     """
     __tablename__ = "sys_casbin_rule"
-    ptype = Column(String(255))
-    v0 = Column(String(255))
-    v1 = Column(String(255))
-    v2 = Column(String(255))
+    ptype = Column(String(255), comment='策略类型: p / g')
+    v0 = Column(String(255), comment="角色名称 / 用户uid")
+    v1 = Column(String(255), comment="路由 / 角色名称")
+    v2 = Column(String(255), comment="请求方法")
     v3 = Column(String(255))
     v4 = Column(String(255))
     v5 = Column(String(255))

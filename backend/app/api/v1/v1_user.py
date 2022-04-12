@@ -25,7 +25,8 @@ from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
-from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2, ELCode
+from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2, ELCode, \
+    UpdateUserRole, CreateUserRole
 from backend.app.utils import process_string
 from backend.app.utils.generate_string import get_uuid
 from backend.app.utils.send_email import send_email_verification_code, SEND_EMAIL_LOGIN_TEXT
@@ -46,11 +47,13 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
     elif not current_user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
     # 更新登陆时间
-    await user_crud.update_user_login_time(db, form_data.username)
+    await user_crud.update_user_login_time(db, current_user)
+    # 查询用户角色
+    user_roles = await user_crud.get_user_roles(db, current_user.id)
     # 创建token
-    access_token = create_access_token([current_user.id, current_user.role_id])
+    access_token = create_access_token([current_user.id, user_roles])
     # token存放redis
-    uid = current_user.user_id
+    uid = current_user.user_uid
     rd_token = await redis_client.get(uid)
     if not rd_token:
         await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -72,11 +75,13 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 #     elif not current_user.is_active:
 #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
 #     # 更新登陆时间
-#     await user_crud.update_user_login_time(db, user_info.username)
+#     await user_crud.update_user_login_time(db, current_user)
+#     # 查询用户角色
+#     user_roles = await user_crud.get_user_roles(db, current_user.id)
 #     # 创建token
-#     access_token = create_access_token([current_user.id, current_user.role_id])
+#     access_token = create_access_token([current_user.id, user_roles])
 #     # token存放redis
-#     uid = current_user.user_id
+#     uid = current_user.user_uid
 #     rd_token = await redis_client.get(uid)
 #     if not rd_token:
 #         await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -110,7 +115,7 @@ async def get_email_login_code(request: Request, email: ELCode, tasks: Backgroun
     return Response200(msg='验证码发送成功')
 
 
-@user.post('/login2', summary='邮箱登录', description='邮箱登录', response_model=Token)
+@user.post('/login2', summary='邮箱登录', description='邮箱登录, 需同时必须开启login账号密码登录接口', response_model=Token)
 async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(get_db)):
     username = await user_crud.get_username_by_email(db, email.email)
     current_user = await user_crud.get_user_by_username(db, username)
@@ -126,10 +131,12 @@ async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(
     if r_code != email.code:
         raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail='验证码输入错误')
     # 更新登陆时间
-    await user_crud.update_user_login_time(db, username)
+    await user_crud.update_user_login_time(db, current_user)
+    # 查询用户角色
+    user_roles = await user_crud.get_user_roles(db, current_user.id)
     # 创建token
-    access_token = create_access_token([current_user.id, current_user.role_id])
-    uid = current_user.user_id
+    access_token = create_access_token([current_user.id, user_roles])
+    uid = current_user.user_uid
     rd_token = await redis_client.get(uid)
     if not rd_token:
         await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -149,7 +156,7 @@ async def logout(current_user=Depends(get_current_user)):
 
 
 @user.post('/register', summary='用户注册')
-async def user_register(create: CreateUser, db: AsyncSession = Depends(get_db)):
+async def user_register(create: CreateUser, role: CreateUserRole, db: AsyncSession = Depends(get_db)):
     username = await user_crud.get_user_by_username(db, create.username)
     if username:
         raise HTTPException(status_code=403, detail='该用户名已被注册~ 换一个吧')
@@ -163,14 +170,14 @@ async def user_register(create: CreateUser, db: AsyncSession = Depends(get_db)):
     depm = await depm_crud.get_one_depm_by_id(db, create.department_id)
     if not depm:
         raise HTTPException(status_code=404, detail='所选部门不存在')
-    if len(create.role_id) == 1:
-        if not await role_crud.get_one_role_by_id(db, create.role_id):
-            raise HTTPException(status_code=404, detail=f'所选角色 {create.role_id} 不存在')
-    elif len(create.role_id) > 1:
-        for _ in create.role_id.split(','):
+    if len(role.role_id) == 1:
+        if not await role_crud.get_one_role_by_id(db, role.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {role.role_id} 不存在')
+    elif len(role.role_id) > 1:
+        for _ in role.role_id.split(','):
             if not await role_crud.get_one_role_by_id(db, _):
                 raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
-    new_user = await user_crud.create_user(db, create)
+    new_user = await user_crud.create_user(db, create, role)
     if new_user:
         log.success('用户 %s 注册成功' % create.username)
         return Response200(msg='用户注册成功', data={
@@ -255,13 +262,15 @@ def password_reset_done():
 async def userinfo(db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
     if current_user:
         if await user_crud.get_user_by_id(db, current_user.id):
-            return Response200(msg='查看用户信息成功', data=current_user)
-        return Response404(msg='用户不存在')
+            info = await user_crud.get_userinfo(db, current_user.id)
+            if info:
+                return Response200(msg='查看用户信息成功', data=info)
+            return Response404(msg='用户不存在')
 
 
 @user.put('/update_userinfo', summary='更新用户信息')
-async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = File(None),
-                          current_user=Depends(get_current_user),
+async def update_userinfo(put: UpdateUser = Depends(UpdateUser), role: UpdateUserRole = Depends(UpdateUserRole),
+                          file: UploadFile = File(None), current_user=Depends(get_current_user),
                           db: AsyncSession = Depends(get_db)):
     if current_user.username == put.username:
         pass
@@ -282,11 +291,11 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
     depm = await depm_crud.get_one_depm_by_id(db, put.department_id)
     if not depm:
         raise HTTPException(status_code=404, detail='所选部门不存在')
-    if len(put.role_id) == 1:
-        if not await role_crud.get_one_role_by_id(db, put.role_id):
-            raise HTTPException(status_code=404, detail=f'所选角色 {put.role_id} 不存在')
-    elif len(put.role_id) > 1:
-        for _ in put.role_id.split(','):
+    if len(role.role_id) == 1:
+        if not await role_crud.get_one_role_by_id(db, role.role_id):
+            raise HTTPException(status_code=404, detail=f'所选角色 {role.role_id} 不存在')
+    elif len(role.role_id) > 1:
+        for _ in role.role_id.split(','):
             if not await role_crud.get_one_role_by_id(db, _):
                 raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     if put.mobile_number is not None:
@@ -316,8 +325,8 @@ async def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFil
     else:
         _file = current_filename
     if current_user:
-        await user_crud.update_userinfo(db, current_user, put, _file)
-        return Response200(msg='用户信息更新成功', data={'info': put, 'avatar': _file})
+        await user_crud.update_userinfo(db, current_user, put, role, _file)
+        return Response200(msg='用户信息更新成功', data={'info': put, 'role': role, 'avatar': _file})
     return Response500(msg='用户信息更新失败')
 
 
@@ -337,10 +346,11 @@ async def delete_avatar(current_user=Depends(jwt_security.get_current_user), db:
     return Response500(msg='删除用户头像失败')
 
 
-@user.get('/user_list', summary='获取用户列表', response_model=Page[GetUserInfo],
-          dependencies=[Depends(jwt_security.get_current_is_superuser)])
+@user.get('/user_list', summary='获取用户列表', dependencies=[Depends(jwt_security.get_current_user)],
+          response_model=Page[GetUserInfo])
 async def get_user_list(db: AsyncSession = Depends(get_db)):
-    return await paginate(db, user_crud.get_users())
+    user_list = await user_crud.get_users()
+    return await paginate(db, user_list)
 
 
 @user.post('/user_super_set/{pk}', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])

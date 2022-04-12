@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 from fastapi import APIRouter, Depends
 
-from .api import api
-from .casbin_rbac import casbin
-from .depm import depm
-from .role import role
-from .test_jobs import aps
-from .test_redis import rd
-from .user import user
+from .v1_api import api
+from .v1_casbin import casbin
+from .v1_depm import depm
+from .v1_role import role
+from .v1_test_jobs import aps
+from .v1_test_redis import rd
+from .v1_user import user
 from ..jwt_security import get_current_is_superuser
 from ...common.sys_casbin import rbac
 

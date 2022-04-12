@@ -26,13 +26,6 @@ async def create_depm(obj: RoleCreate, db: AsyncSession = Depends(get_db)):
     check = await role_crud.get_one_role_by_name(db, obj.name)
     if check:
         return Response403(msg='角色已存在')
-    if len(obj.api_id) == 1:
-        if not await api_crud.get_one_api_by_id(db, obj.api_id):
-            return Response404(data=obj.api_id)
-    elif len(obj.api_id) > 1:
-        for _ in obj.api_id.split(','):
-            if not await api_crud.get_one_api_by_id(db, _):
-                return Response404(data=_)
     else:
         data = await role_crud.create_role(db, obj)
         return Response200(data=data)
@@ -47,13 +40,6 @@ async def create_depm(obj: RoleUpdate, id: int = Query(...), db: AsyncSession = 
     if obj.name != check.name:
         if check_name:
             return Response403(msg='角色已存在, 请更换角色名称')
-    if len(obj.api_id) == 1:
-        if not await api_crud.get_one_api_by_id(db, obj.api_id):
-            return Response404(data=obj.api_id)
-    elif len(obj.api_id) > 1:
-        for _ in obj.api_id.split(','):
-            if not await api_crud.get_one_api_by_id(db, _):
-                return Response404(data=_)
     data = await role_crud.update_role(db, id, obj)
     return Response200(data=data)
 
