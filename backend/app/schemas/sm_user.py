@@ -3,9 +3,11 @@
 import datetime
 from typing import Optional, List
 
+from fastapi import Form
 from pydantic import BaseModel, Field
 
 from backend.app.schemas.sm_role import RoleAll
+from backend.app.utils.pydantic_as_form import encode_as_form
 
 
 class Auth(BaseModel):
@@ -23,7 +25,7 @@ class CreateUser(Auth):
 
 
 class CreateUserRole(BaseModel):
-    role_id: str = Field(..., description='包含多个角色时,应该是 "1,2",而不是用list')
+    role_id: List[int]
 
 
 class UpdateUser(BaseModel):
@@ -35,10 +37,6 @@ class UpdateUser(BaseModel):
     qq: Optional[str] = None
     blog_address: Optional[str] = None
     introduction: Optional[str] = None
-
-
-class UpdateUserRole(CreateUserRole):
-    pass
 
 
 class GetUserInfo(UpdateUser):

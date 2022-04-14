@@ -16,23 +16,22 @@ depm = APIRouter()
 
 
 @depm.get('/all', summary='获取所有部门', response_model=Page[DepmAll], dependencies=[Depends(get_current_user)])
-async def get_depm(db: Session = Depends(get_db)):
+def get_depm(db: Session = Depends(get_db)):
     return paginate(depm_crud.get_all_depm(db))
 
 
 @depm.post('/add', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])
-async def create_depm(obj: DepmCreate, db: Session = Depends(get_db)):
+def create_depm(obj: DepmCreate, db: Session = Depends(get_db)):
     check = depm_crud.get_one_depm_by_name(db, obj.name)
-    print(check)
     if check:
-        return Response403(msg='部门已存在')
+        return Response403(msg='部门已存在, 请更换部门名称')
     else:
         data = depm_crud.create_depm(db, obj)
         return Response200(data=data)
 
 
 @depm.put('/put/{id}', summary='修改部门', dependencies=[Depends(rbac.verify_rbac)])
-async def create_depm(obj: DepmUpdate, id: int = Query(...), db: Session = Depends(get_db)):
+def create_depm(obj: DepmUpdate, id: int = Query(...), db: Session = Depends(get_db)):
     check = depm_crud.get_one_depm_by_id(db, id)
     if not check:
         return Response404(data=obj)
@@ -40,15 +39,14 @@ async def create_depm(obj: DepmUpdate, id: int = Query(...), db: Session = Depen
     if obj.name != check.name:
         if check_name:
             return Response403(msg='部门已存在, 请更换部门名称')
-    data = depm_crud.update_depm(db, id, obj)
-    return Response200(data=data)
+    depm_crud.update_depm(db, id, obj)
+    return Response200(data=obj)
 
 
 @depm.delete('/delete/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
-async def get_depm(id: int = Query(...), db: Session = Depends(get_db)):
+def get_depm(id: int = Query(...), db: Session = Depends(get_db)):
     check = depm_crud.get_one_depm_by_id(db, id)
     if not check:
         return Response404()
-    if depm_crud.delete_depm(db, id):
-        return Response200()
-    return Response500()
+    depm_crud.delete_depm(db, id)
+    return Response200()

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from fastapi.encoders import jsonable_encoder
+from typing import List
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from backend.app.api import jwt_security
 from backend.app.crud.base import CRUDBase
 from backend.app.model import User, Role, Department
-from backend.app.model.role import User_Role
-from backend.app.schemas.sm_user import CreateUser, UpdateUser, CreateUserRole, UpdateUserRole
+from backend.app.model.role import UserRole
+from backend.app.schemas.sm_user import CreateUser, UpdateUser, CreateUserRole
 
 
 class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
@@ -16,7 +17,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         return super().get(db, user_id)
 
     def get_user_roles(self, db: Session, user_id: int) -> list:
-        user_roles = db.query(User_Role.role_id).filter(User_Role.user_id == user_id).all()
+        user_roles = db.query(UserRole.role_id).filter(UserRole.user_id == user_id).all()
         ur_list = []
         for _ in user_roles:
             ur_list.append(_[0])
@@ -46,10 +47,10 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         create.password = jwt_security.get_hash_password(create.password)
         new_user = User(**create.dict())
         if len(role.role_id) == 1:
-            new_user.roles = db.query(Role).get(role.role_id)
+            new_user.roles = [db.query(Role).get(role.role_id)]
         else:
             role_list = []
-            for _ in role.role_id.split(','):
+            for _ in role.role_id:
                 role_list.append(db.query(Role).get(_))
             new_user.roles = role_list
         db.add(new_user)
@@ -57,21 +58,25 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         db.refresh(new_user)
         return new_user
 
-    def update_userinfo(self, db: Session, current_user: User, put: UpdateUser, role: UpdateUserRole, file: str) -> bool:
+    def update_userinfo(self, db: Session, current_user: User, department_id: int, username: str, email: str,
+                        mobile_number: str, wechat: str, qq: str, blog_address: str, introduction: str, role: list,
+                        file: str) -> User:
         userinfo = db.query(User).filter(User.id == current_user.id)
-        userinfo.update(jsonable_encoder(put, exclude={'department_id'}))
+        userinfo.update(
+            {'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
+             'blog_address': blog_address, 'introduction': introduction})
         # 更新部门
-        depm = db.query(Department).get(put.department_id).id
+        depm = db.query(Department).get(department_id).id
         userinfo.update({'department_id': depm})
         # 更新角色
-        # step1 删除用户与角色的关系
+        # step1 先删除所有角色
         for i in list(userinfo.first().roles):
             userinfo.first().roles.remove(i)
-        # step2 添加用户与角色的关系
-        if len(role.role_id) == 1:
-            userinfo.first().roles.append(db.query(Role).get(role.role_id))
+        # step2 再添加新的角色
+        if len(role[0]) < 3:
+            userinfo.first().roles.append(db.query(Role).get(role))
         else:
-            for _ in role.role_id.split(','):
+            for _ in role[0].split(","):
                 userinfo.first().roles.append(db.query(Role).get(_))
         # 更新头像
         userinfo.update({

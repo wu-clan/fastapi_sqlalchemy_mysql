@@ -4,7 +4,7 @@ from email_validator import EmailNotValidError, validate_email
 from faker import Faker
 
 from backend.app.datebase.db_mysql import db_session
-from backend.app.model import User, Department, Role
+from backend.app.model import User, Department, Role, Menu
 from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password
 
@@ -17,23 +17,17 @@ class InitData:
     def __init__(self):
         self.fake = Faker('zh_CN')
 
-    # @staticmethod
-    # def create_department():
-    #     """ 自动创建部门 """
-    #     dep_obj = Department(name='test')
-    #     db.add(dep_obj)
-    #     db.commit()
-    #     db.refresh(dep_obj)
-    #     print(f'部门 test 创建成功')
-    #
-    # @staticmethod
-    # def create_role():
-    #     """ 自动创建部门 """
-    #     dep_obj = Role(name='test')
-    #     db.add(dep_obj)
-    #     db.commit()
-    #     db.refresh(dep_obj)
-    #     print(f'角色 test 创建成功')
+    @staticmethod
+    def create_role():
+        """ 自动创建角色 """
+        dep_obj = Role(name='test')
+        dep_obj.menus = [
+            Menu(name='test', route_name='test', route_path='test', url='test', sort=0, icon='test', file_path='test',
+                 is_show=True)]
+        db.add(dep_obj)
+        db.commit()
+        db.refresh(dep_obj)
+        log.info(f'角色 test 创建成功')
 
     @staticmethod
     def create_superuser_by_yourself():
@@ -61,12 +55,13 @@ class InitData:
             is_superuser=True,
             department_id=1,
         )
-        user_obj.roles = [Role(name='test')]
+        user_obj.roles.append(db.query(Role).get(1))
         db.add(department)
         db.add(user_obj)
         db.commit()
         db.refresh(department)
         db.refresh(user_obj)
+        log.info(f'部门 test 创建成功')
         log.info(f"管理员用户创建成功，账号：{username}，密码：{password}")
 
     def fake_user(self):
@@ -164,8 +159,7 @@ class InitData:
     def init_data(self):
         """ 自动创建数据 """
         log.info('----------------开始初始化数据----------------')
-        # self.create_department()
-        # self.create_role()
+        self.create_role()
         self.create_superuser_by_yourself()
         self.create_test_user()
         self.fake_user()

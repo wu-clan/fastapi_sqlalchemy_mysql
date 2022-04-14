@@ -5,8 +5,9 @@
 # imported by Alembic
 """
 from backend.app.datebase.base_class import Base
+from backend.app.model.api import API
 from backend.app.model.casbin_rule import CasbinRule
 from backend.app.model.department import Department
-from backend.app.model.menu import Menu
 from backend.app.model.user import User
 from backend.app.model.role import Role
+from backend.app.model.menu import Menu

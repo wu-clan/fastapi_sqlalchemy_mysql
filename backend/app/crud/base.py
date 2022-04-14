@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -16,14 +16,11 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         """
-        具有增删改查的默认方法的 CRUD 对象。
-        **Parameters**
-        * `model`: 一个 SQLAlchemy 模型类
-        * `schema`: Pydantic 模型类
+        具有增删改查的默认方法的 CRUD 对象
         """
         self.model = model
 
-    def get(self, db: Session, id: Any) -> Optional[ModelType]:
+    def get(self, db: Session, id: int) -> ModelType:
         """
         通过id查询一条数据
         :param db: session
