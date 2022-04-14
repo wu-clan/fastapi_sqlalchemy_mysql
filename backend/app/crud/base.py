@@ -24,7 +24,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         self.model = model
 
-    async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
+    async def get(self, db: AsyncSession, id: int) -> ModelType:
         """
         通过id查询一条数据
         :param db: session
@@ -79,7 +79,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await db.commit()
         return model
 
-    async def delete_one(self, db: AsyncSession, id: int) -> Optional[bool]:
+    async def delete_one(self, db: AsyncSession, id: int) -> bool:
         """
         通过id删除一条数据
         :param db: session

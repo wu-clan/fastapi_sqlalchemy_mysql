@@ -3,45 +3,31 @@
 import json
 
 
-def to_tree(data, root, root_field, node_field):
+def list_to_tree(data_list, parent_id=0) -> list:
     """
-    解析list数据为树结构
-    :param data: 被解析的数据
-    :param root: 根节点值
-    :param root_field: 根节点字段
-    :param node_field: 节点字段
-    :return: list
+    递归获取树形结构数据
+    :param data_list: 数据列表
+    :param parent_id: 父级id
+    :return:
     """
-    l = []
-    for i in data:
-        if i.get(root_field) == root:
-            l.append(i)
-
-    # i的内存ID 是一样的 所以不需要对list进行修改
-    for i in data:
-        node = i.get(node_field)
-        children = []
-        for j in data:
-            parent = j.get(root_field)
-            if node == parent:
-                children.append(j)
-
-        if children:
-            i['children'] = children
-
-    return l
+    tree = []
+    for data in data_list:
+        if data['parent_id'] == parent_id:
+            tree.append(data)
+            data['children'] = list_to_tree(data_list, data['id'])
+    return tree
 
 
-def to_disorder_tree(data: list):
+def ram_list_to_tree(data_list: list) -> list:
     """
-       利用对象内存共享生成无序树
-       :param data:
-       :return:
-       """
+    利用对象内存共享生成树
+    :param data_list: 数据列表
+    :return:
+    """
     res = {}
-    for v in data:
+    for v in data_list:
         res.setdefault(v["id"], v)
-    for v in data:
+    for v in data_list:
         res.setdefault(v["parent_id"], {}).setdefault("children", []).append(v)
     return res[0]["children"]
 
@@ -50,13 +36,15 @@ if __name__ == '__main__':
     test_data = [
         {'id': 1, 'title': 'GGG', 'parent_id': 0},
         {'id': 2, 'title': 'AAA', 'parent_id': 0},
+        {'id': 3, 'title': 'BBB', 'parent_id': 1},
         {'id': 4, 'title': 'CCC', 'parent_id': 1},
         {'id': 5, 'title': 'DDD', 'parent_id': 2},
         {'id': 6, 'title': 'EEE', 'parent_id': 3},
         {'id': 7, 'title': 'FFF', 'parent_id': 4},
         {'id': 3, 'title': 'BBB', 'parent_id': 1},
     ]
-    print(json.dumps(to_tree(test_data, 0, 'parent_id', 'id'), indent=4))
+
+    print(json.dumps(list_to_tree(test_data), indent=4))
 
     data = [
         {'id': 10, 'parent_id': 8, 'name': "ACAB"},
@@ -71,4 +59,4 @@ if __name__ == '__main__':
         {'id': 1, 'parent_id': 0, 'name': "A"},
     ]
 
-    print(json.dumps(to_disorder_tree(data), indent=4))
+    print(json.dumps(ram_list_to_tree(data), indent=4))
