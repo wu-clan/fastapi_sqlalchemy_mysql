@@ -13,7 +13,7 @@ class Menu(Base):
     route_name = Column(String(32), nullable=False, comment='路由名称')
     route_path = Column(String(128), nullable=False, comment='路由路径')
     url = Column(String(128), nullable=False, comment='菜单url')
-    parent_id = Column(Integer, comment='父级菜单id')
+    parent_id = Column(Integer, default=0, comment='父级菜单id')
     sort = Column(Integer, nullable=False, comment='菜单排序')
     icon = Column(String(32), nullable=False, comment='菜单图标')
     file_path = Column(String(128), nullable=False, comment='前端文件路径')
