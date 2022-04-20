@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
-import re
 from hashlib import sha256
 
 from email_validator import EmailNotValidError, validate_email
-from fast_captcha import tCaptcha
+from fast_captcha import text_captcha
 from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, status, UploadFile, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -21,7 +20,6 @@ from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
 from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
-from backend.app.model.user import User
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
 from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2
@@ -157,7 +155,7 @@ def user_register(create: CreateUser, db: Session = Depends(get_db)):
 @user.post('/password_reset_code', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
 def password_reset_code(username_or_email: str, response: Response, tasks: BackgroundTasks,
                         db: Session = Depends(get_db)):
-    code = tCaptcha()
+    code = text_captcha()
     if user_crud.get_user_by_username(db, username_or_email):
         try:
             response.delete_cookie(key='fast-code')
