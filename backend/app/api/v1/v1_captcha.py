@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from fast_captcha import iCaptcha
+from fast_captcha import img_captcha
 from fastapi import APIRouter, Request
 from starlette.responses import StreamingResponse
 
@@ -14,7 +14,7 @@ captcha = APIRouter()
 
 @captcha.get('/get_captcha', summary='获取验证码')
 def get_ca(request: Request):
-    img, code = iCaptcha()
+    img, code = img_captcha()
     uid = get_uuid()
     request.app.state.captcha_uid = uid
     redis_client.set(uid, code, settings.CAPTCHA_EXPIRATION_TIME)
