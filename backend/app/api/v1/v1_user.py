@@ -6,7 +6,7 @@ from hashlib import sha256
 
 import aiofiles
 from email_validator import EmailNotValidError, validate_email
-from fast_captcha import tCaptcha
+from fast_captcha import text_captcha
 from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, status, UploadFile, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination.ext.async_sqlalchemy import paginate
@@ -103,7 +103,7 @@ async def get_email_login_code(request: Request, email: ELCode, tasks: Backgroun
     if not current_user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录，发送验证码失败', headers=headers)
     try:
-        code = tCaptcha()
+        code = text_captcha()
         tasks.add_task(send_email_verification_code, email.email, code, SEND_EMAIL_LOGIN_TEXT)
     except Exception as e:
         log.exception('验证码发送失败 {}', e)
@@ -191,7 +191,7 @@ async def user_register(create: CreateUser, role: CreateUserRole, db: AsyncSessi
 @user.post('/password_reset_code', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
 async def password_reset_code(username_or_email: str, response: Response, tasks: BackgroundTasks,
                               db: AsyncSession = Depends(get_db)):
-    code = tCaptcha()
+    code = text_captcha()
     if await user_crud.get_user_by_username(db, username_or_email):
         try:
             response.delete_cookie(key='fast-code')
