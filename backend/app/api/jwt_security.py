@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from backend.app.core.conf import settings
 from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
-from backend.app.model import User
+from backend.app.models import User
 from backend.app.schemas import AuthorizationError, TokenError
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')  # 密码加密

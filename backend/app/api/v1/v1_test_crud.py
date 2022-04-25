@@ -13,7 +13,6 @@ from backend.app.api.jwt_security import get_current_user
 from backend.app.crud.test_crud import test_crud
 from backend.app.crud.user_crud import user_crud
 from backend.app.datebase.db_mysql import get_db
-from backend.app.model import User
 from backend.app.schemas import Response200, Response500
 from backend.app.schemas.sm_user import CreateUser, UpdateUser
 

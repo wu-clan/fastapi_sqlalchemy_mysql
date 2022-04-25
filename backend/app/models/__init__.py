@@ -5,4 +5,4 @@
 # imported by Alembic
 """
 from backend.app.datebase.base_class import Base
-from backend.app.model.user import User
+from backend.app.models.user import User
