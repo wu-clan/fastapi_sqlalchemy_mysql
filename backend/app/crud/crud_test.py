@@ -7,7 +7,7 @@ from backend.app.models import User
 from backend.app.schemas.sm_user import CreateUser, UpdateUser
 
 
-class TestCRUD(CRUDBase[User, CreateUser, UpdateUser]):
+class CRUDTest(CRUDBase[User, CreateUser, UpdateUser]):
     """
     描述：此文件仅作为测试文件，用于补充 CRUDBase 增改操作
     """
@@ -19,4 +19,4 @@ class TestCRUD(CRUDBase[User, CreateUser, UpdateUser]):
         return super().update(db, current_user, put)
 
 
-test_crud = TestCRUD(User)
+crud_test = CRUDTest(User)
