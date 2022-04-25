@@ -8,7 +8,7 @@ from fastapi import Depends, Request
 from backend.app.api.jwt_security import get_current_user
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import RBAC_MODEL_CONF
-from backend.app.model import User, CasbinRule
+from backend.app.models import User, CasbinRule
 from backend.app.schemas import AuthorizationError
 
 

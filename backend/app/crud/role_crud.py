@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
-from backend.app.model import Role
+from backend.app.models import Role
 from backend.app.schemas.sm_role import RoleCreate, RoleUpdate
 
 

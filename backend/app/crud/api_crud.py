@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
-from backend.app.model import API
+from backend.app.models import API
 from backend.app.schemas.sm_api import APICreate, APIUpdate
 
 

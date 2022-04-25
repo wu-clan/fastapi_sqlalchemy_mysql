@@ -8,8 +8,8 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from backend.app.api import jwt_security
 from backend.app.crud.base import CRUDBase
-from backend.app.model import User, Role, Department
-from backend.app.model.role import User_Role
+from backend.app.models import User, Role, Department
+from backend.app.models.role import User_Role
 from backend.app.schemas.sm_user import CreateUser, UpdateUser, CreateUserRole, UpdateUserRole
 
 

@@ -32,7 +32,7 @@ fileConfig(config.config_file_name)
 from backend.app.datebase.db_mysql import SQLALCHEMY_DATABASE_URL
 config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
 
-from backend.app.model import Base
+from backend.app.models import Base
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

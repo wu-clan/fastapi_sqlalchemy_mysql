@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
-from backend.app.model import CasbinRule
+from backend.app.models import CasbinRule
 from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate
 
 

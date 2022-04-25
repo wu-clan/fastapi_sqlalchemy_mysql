@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
-from backend.app.model import Department
+from backend.app.models import Department
 from backend.app.schemas.sm_department import DepmCreate, DepmUpdate
 
 
