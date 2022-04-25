@@ -3,11 +3,11 @@
 from sqlalchemy.orm import Session
 
 from backend.app.crud.base import CRUDBase
-from backend.app.model import Menu
+from backend.app.models import Menu
 from backend.app.schemas.sm_menu import MenuBase, MenuCreate, MenuUpdate
 
 
-class MenuCRUD(CRUDBase[MenuBase, MenuCreate, MenuUpdate]):
+class CRUDMenu(CRUDBase[MenuBase, MenuCreate, MenuUpdate]):
 
     def get_all_menus(self, db: Session) -> list:
         return db.query(Menu).order_by(Menu.sort).all()
@@ -32,4 +32,4 @@ class MenuCRUD(CRUDBase[MenuBase, MenuCreate, MenuUpdate]):
         return super().delete_one(db, menu_id)
 
 
-menu_crud = MenuCRUD(Menu)
+crud_menu = CRUDMenu(Menu)

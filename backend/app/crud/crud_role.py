@@ -4,11 +4,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from backend.app.crud.base import CRUDBase
-from backend.app.model import Role, Menu
+from backend.app.models import Role, Menu
 from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleMenuCreate, RoleMenuUpdate
 
 
-class RoleCRUD(CRUDBase[Role, RoleCreate, RoleUpdate]):
+class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
 
     def get_all_role(self) -> list:
         return select(Role).order_by(Role.id.desc()).options(joinedload(Role.menus))
@@ -52,4 +52,4 @@ class RoleCRUD(CRUDBase[Role, RoleCreate, RoleUpdate]):
         return super().delete_one(db, id)
 
 
-role_crud = RoleCRUD(Role)
+crud_role = CRUDRole(Role)

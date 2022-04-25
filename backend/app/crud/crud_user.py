@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session, joinedload
 
 from backend.app.api import jwt_security
 from backend.app.crud.base import CRUDBase
-from backend.app.model import User, Role, Department
-from backend.app.model.role import UserRole
+from backend.app.models import User, Role, Department
+from backend.app.models.role import UserRole
 from backend.app.schemas.sm_user import CreateUser, UpdateUser, CreateUserRole
 
 
@@ -134,4 +134,4 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
             return active_status
 
 
-user_crud = CRUDUser(User)
+crud_user = CRUDUser(User)

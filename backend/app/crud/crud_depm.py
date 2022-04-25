@@ -4,11 +4,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, Query
 
 from backend.app.crud.base import CRUDBase
-from backend.app.model import Department
+from backend.app.models import Department
 from backend.app.schemas.sm_department import DepmCreate, DepmUpdate
 
 
-class DepmCRUD(CRUDBase[Department, DepmCreate, DepmUpdate]):
+class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
 
     def get_all_depm(self, db: Session) -> Query:
         return db.query(Department)
@@ -29,4 +29,4 @@ class DepmCRUD(CRUDBase[Department, DepmCreate, DepmUpdate]):
         return super().delete_one(db, id)
 
 
-depm_crud = DepmCRUD(Department)
+crud_depm = CRUDDepm(Department)
