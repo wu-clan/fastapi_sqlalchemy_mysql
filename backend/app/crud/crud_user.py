@@ -110,4 +110,4 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
             return active_status
 
 
-user_crud = CRUDUser(User)
+crud_user = CRUDUser(User)
