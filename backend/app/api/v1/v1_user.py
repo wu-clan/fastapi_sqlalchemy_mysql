@@ -20,7 +20,7 @@ from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
 from backend.app.crud import user_crud
 from backend.app.datebase.db_mysql import get_db
-from backend.app.model.user import User
+from backend.app.models.user import User
 from backend.app.schemas import Response200, Response500, Response404
 from backend.app.schemas.sm_token import Token
 from backend.app.schemas.sm_user import CreateUser, GetUserInfo, ResetPassword, UpdateUser, Auth, Auth2

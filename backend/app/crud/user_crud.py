@@ -6,7 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session, Query
 
 from backend.app.api import jwt_security
-from backend.app.model import User
+from backend.app.models import User
 from backend.app.schemas.sm_user import CreateUser, DeleteUser, UpdateUser
 
 
