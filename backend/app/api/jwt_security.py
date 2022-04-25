@@ -3,16 +3,15 @@
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from backend.app.core.conf import settings
-from backend.app.crud import user_crud
+from backend.app.crud import crud_user
 from backend.app.datebase.db_mysql import get_db
 from backend.app.models import User
 from backend.app.schemas import AuthorizationError, TokenError
@@ -70,7 +69,7 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError
-    user = await user_crud.get_user_by_id(db, user_id)
+    user = await crud_user.get_user_by_id(db, user_id)
     return user
 
 
