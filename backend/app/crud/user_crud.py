@@ -8,7 +8,7 @@ from sqlalchemy.sql import Select
 
 from backend.app.api import jwt_security
 from backend.app.crud.base import CRUDBase
-from backend.app.model import User
+from backend.app.models import User
 from backend.app.schemas.sm_user import CreateUser, UpdateUser
 
 
