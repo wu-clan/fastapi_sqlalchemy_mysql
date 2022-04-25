@@ -8,7 +8,7 @@ from fastapi import Request, Depends
 from backend.app.api.jwt_security import get_current_user
 from backend.app.core.path_conf import RBAC_MODEL_CONF
 from backend.app.datebase.db_mysql import SQLALCHEMY_DATABASE_URL
-from backend.app.model import CasbinRule, User
+from backend.app.models import CasbinRule, User
 from backend.app.schemas import AuthorizationError
 
 

@@ -11,9 +11,9 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from backend.app.core.conf import settings
-from backend.app.crud.user_crud import user_crud
+from backend.app.crud.crud_user import crud_user
 from backend.app.datebase.db_mysql import get_db
-from backend.app.model import User
+from backend.app.models import User
 from backend.app.schemas import AuthorizationError, TokenError
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')  # 密码加密
@@ -72,7 +72,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError
-    user = user_crud.get_user_by_id(db, user_id)
+    user = crud_user.get_user_by_id(db, user_id)
     return user
 
 
