@@ -9,7 +9,7 @@ from backend.app.models import Role
 from backend.app.schemas.sm_role import RoleCreate, RoleUpdate
 
 
-class RoleCRUD(CRUDBase[Role, RoleCreate, RoleUpdate]):
+class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
 
     async def get_role_by_id(self, db: AsyncSession, role_id: int) -> Role:
         return await super().get(db, role_id)
@@ -35,4 +35,4 @@ class RoleCRUD(CRUDBase[Role, RoleCreate, RoleUpdate]):
         return await super().delete_one(db, id)
 
 
-role_crud = RoleCRUD(Role)
+crud_role = CRUDRole(Role)

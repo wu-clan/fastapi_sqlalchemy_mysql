@@ -9,7 +9,7 @@ from backend.app.models import Department
 from backend.app.schemas.sm_department import DepmCreate, DepmUpdate
 
 
-class DepmCRUD(CRUDBase[Department, DepmCreate, DepmUpdate]):
+class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
 
     def get_all_depm(self) -> Select:
         return select(Department)
@@ -32,4 +32,4 @@ class DepmCRUD(CRUDBase[Department, DepmCreate, DepmUpdate]):
         return await super().delete_one(db, id)
 
 
-depm_crud = DepmCRUD(Department)
+crud_depm = CRUDDepm(Department)

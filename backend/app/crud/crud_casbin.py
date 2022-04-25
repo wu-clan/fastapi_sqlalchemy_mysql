@@ -8,10 +8,10 @@ from backend.app.models import CasbinRule
 from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate
 
 
-class RbacCRUD(CRUDBase[CasbinRule, PolicyCreate, PolicyUpdate]):
+class CRUDRbac(CRUDBase[CasbinRule, PolicyCreate, PolicyUpdate]):
 
     def get_all_rbac(self) -> Select:
         return select(CasbinRule)
 
 
-rbac_crud = RbacCRUD(CasbinRule)
+crud_rbac = CRUDRbac(CasbinRule)

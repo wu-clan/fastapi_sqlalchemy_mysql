@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.common.pagination import Page
 from backend.app.common.sys_casbin import rbac
-from backend.app.crud.casbin_crud import rbac_crud
+from backend.app.crud.crud_casbin import crud_rbac
 from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response404, Response403
 from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate, PolicyDelete, RBACAll, UserRole
@@ -17,7 +17,7 @@ casbin = APIRouter()
 
 @casbin.get('/all', summary='获取所有权限规则', response_model=Page[RBACAll])
 async def get_rbac(db: AsyncSession = Depends(get_db)):
-    return await paginate(db, rbac_crud.get_all_rbac())
+    return await paginate(db, crud_rbac.get_all_rbac())
 
 
 @casbin.get('/get_policy', summary='获取p策略')

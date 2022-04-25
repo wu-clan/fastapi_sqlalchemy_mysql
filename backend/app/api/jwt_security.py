@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.conf import settings
-from backend.app.crud.user_crud import user_crud
+from backend.app.crud.crud_user import crud_user
 from backend.app.datebase.db_mysql import get_db
 from backend.app.models import User
 from backend.app.schemas import AuthorizationError, TokenError
@@ -72,7 +72,7 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError
-    user = await user_crud.get_user_by_id(db, user_id)
+    user = await crud_user.get_user_by_id(db, user_id)
     return user
 
 

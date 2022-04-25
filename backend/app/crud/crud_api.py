@@ -9,7 +9,7 @@ from backend.app.models import API
 from backend.app.schemas.sm_api import APICreate, APIUpdate
 
 
-class RbacCRUD(CRUDBase[API, APICreate, APIUpdate]):
+class CRUDApi(CRUDBase[API, APICreate, APIUpdate]):
 
     def get_all_api(self) -> Select:
         return select(API)
@@ -32,4 +32,4 @@ class RbacCRUD(CRUDBase[API, APICreate, APIUpdate]):
         return await super().delete_one(db, id)
 
 
-api_crud = RbacCRUD(API)
+crud_api = CRUDApi(API)
