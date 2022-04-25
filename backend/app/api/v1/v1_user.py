@@ -18,7 +18,7 @@ from backend.app.common.pagination import Page
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
-from backend.app.crud import user_crud
+from backend.app.crud import crud_user
 from backend.app.datebase.db_mysql import get_db
 from backend.app.models.user import User
 from backend.app.schemas import Response200, Response500, Response404
@@ -35,7 +35,7 @@ headers = {"WWW-Authenticate": "Bearer"}
 @user.post('/login', summary='用户登录调试', response_model=Token,
            description='form_data登录，为直接配合swagger-ui认证使用，接口数据与json_data登录一致，自由选择，注释其一即可', )
 def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    current_user = user_crud.get_user_by_username(db, form_data.username)
+    current_user = crud_user.get_user_by_username(db, form_data.username)
     if not current_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户名不存在', headers=headers)
     elif not jwt_security.verity_password(form_data.password, current_user.password):
@@ -43,7 +43,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     elif not current_user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='该用户已被锁定，无法登录', headers=headers)
     # 更新登陆时间
-    user_crud.update_user_login_time(db, form_data.username)
+    crud_user.update_user_login_time(db, form_data.username)
     # 创建token
     access_token = create_access_token(current_user.id)
     # token存放redis
@@ -147,7 +147,7 @@ def logout(current_user=Depends(get_current_user)):
 
 @user.post('/register', summary='用户注册')
 def user_register(create: CreateUser, db: Session = Depends(get_db)):
-    username = user_crud.get_user_by_username(db, create.username)
+    username = crud_user.get_user_by_username(db, create.username)
     if username:
         raise HTTPException(status_code=403, detail='该用户名已被注册~ 换一个吧')
     email = db.query(User).filter(User.email == create.email).first()
@@ -157,7 +157,7 @@ def user_register(create: CreateUser, db: Session = Depends(get_db)):
         validate_email(create.email).email
     except EmailNotValidError:
         raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
-    new_user = user_crud.create_user(db, create)
+    new_user = crud_user.create_user(db, create)
     if new_user:
         log.success('用户 %s 注册成功' % create.username)
         return Response200(msg='用户注册成功', data={
@@ -172,7 +172,7 @@ def user_register(create: CreateUser, db: Session = Depends(get_db)):
 def password_reset_code(username_or_email: str, response: Response, tasks: BackgroundTasks,
                         db: Session = Depends(get_db)):
     code = text_captcha()
-    if user_crud.get_user_by_username(db, username_or_email):
+    if crud_user.get_user_by_username(db, username_or_email):
         try:
             response.delete_cookie(key='fast-code')
             response.delete_cookie(key='fast-username')
@@ -183,7 +183,7 @@ def password_reset_code(username_or_email: str, response: Response, tasks: Backg
             log.exception('无法发送验证码 {}', e)
             raise HTTPException(status_code=500, detail='内部错误，无法发送验证码')
         try:
-            current_user_email = user_crud.get_email_by_username(db, username_or_email)
+            current_user_email = crud_user.get_email_by_username(db, username_or_email)
             tasks.add_task(send_email_verification_code, current_user_email, code)
         except Exception as e:
             log.exception('验证码发送失败 {}', e)
@@ -194,7 +194,7 @@ def password_reset_code(username_or_email: str, response: Response, tasks: Backg
             validate_email(username_or_email).email
         except EmailNotValidError:
             raise HTTPException(status_code=404, detail='用户名不存在，请重新输入')
-        email_result = user_crud.check_email(db, username_or_email)
+        email_result = crud_user.check_email(db, username_or_email)
         if not email_result:
             raise HTTPException(status_code=404, detail='邮箱不存在，请重新输入~')
         try:
@@ -202,7 +202,7 @@ def password_reset_code(username_or_email: str, response: Response, tasks: Backg
             response.delete_cookie(key='fast-username')
             response.set_cookie(key='fast-code', value=sha256(code.encode('utf-8')).hexdigest(),
                                 max_age=settings.COOKIES_MAX_AGE)
-            username = user_crud.get_username_by_email(db, username_or_email)
+            username = crud_user.get_username_by_email(db, username_or_email)
             response.set_cookie(key='fast-username', value=username, max_age=settings.COOKIES_MAX_AGE)
         except Exception as e:
             log.exception('无法发送验证码 {}', e)
@@ -227,7 +227,7 @@ def password_reset(resetpwd: ResetPassword, request: Request, response: Response
     if request.cookies.get('fast-username') is None:
         raise HTTPException(status_code=404, detail='cookie已失效，请重新获取验证码')
     try:
-        user_crud.reset_password(db, request.cookies.get('fast-username'), resetpwd.password2)
+        crud_user.reset_password(db, request.cookies.get('fast-username'), resetpwd.password2)
     except Exception as e:
         log.exception('密码重置失败 {}', e)
         raise HTTPException(status_code=500, detail='内部错误，密码重置失败')
@@ -244,7 +244,7 @@ def password_reset_done():
 @user.get('/userinfo', summary='查看用户信息')
 def userinfo(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     if current_user:
-        if user_crud.get_user_by_id(db, current_user.id):
+        if crud_user.get_user_by_id(db, current_user.id):
             return Response200(msg='查看用户信息成功', data=current_user)
         return Response404(msg='用户不存在')
 
@@ -256,7 +256,7 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
     if current_user.username == put.username:
         pass
     else:
-        username = user_crud.get_user_by_username(db, put.username)
+        username = crud_user.get_user_by_username(db, put.username)
         if username:
             raise HTTPException(status_code=403, detail='该用户名已存在~ 换一个吧')
     if current_user.email == put.email:
@@ -278,7 +278,7 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
     if put.qq is not None:
         if not process_string.is_QQ(put.qq):
             raise HTTPException(status_code=403, detail='QQ号码输入有误')
-    current_filename = user_crud.get_avatar_by_username(db, current_user.username)
+    current_filename = crud_user.get_avatar_by_username(db, current_user.username)
     if file is not None:
         if current_filename is not None:
             try:
@@ -296,7 +296,7 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
     else:
         _file = current_filename
     if current_user:
-        user_crud.update_userinfo(db, current_user, put, _file)
+        crud_user.update_userinfo(db, current_user, put, _file)
         return Response200(msg='用户信息更新成功', data={'info': put, 'avatar': _file})
     return Response500(msg='用户信息更新失败')
 
@@ -304,7 +304,7 @@ def update_userinfo(put: UpdateUser = Depends(UpdateUser), file: UploadFile = Fi
 @user.delete('/delete_avatar', summary='删除头像文件')
 def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Session = Depends(get_db)):
     if current_user:
-        current_filename = user_crud.get_avatar_by_username(db, current_user.username)
+        current_filename = crud_user.get_avatar_by_username(db, current_user.username)
         if current_filename is not None:
             try:
                 os.remove(ImgPath + current_filename)
@@ -312,7 +312,7 @@ def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Sessi
                 log.error('用户 {} 删除头像文件 {} 失败\n{}', current_user.username, current_filename, e)
         else:
             return HTTPException(status_code=404, detail='用户没有头像文件，请上传头像文件后再执行此操作')
-        user_crud.delete_avatar(db, current_user.id)
+        crud_user.delete_avatar(db, current_user.id)
         return Response200(msg='删除用户头像成功')
     return Response500(msg='删除用户头像失败')
 
@@ -321,26 +321,26 @@ def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Sessi
 def get_user_list(current_user=Depends(jwt_security.get_current_is_superuser),
                   db: Session = Depends(get_db)):
     if current_user:
-        user_list = user_crud.get_users(db)
+        user_list = crud_user.get_users(db)
         if user_list:
             return paginate(user_list)
 
 
 @user.post('/user_super_set/{pk}', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 def super_set(pk: int, db: Session = Depends(get_db)):
-    if user_crud.get_user_by_id(db, pk):
-        if user_crud.super_set(db, pk):
-            return Response200(msg=f'修改超级权限成功，当前：{user_crud.get_user_is_super(db, pk)}')
-        return Response200(msg=f'修改超级权限成功，当前：{user_crud.get_user_is_super(db, pk)}')
+    if crud_user.get_user_by_id(db, pk):
+        if crud_user.super_set(db, pk):
+            return Response200(msg=f'修改超级权限成功，当前：{crud_user.get_user_is_super(db, pk)}')
+        return Response200(msg=f'修改超级权限成功，当前：{crud_user.get_user_is_super(db, pk)}')
     return Response404(msg='用户不存在')
 
 
 @user.post('/user_action_set/{pk}', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 def active_set(pk: int, db: Session = Depends(get_db)):
-    if user_crud.get_user_by_id(db, pk):
-        if user_crud.active_set(db, pk):
-            return Response200(msg=f'修改用户状态成功, 当前：{user_crud.get_user_is_action(db, pk)}')
-        return Response200(msg=f'修改用户状态成功, 当前：{user_crud.get_user_is_action(db, pk)}')
+    if crud_user.get_user_by_id(db, pk):
+        if crud_user.active_set(db, pk):
+            return Response200(msg=f'修改用户状态成功, 当前：{crud_user.get_user_is_action(db, pk)}')
+        return Response200(msg=f'修改用户状态成功, 当前：{crud_user.get_user_is_action(db, pk)}')
     return Response404(msg='用户不存在')
 
 
@@ -348,10 +348,10 @@ def active_set(pk: int, db: Session = Depends(get_db)):
 def user_delete(current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user:
         try:
-            current_filename = user_crud.get_avatar_by_username(db, current_user.username)
+            current_filename = crud_user.get_avatar_by_username(db, current_user.username)
             os.remove(ImgPath + current_filename)
         except FileExistsError:
             log.warning(f'删除图片:{current_filename}失败，未在本地找到相关图片')
         finally:
-            user_crud.delete_user(db, current_user.id)
+            crud_user.delete_user(db, current_user.id)
             return Response200(msg='用户注销成功')
