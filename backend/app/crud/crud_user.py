@@ -53,13 +53,14 @@ async def create_user(db: AsyncSession, create: CreateUser) -> User:
     return new_user
 
 
-async def update_userinfo(db: AsyncSession, current_user: User, put: UpdateUser, file: str) -> bool:
+async def update_userinfo(db: AsyncSession, current_user: User, put: UpdateUser, file: str) -> User:
+    data = await db.execute(select(User).where(User.id == current_user.id))
     await db.execute(update(User).where(User.id == current_user.id).values(jsonable_encoder(put)))
     await db.execute(update(User).where(User.id == current_user.id).values(jsonable_encoder({
         'avatar': file
     })))
     await db.commit()
-    return True
+    return data.scalars().first()
 
 
 async def delete_user(db: AsyncSession, user_id: DeleteUser) -> None:
@@ -67,22 +68,24 @@ async def delete_user(db: AsyncSession, user_id: DeleteUser) -> None:
     await db.commit()
 
 
-async def check_email(db: AsyncSession, email: str) -> bool:
+async def check_email(db: AsyncSession, email: str) -> User:
     mail = await db.execute(select(User).where(User.email == email))
     return mail.scalars().first()
 
 
-async def delete_avatar(db: AsyncSession, uid: int) -> bool:
-    await db.execute(update(User).where(User.id == uid).values({'avatar': None}))
+async def delete_avatar(db: AsyncSession, user_id: int) -> User:
+    data = await db.execute(select(User).where(User.id == user_id))
+    await db.execute(update(User).where(User.id == user_id).values({'avatar': None}))
     await db.commit()
-    return True
+    return data.scalars().first()
 
 
-async def reset_password(db: AsyncSession, username: str, password: str) -> bool:
+async def reset_password(db: AsyncSession, username: str, password: str) -> User:
+    data = await db.execute(select(User).where(User.username == username))
     await db.execute(
         update(User).where(User.username == username).values({'password': jwt_security.get_hash_password(password)}))
     await db.commit()
-    return True
+    return data.scalars().first()
 
 
 def get_users() -> Select:
