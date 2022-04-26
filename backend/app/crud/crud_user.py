@@ -45,7 +45,7 @@ def create_user(db: Session, create: CreateUser) -> User:
     return new_user
 
 
-def update_userinfo(db: Session, current_user: User, put: UpdateUser, file: str) -> bool:
+def update_userinfo(db: Session, current_user: User, put: UpdateUser, file: str) -> User:
     userinfo = db.query(User).filter(User.id == current_user.id)
     userinfo.update(jsonable_encoder(put))
     userinfo.update({
@@ -61,18 +61,18 @@ def delete_user(db: Session, user_id: DeleteUser) -> None:
     db.commit()
 
 
-def check_email(db: Session, email: str) -> bool:
+def check_email(db: Session, email: str) -> User:
     return db.query(User).filter(User.email == email).first()
 
 
-def delete_avatar(db: Session, uid: int) -> bool:
+def delete_avatar(db: Session, uid: int) -> User:
     user = db.query(User).filter(User.id == uid)
     user.update({'avatar': None})
     db.commit()
     return user.first()
 
 
-def reset_password(db: Session, username: str, password: str) -> bool:
+def reset_password(db: Session, username: str, password: str) -> User:
     current_user = db.query(User).filter(User.username == username)
     current_user.update({'password': jwt_security.get_hash_password(password)})
     db.commit()
