@@ -139,7 +139,7 @@ async def user_login(request: Request, email: Auth2, db: AsyncSession = Depends(
     await crud_user.update_user_login_time(db, username)
     # 创建token
     access_token = create_access_token(current_user.id)
-    uid = current_user.user_id
+    uid = current_user.user_uid
     rd_token = await redis_client.get(uid)
     if not rd_token:
         await redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
