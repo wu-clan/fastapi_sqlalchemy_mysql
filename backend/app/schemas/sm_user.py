@@ -31,7 +31,7 @@ class UpdateUser(BaseModel):
 
 class GetUserInfo(UpdateUser):
     id: int
-    user_id: str
+    user_uid: str
     avatar: Optional[str] = None
     time_joined: Optional[datetime.datetime] = None
     last_login: Optional[datetime.datetime] = None
