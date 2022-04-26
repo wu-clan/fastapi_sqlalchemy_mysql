@@ -62,9 +62,10 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                         mobile_number: str, wechat: str, qq: str, blog_address: str, introduction: str, role: list,
                         file: str) -> User:
         userinfo = db.query(User).filter(User.id == current_user.id)
-        userinfo.update(
-            {'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
-             'blog_address': blog_address, 'introduction': introduction})
+        userinfo.update({
+            'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
+            'blog_address': blog_address, 'introduction': introduction
+        })
         # 更新部门
         depm = db.query(Department).get(department_id).id
         userinfo.update({'department_id': depm})
@@ -85,16 +86,16 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         db.commit()
         return userinfo.first()
 
-    def delete_user(self, db: Session, user_id: int) -> None:
+    def delete_user(self, db: Session, user_id: int) -> User:
         return super().delete_one(db, user_id)
 
-    def check_email(self, db: Session, email: str) -> bool:
+    def check_email(self, db: Session, email: str) -> User:
         return db.query(User).filter(User.email == email).first()
 
-    def delete_avatar(self, db: Session, uid: int) -> bool:
-        return super().update_one(db, uid, {'avatar': None})
+    def delete_avatar(self, db: Session, user_id: int) -> User:
+        return super().update_one(db, user_id, {'avatar': None})
 
-    def reset_password(self, db: Session, username: str, password: str) -> bool:
+    def reset_password(self, db: Session, username: str, password: str) -> User:
         current_user = db.query(User).filter(User.username == username)
         current_user.update({'password': jwt_security.get_hash_password(password)})
         db.commit()

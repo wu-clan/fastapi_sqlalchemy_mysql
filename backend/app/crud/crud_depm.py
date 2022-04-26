@@ -13,7 +13,7 @@ class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
     def get_all_depm(self, db: Session) -> Query:
         return db.query(Department)
 
-    def get_one_depm_by_name(self, db: Session, name: str) -> bool:
+    def get_one_depm_by_name(self, db: Session, name: str) -> Department:
         return db.query(Department).filter(Department.name == name).first()
 
     def get_one_depm_by_id(self, db: Session, id: int) -> Department:
@@ -25,7 +25,7 @@ class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
     def update_depm(self, db: Session, id: int, obj: DepmUpdate) -> DepmUpdate:
         return super().update_one(db, id, obj)
 
-    def delete_depm(self, db: Session, id: int) -> bool:
+    def delete_depm(self, db: Session, id: int) -> Department:
         return super().delete_one(db, id)
 
 

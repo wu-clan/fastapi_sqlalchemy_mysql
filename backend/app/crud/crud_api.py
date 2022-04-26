@@ -24,7 +24,7 @@ class CRUDApi(CRUDBase[API, APICreate, APIUpdate]):
     def update_api(self, db: Session, id: int, obj: APIUpdate) -> API:
         return super().update_one(db, id, obj)
 
-    def delete_api(self, db: Session, id: int) -> bool:
+    def delete_api(self, db: Session, id: int) -> API:
         return super().delete_one(db, id)
 
 
