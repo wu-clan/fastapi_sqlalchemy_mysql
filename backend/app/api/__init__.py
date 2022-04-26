@@ -9,6 +9,7 @@ from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.api.v1 import v1
 from backend.app.middleware import register_middleware
+from backend.app.schemas import register_exception
 
 
 def register_app():
@@ -37,6 +38,9 @@ def register_app():
 
     # 分页
     register_page(app)
+
+    # 全局异常处理
+    register_exception(app)
 
     return app
 
