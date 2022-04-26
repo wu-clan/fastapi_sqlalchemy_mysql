@@ -60,6 +60,5 @@ def test_update_userinfo(put: UpdateUser, current_user=Depends(get_current_user)
             validate_email(put.email).email
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
-        crud_test.update(db, current_user, put)
-        return Response200(msg='用户信息更新成功', data=put)
-    return Response500(msg='用户信息更新失败')
+    crud_test.update(db, current_user, put)
+    return Response200(msg='用户信息更新成功', data=put)

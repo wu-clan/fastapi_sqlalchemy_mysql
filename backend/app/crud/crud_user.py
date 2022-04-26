@@ -40,7 +40,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         db.refresh(new_user)
         return new_user
 
-    def update_userinfo(self, db: Session, current_user: User, put: UpdateUser, file: str) -> bool:
+    def update_userinfo(self, db: Session, current_user: User, put: UpdateUser, file: str) -> User:
         userinfo = db.query(User).filter(User.id == current_user.id)
         userinfo.update(jsonable_encoder(put))
         userinfo.update({
@@ -49,19 +49,16 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         db.commit()
         return userinfo.first()
 
-    def delete_user(self, db: Session, user_id: int) -> None:
+    def delete_user(self, db: Session, user_id: int) -> User:
         return super().delete_one(db, user_id)
 
-    def check_email(self, db: Session, email: str) -> bool:
+    def check_email(self, db: Session, email: str) -> User:
         return db.query(User).filter(User.email == email).first()
 
-    def delete_avatar(self, db: Session, uid: int) -> bool:
-        user = db.query(User).filter(User.id == uid)
-        user.update({'avatar': None})
-        db.commit()
-        return user.first()
+    def delete_avatar(self, db: Session, user_id: int) -> User:
+        return super().update_one(db, user_id, {'avatar': None})
 
-    def reset_password(self, db: Session, username: str, password: str) -> bool:
+    def reset_password(self, db: Session, username: str, password: str) -> User:
         current_user = db.query(User).filter(User.username == username)
         current_user.update({'password': jwt_security.get_hash_password(password)})
         db.commit()
