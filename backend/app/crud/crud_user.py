@@ -88,24 +88,26 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         await db.commit()
         return user
 
-    async def delete_user(self, db: AsyncSession, user_id: int) -> None:
+    async def delete_user(self, db: AsyncSession, user_id: int) -> bool:
         return await super().delete_one(db, user_id)
 
-    async def check_email(self, db: AsyncSession, email: str) -> bool:
+    async def check_email(self, db: AsyncSession, email: str) -> User:
         mail = await db.execute(select(User).where(User.email == email))
         return mail.scalars().first()
 
-    async def delete_avatar(self, db: AsyncSession, uid: int) -> bool:
-        await db.execute(update(User).where(User.id == uid).values({'avatar': None}))
+    async def delete_avatar(self, db: AsyncSession, user_id: int) -> User:
+        user = await db.execute(select(User).where(User.id == user_id))
+        await db.execute(update(User).where(User.id == user_id).values({'avatar': None}))
         await db.commit()
-        return True
+        return user.scalars().first()
 
-    async def reset_password(self, db: AsyncSession, username: str, password: str) -> bool:
+    async def reset_password(self, db: AsyncSession, username: str, password: str) -> User:
+        user = await db.execute(select(User).where(User.username == username))
         await db.execute(
             update(User).where(User.username == username).values(
                 {'password': jwt_security.get_hash_password(password)}))
         await db.commit()
-        return True
+        return user.scalars().first()
 
     async def get_users(self) -> list:
         return select(User).order_by(User.time_joined.desc()).options(joinedload(User.roles))
