@@ -151,7 +151,7 @@ def register_exception(app):
         """
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=jsonable_encoder(Response40001(msg=exc.errors(), data=exc.json()))
+            content=jsonable_encoder(Response40001(data={'errors': exc.json()})),
         )
 
     @app.exception_handler(RequestValidationError)
@@ -164,5 +164,5 @@ def register_exception(app):
         """
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=jsonable_encoder(Response40001(msg=exc.errors(), data=exc.body))
+            content=jsonable_encoder(Response40001(data={'body': exc.body, 'errors': exc.errors()})),
         )
