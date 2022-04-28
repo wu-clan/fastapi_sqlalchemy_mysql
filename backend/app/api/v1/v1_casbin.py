@@ -28,9 +28,17 @@ def get_policy():
         return Response200(data=data)
 
 
-@casbin.post('/add_policy', summary='添加基于角色(主)/用户(次)的访问权限',
-             description='此项为p策略,如果添加基于用户的权限,必须使用用户uid,但是推荐基于角色授权')
+@casbin.post('/add_policy', summary='添加基于角色(主)/用户(次)的访问权限')
 def create_policy(p: PolicyCreate):
+    """
+    p策略:
+
+    - 推荐添加基于角色的访问权限, 需配合添加g策略才能真正拥有访问权限<br>
+    **格式**: 角色role + 访问路径path + 访问方法method
+
+    - 如果添加基于用户的访问权限, 不需配合添加g策略就能真正拥有权限<br>
+    **格式**: 用户uid + 访问路径path + 访问方法method
+    """
     enforcer = rbac.get_casbin_enforcer()
     data = enforcer.add_policy(p.sub, p.path, p.method)
     if data:
@@ -67,9 +75,17 @@ def get_group():
         return Response200(data=data)
 
 
-@casbin.post('/add_group', summary='添加基于用户组的访问权限',
-             description='依赖p策略,如果未添加基于用户的p策略,但是添加了基于角色的p策略,则必须添加此策略才能完成用户授权,推荐使用,格式必须为: 用户uid + 角色role')
+@casbin.post('/add_group', summary='添加基于用户组的访问权限')
 def create_group(p: UserRole):
+    """
+    g策略 (**依赖p策略**):
+
+    - 如果在p策略中添加了基于角色的访问权限, 则还需要在g策略中添加基于用户组的访问权限, 才能真正拥有访问权限<br>
+    **格式**: 用户uid + 角色role
+
+    - 如果在p策略中添加了基于用户的访问权限, 则不添加相应的g策略也能真正拥有访问权限<br>
+    但是拥有的不是用户角色的所有权限, 而只是单一的对应的p策略所添加的访问权限
+    """
     enforcer = rbac.get_casbin_enforcer()
     data = enforcer.add_grouping_policy(p.uid, p.role)
     if data:

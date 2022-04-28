@@ -11,8 +11,8 @@ class CasbinRule(Base):
     """
     __tablename__ = "sys_casbin_rule"
     ptype = Column(String(255), comment='策略类型: p 或者 g')
-    v0 = Column(String(255), comment="用户uuid / 角色名称")
-    v1 = Column(String(255), comment="路由")
+    v0 = Column(String(255), comment="角色名称 / 用户uuid")
+    v1 = Column(String(255), comment="路由 / 角色名称")
     v2 = Column(String(255), comment="请求方法")
     v3 = Column(String(255))
     v4 = Column(String(255))
