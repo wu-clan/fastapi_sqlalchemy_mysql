@@ -2,16 +2,21 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class RBACBase(BaseModel):
-    sub: str = Field(..., description='用户uid或角色')
+    sub: str = Field(..., description='角色 / 用户uid')
 
 
 class PolicyCreate(RBACBase):
     path: str = Field(..., description='api路径')
     method: str = Field(..., description='请求方法, 必须大写')
+
+    @validator('method')
+    def method_must_upper(cls, v):
+        assert v.isupper(), 'method must upper'
+        return v
 
 
 class PolicyUpdate(PolicyCreate):
