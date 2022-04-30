@@ -79,7 +79,7 @@ fastapi_mysql_demo. 🚀
     EMAIL_USER: str = 'xxxx-nav@qq.com'
     EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
 
-    # 密码重置 cookies 过期时间
+    # Cookies
     COOKIES_MAX_AGE: int = 60 * 5  # cookies 时效 60 * 5 = 5 分钟
 
     # Middleware
