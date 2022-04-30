@@ -79,13 +79,13 @@ def register_init(app):
     def startup_event():
         if settings.REDIS_OPEN:
             # 连接redis
-            redis_client.init_redis_connect()
+            redis_client.ping()
 
     @app.on_event("shutdown")
     def shutdown_event():
         if settings.REDIS_OPEN:
             # 关闭redis连接
-            redis_client.init_redis_connect().close()
+            redis_client.close()
 
 
 def register_page(app):
