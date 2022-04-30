@@ -22,11 +22,11 @@ fastapi_mysql_demo. 🚀
     OPENAPI_URL: str = '/v1/openapi'
 
     # Uvicorn
-    HOST: str = '127.0.0.1'
-    PORT: int = 8000
-    RELOAD: bool = True
+    UVICORN_HOST: str = '127.0.0.1'
+    UVICORN_PORT: int = 8000
+    UVICORN_RELOAD: bool = True
 
-    # DEBUG
+    # Static Server
     STATIC_FILES = True
 
     # DB
@@ -69,9 +69,9 @@ fastapi_mysql_demo. 🚀
     CASBIN_MODEL_NAME: str = 'rbac_model.conf'
 
     # Token
-    ALGORITHM: str = 'HS256'  # 算法
-    SECRET_KEY: str = '1VkVF75nsNABBjK_7-qz7GtzNy3AMvktc9TCPwKczCk'  # 密钥 (py生成方法：print(secrets.token_urlsafe(32)))
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # token 时效 60 * 24 * 1 = 1 天
+    TOKEN_ALGORITHM: str = 'HS256'  # 算法
+    TOKEN_SECRET_KEY: str = '1VkVF75nsNABBjK_7-qz7GtzNy3AMvktc9TCPwKczCk'  # 密钥 (py生成方法：print(secrets.token_urlsafe(32)))
+    TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # token 时效 60 * 24 * 1 = 1 天
 
     # Email
     EMAIL_DESCRIPTION: str = 'fastapi-mysql-demo'  # 默认发件说明
@@ -79,13 +79,13 @@ fastapi_mysql_demo. 🚀
     EMAIL_USER: str = 'xxxx-nav@qq.com'
     EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
 
-    # 密码重置 cookies 过期时间
+    # cookies
     COOKIES_MAX_AGE: int = 60 * 5  # cookies 时效 60 * 5 = 5 分钟
 
-    # 中间件
-    CORS: bool = True
-    GZIP: bool = True
-    ACCESS: bool = True
+    # Middleware
+    MIDDLEWARE_CORS: bool = True
+    MIDDLEWARE_GZIP: bool = True
+    MIDDLEWARE_ACCESS: bool = True
 
 
 @lru_cache
