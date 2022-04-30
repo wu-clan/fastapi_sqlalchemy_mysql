@@ -20,13 +20,21 @@ class RedisCli:
             decode_responses=True  # 转码 utf-8
         )
 
+    def get_redis(self) -> Redis:
+        """
+        获取redis连接
+        :return:
+        """
+        with self.redis as redis:
+            return redis
+
     def init_redis_connect(self) -> Redis:
         """
         触发初始化连接
         :return:
         """
         try:
-            self.redis.ping()
+            self.get_redis().ping()
         except TimeoutError:
             log.error("连接redis超时")
             sys.exit()
@@ -39,18 +47,9 @@ class RedisCli:
 
         return self.redis
 
-    def get_redis(self) -> Redis:
-        """
-        获取redis连接
-        :return:
-        """
-        with self.redis.client() as redis:
-            return redis
-
 
 # 初始化redis连接
 init_redis_connect = RedisCli().init_redis_connect()
 
 # 获取redis连接
 redis_client = RedisCli().get_redis()
-
