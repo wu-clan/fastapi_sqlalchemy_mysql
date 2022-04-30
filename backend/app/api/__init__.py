@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
 from backend.app.common.sys_jobs import scheduler
-from backend.app.common.sys_redis import redis_client
+from backend.app.common.sys_redis import init_redis_connect
 from backend.app.core.conf import settings
 from backend.app.api.v1 import v1
 from backend.app.middleware import register_middleware
@@ -79,14 +79,14 @@ def register_init(app):
     @app.on_event("startup")
     def startup_event():
         # 连接redis
-        redis_client.ping()
+        init_redis_connect.ping()
         # 启动定时任务
         scheduler.start()
 
     @app.on_event("shutdown")
     def shutdown_event():
         # 关闭redis连接
-        redis_client.close()
+        init_redis_connect.close()
         # 关闭定时任务
         scheduler.shutdown()
 
