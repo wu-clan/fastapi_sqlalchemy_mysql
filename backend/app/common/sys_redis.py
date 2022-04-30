@@ -8,10 +8,10 @@ from backend.app.common.log import log
 from backend.app.core.conf import settings
 
 
-class RedisCli(Redis):
+class RedisCli:
 
     def __init__(self):
-        super(RedisCli, self).__init__(
+        self.redis = Redis(
             host=settings.REDIS_HOST,
             port=settings.REDIS_PORT,
             password=settings.REDIS_PASSWORD,
@@ -20,13 +20,13 @@ class RedisCli(Redis):
             decode_responses=True  # 转码 utf-8
         )
 
-    def init_redis_connect(self):
+    def init_redis_connect(self) -> Redis:
         """
         触发初始化连接
         :return:
         """
         try:
-            self.ping()
+            self.redis.ping()
         except TimeoutError:
             log.error("连接redis超时")
             sys.exit()
@@ -37,6 +37,7 @@ class RedisCli(Redis):
             log.error('连接redis异常 {}', e)
             sys.exit()
 
+        return self.redis
 
-# 创建redis连接对象
-redis_client = RedisCli()
+
+redis_client = RedisCli().init_redis_connect()

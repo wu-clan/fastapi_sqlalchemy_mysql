@@ -79,14 +79,14 @@ def register_init(app):
     @app.on_event("startup")
     def startup_event():
         # 连接redis
-        redis_client.init_redis_connect()
+        redis_client.ping()
         # 启动定时任务
         scheduler.start()
 
     @app.on_event("shutdown")
     def shutdown_event():
         # 关闭redis连接
-        redis_client.init_redis_connect().close()
+        redis_client.close()
         # 关闭定时任务
         scheduler.shutdown()
 
