@@ -49,9 +49,9 @@ def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta
     if expires_delta:
         expires = datetime.utcnow() + expires_delta
     else:
-        expires = datetime.utcnow() + timedelta(settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires = datetime.utcnow() + timedelta(settings.TOKEN_EXPIRE_MINUTES)
     to_encode = {"exp": expires, "sub": str(data)}
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.TOKEN_SECRET_KEY, settings.TOKEN_ALGORITHM)
     return encoded_jwt
 
 
@@ -64,7 +64,7 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
     """
     try:
         # 解密token
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(token, settings.TOKEN_SECRET_KEY, algorithms=[settings.TOKEN_ALGORITHM])
         user_id = payload.get('sub')
         if not user_id:
             raise TokenError
