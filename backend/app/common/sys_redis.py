@@ -39,5 +39,18 @@ class RedisCli:
 
         return self.redis
 
+    def get_redis(self) -> Redis:
+        """
+        获取redis连接
+        :return:
+        """
+        with self.redis.client() as redis:
+            return redis
 
-redis_client = RedisCli().init_redis_connect()
+
+# 初始化redis连接
+init_redis_connect = RedisCli().init_redis_connect()
+
+# 获取redis连接
+redis_client = RedisCli().get_redis()
+
