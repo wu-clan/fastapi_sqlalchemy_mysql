@@ -55,7 +55,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     uid = current_user.user_uid
     rd_token = redis_client.get(uid)
     if not rd_token:
-        redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        redis_client.set(uid, access_token, settings.TOKEN_EXPIRE_MINUTES)
         token = access_token
     else:
         token = rd_token
@@ -83,7 +83,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #     uid = current_user.user_uid
 #     rd_token = redis_client.get(uid)
 #     if not rd_token:
-#         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         redis_client.set(uid, access_token, settings.TOKEN_EXPIRE_MINUTES)
 #         token = access_token
 #     else:
 #         token = rd_token
@@ -121,7 +121,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #     uid = current_user.user_uid
 #     rd_token = redis_client.get(uid)
 #     if not rd_token:
-#         redis_client.set(uid, access_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+#         redis_client.set(uid, access_token, settings.TOKEN_EXPIRE_MINUTES)
 #         token = access_token
 #     else:
 #         token = rd_token

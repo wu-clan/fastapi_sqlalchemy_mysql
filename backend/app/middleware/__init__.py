@@ -9,7 +9,7 @@ from backend.app.middleware.access_middle import AccessMiddleware
 
 def register_middleware(app) -> None:
     # 跨域
-    if settings.CORS:
+    if settings.MIDDLEWARE_CORS:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=["*"],
@@ -18,8 +18,8 @@ def register_middleware(app) -> None:
             allow_headers=["*"],
         )
     # gzip
-    if settings.GZIP:
+    if settings.MIDDLEWARE_GZIP:
         app.add_middleware(GZipMiddleware)
     # hook
-    if settings.ACCESS:
+    if settings.MIDDLEWARE_ACCESS:
         app.add_middleware(AccessMiddleware)
