@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
-from backend.app.common.sys_redis import redis_client
+from backend.app.common.sys_redis import init_redis_connect
 from backend.app.core.conf import settings
 from backend.app.api.v1 import v1
 from backend.app.middleware import register_middleware
@@ -79,13 +79,13 @@ def register_init(app):
     def startup_event():
         if settings.REDIS_OPEN:
             # 连接redis
-            redis_client.ping()
+            init_redis_connect.ping()
 
     @app.on_event("shutdown")
     def shutdown_event():
         if settings.REDIS_OPEN:
             # 关闭redis连接
-            redis_client.close()
+            init_redis_connect.close()
 
 
 def register_page(app):
