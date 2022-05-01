@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from sqlalchemy import select
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Query, contains_eager
 
 from backend.app.crud.base import CRUDBase
 from backend.app.models import Department
@@ -10,23 +9,27 @@ from backend.app.schemas.sm_department import DepmCreate, DepmUpdate
 
 class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
 
-    def get_all_depm(self, db: Session) -> Query:
-        return db.query(Department)
+    def get_all_depm(self) -> Query:
+        return self.db.query(Department)
 
-    def get_one_depm_by_name(self, db: Session, name: str) -> Department:
-        return db.query(Department).filter(Department.name == name).first()
+    def get_depm_join_user_by_id(self, id: int) -> Department:
+        return self.db.query(Department).join(Department.users).options(
+            contains_eager(Department.users)).filter(Department.id == id).all()
 
-    def get_one_depm_by_id(self, db: Session, id: int) -> Department:
-        return super().get(db, id)
+    def get_one_depm_by_name(self, name: str) -> Department:
+        return self.db.query(Department).filter(Department.name == name).first()
 
-    def create_depm(self, db: Session, obj: DepmCreate) -> Department:
-        return super().create(db, obj)
+    def get_one_depm_by_id(self, id: int) -> Department:
+        return super().get(id)
 
-    def update_depm(self, db: Session, id: int, obj: DepmUpdate) -> DepmUpdate:
-        return super().update_one(db, id, obj)
+    def create_depm(self, obj: DepmCreate) -> Department:
+        return super().create(obj)
 
-    def delete_depm(self, db: Session, id: int) -> Department:
-        return super().delete_one(db, id)
+    def update_depm(self, id: int, obj: DepmUpdate) -> DepmUpdate:
+        return super().update_one(id, obj)
+
+    def delete_depm(self, id: int) -> Department:
+        return super().delete_one(id)
 
 
 crud_depm = CRUDDepm(Department)

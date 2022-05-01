@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.orm import Session
 
 from backend.app.common.pagination import Page
 from backend.app.common.sys_casbin import rbac
 from backend.app.crud.crud_casbin import crud_rbac
-from backend.app.datebase.db_mysql import get_db
 from backend.app.schemas import Response200, Response404, Response403
 from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate, PolicyDelete, RBACAll, UserRole
 
@@ -16,8 +14,8 @@ casbin = APIRouter()
 
 
 @casbin.get('/all', summary='获取所有权限规则', response_model=Page[RBACAll])
-def get_rbac(db: Session = Depends(get_db)):
-    return paginate(crud_rbac.get_all_rbac(db))
+def get_rbac():
+    return paginate(crud_rbac.get_all_rbac())
 
 
 @casbin.get('/get_policy', summary='获取p策略')

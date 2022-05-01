@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from backend.app.datebase.base_class import Base
+from backend.app.datebase.db_mysql import get_db
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -18,35 +19,33 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         具有增删改查的默认方法的 CRUD 对象
         """
-        self.model = model
+        self.__model = model
+        self.db: Session = get_db()
 
-    def get(self, db: Session, id: int) -> ModelType:
+    def get(self, id: int) -> ModelType:
         """
         通过id查询一条数据
-        :param db: session
         :param id: 主键id
         :return:
         """
-        return db.query(self.model).filter(self.model.id == id).first()
+        return self.db.query(self.__model).filter(self.__model.id == id).first()
 
-    def create(self, db: Session, obj_in: CreateSchemaType) -> ModelType:
+    def create(self, obj_in: CreateSchemaType) -> ModelType:
         """
         通过schema类新增一条数据
-        :param db: session
         :param obj_in: Pydantic模型类
         :return:
         """
         obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+        db_obj = self.__model(**obj_in_data)
+        self.db.add(db_obj)
+        self.db.commit()
+        self.db.refresh(db_obj)
         return db_obj
 
-    def update(self, db: Session, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    def update(self, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过model类更新一条数据
-        :param db: session
         :param db_obj: 数据库model类
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
@@ -59,35 +58,33 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
-        db.commit()
+        self.db.commit()
         return db_obj
 
-    def update_one(self, db: Session, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    def update_one(self, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过主键id更新一条数据
-        :param db: session
         :param id: 主键id
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        model = db.query(self.model).filter(self.model.id == id).first()
+        model = self.db.query(self.__model).filter(self.__model.id == id).first()
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
         for attr, value in update_data.items():
             setattr(model, attr, value)
-        db.commit()
+        self.db.commit()
         return model
 
-    def delete_one(self, db: Session, id: int) -> ModelType:
+    def delete_one(self, id: int) -> ModelType:
         """
         通过id删除一条数据
-        :param db: session
         :param id: 主键id
         :return:
         """
-        obj = db.query(self.model).get(id)
-        db.delete(obj)
-        db.commit()
+        obj = self.db.query(self.__model).get(id)
+        self.db.delete(obj)
+        self.db.commit()
         return obj
