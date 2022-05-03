@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class RoleBase(BaseModel):
     name: str
-    api_id: Optional[str] = None
+    description: Optional[str] = None
 
 
 class RoleCreate(RoleBase):

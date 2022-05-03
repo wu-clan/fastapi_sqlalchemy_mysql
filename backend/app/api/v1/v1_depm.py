@@ -21,33 +21,33 @@ async def get_depm(db: AsyncSession = Depends(get_db)):
 
 
 @depm.post('/add', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])
-async def create_depm(obj: DepmCreate, db: AsyncSession = Depends(get_db)):
-    check = await crud_depm.get_one_depm_by_name(db, obj.name)
+async def create_depm(obj: DepmCreate):
+    check = await crud_depm.get_one_depm_by_name(obj.name)
     if check:
         return Response403(msg='部门已存在')
     else:
-        data = await crud_depm.create_depm(db, obj)
+        data = await crud_depm.create_depm(obj)
         return Response200(data=data)
 
 
 @depm.put('/put/{id}', summary='修改部门', dependencies=[Depends(rbac.verify_rbac)])
-async def update_depm(obj: DepmUpdate, id: int = Query(...), db: AsyncSession = Depends(get_db)):
-    check = await crud_depm.get_one_depm_by_id(db, id)
+async def update_depm(obj: DepmUpdate, id: int = Query(...)):
+    check = await crud_depm.get_one_depm_by_id(id)
     if not check:
         return Response404(data=obj)
-    check_name = await crud_depm.get_one_depm_by_name(db, obj.name)
+    check_name = await crud_depm.get_one_depm_by_name(obj.name)
     if obj.name != check.name:
         if check_name:
             return Response403(msg='部门已存在, 请更换部门名称')
-    data = await crud_depm.update_depm(db, id, obj)
+    data = await crud_depm.update_depm(id, obj)
     return Response200(data=data)
 
 
 @depm.delete('/delete/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
-async def delete_depm(id: int = Query(...), db: AsyncSession = Depends(get_db)):
-    check = await crud_depm.get_one_depm_by_id(db, id)
+async def delete_depm(id: int = Query(...)):
+    check = await crud_depm.get_one_depm_by_id(id)
     if not check:
         return Response404()
-    if await crud_depm.delete_depm(db, id):
+    if await crud_depm.delete_depm(id):
         return Response200()
     return Response500()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
@@ -14,22 +13,22 @@ class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
     def get_all_depm(self) -> Select:
         return select(Department)
 
-    async def get_one_depm_by_name(self, db: AsyncSession, name: str) -> Department:
-        data = await db.execute(select(Department).where(Department.name == name))
+    async def get_one_depm_by_name(self, name: str) -> Department:
+        data = await self.db.execute(select(Department).where(Department.name == name))
         return data.scalars().first()
 
-    async def get_one_depm_by_id(self, db: AsyncSession, id: int) -> Department:
-        data = await db.execute(select(Department).where(Department.id == id))
+    async def get_one_depm_by_id(self, id: int) -> Department:
+        data = await self.db.execute(select(Department).where(Department.id == id))
         return data.scalars().first()
 
-    async def create_depm(self, db: AsyncSession, obj: DepmCreate) -> Department:
-        return await super().create(db, obj)
+    async def create_depm(self, obj: DepmCreate) -> Department:
+        return await super().create(obj)
 
-    async def update_depm(self, db: AsyncSession, id: int, obj: DepmUpdate) -> DepmUpdate:
-        return await super().update_one(db, id, obj)
+    async def update_depm(self, id: int, obj: DepmUpdate) -> DepmUpdate:
+        return await super().update_one(id, obj)
 
-    async def delete_depm(self, db: AsyncSession, id: int) -> bool:
-        return await super().delete_one(db, id)
+    async def delete_depm(self, id: int) -> bool:
+        return await super().delete_one(id)
 
 
 crud_depm = CRUDDepm(Department)

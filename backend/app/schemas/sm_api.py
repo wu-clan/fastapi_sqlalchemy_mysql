@@ -15,6 +15,7 @@ class Method(str, enum.Enum):
 
 class APIBase(BaseModel):
     path: str
+    group: Optional[str] = None
     description: Optional[str] = None
     method: Method = Method.GET
 

@@ -10,7 +10,7 @@ class Role(Base):
     """ 角色 """
     __tablename__ = 'sys_role'
     name = Column(String(32), nullable=False, unique=True, comment='角色名称')
-    api_id = Column(String(256), comment='api_id')
+    description = Column(String(256), comment='角色描述')
     users = relationship('User', secondary='sys_user_role', backref='roles')
 
 
