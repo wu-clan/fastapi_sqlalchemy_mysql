@@ -26,16 +26,13 @@ else:
     db_session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
-def get_db():
+def get_db() -> db_session:
     """
-    每一个请求处理完毕后会关闭当前连接，不同的请求使用不同的连接
+    获取数据库会话
     :return:
     """
-    conn = db_session()
-    try:
-        yield conn
-    finally:
-        conn.close()
+    with db_session() as session:
+        return session
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']
