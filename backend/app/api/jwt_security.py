@@ -3,16 +3,14 @@
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.conf import settings
 from backend.app.crud.crud_user import crud_user
-from backend.app.datebase.db_mysql import get_db
 from backend.app.models import User
 from backend.app.schemas import AuthorizationError, TokenError
 
@@ -54,10 +52,9 @@ def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta
     return encoded_jwt
 
 
-async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_schema)) -> User:
+async def get_current_user(token: str = Depends(oauth2_schema)) -> User:
     """
     通过token获取当前用户
-    :param db:
     :param token:
     :return:
     """
@@ -69,7 +66,7 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError
-    user = await crud_user.get_user_by_id(db, user_id)
+    user = await crud_user.get_user_by_id(user_id)
     return user
 
 

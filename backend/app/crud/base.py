@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
+import asyncio
+from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -8,6 +9,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.datebase.base_class import Base
+from backend.app.datebase.db_mysql import get_db
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -18,42 +20,36 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         """
         具有增删改查的默认方法的 CRUD 对象。
-        **Parameters**
-        * `model`: 一个 SQLAlchemy 模型类
-        * `schema`: Pydantic 模型类
         """
-        self.model = model
+        self.__model = model
+        self.db: AsyncSession = asyncio.run(get_db())
 
-    async def get(self, db: AsyncSession, id: int) -> ModelType:
+    async def get(self, id: int) -> ModelType:
         """
         通过id查询一条数据
-        :param db: session
         :param id: 主键id
         :return:
         """
-        sql = select(self.model).where(self.model.id == id)
-        data = await db.execute(sql)
+        sql = select(self.__model).where(self.__model.id == id)
+        data = await self.db.execute(sql)
         return data.scalars().first()
 
-    async def create(self, db: AsyncSession, obj_in: CreateSchemaType) -> ModelType:
+    async def create(self, obj_in: CreateSchemaType) -> ModelType:
         """
         通过schema类新增一条数据
-        :param db: session
         :param obj_in: Pydantic 模型类
         :return:
         """
         obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)
-        db.add(db_obj)
-        await db.commit()
-        await db.refresh(db_obj)
+        db_obj = self.__model(**obj_in_data)
+        self.db.add(db_obj)
+        await self.db.commit()
+        await self.db.refresh(db_obj)
         return db_obj
 
-    async def update(self, db: AsyncSession, db_obj: ModelType,
-                     obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    async def update(self, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过model类更新一条数据
-        :param db: session
         :param db_obj: 数据库model类
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
@@ -66,18 +62,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
-        await db.commit()
+        await self.db.commit()
         return db_obj
 
-    async def update_one(self, db: AsyncSession, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    async def update_one(self, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过主键id更新一条数据
-        :param db: session
         :param id: 主键id
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        sql = await db.execute(select(self.model).where(self.model.id == id))
+        sql = await self.db.execute(select(self.__model).where(self.__model.id == id))
         model = sql.scalars().first()
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -85,17 +80,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             update_data = obj_in.dict(exclude_unset=True)
         for attr, value in update_data.items():
             setattr(model, attr, value)
-        await db.commit()
+        await self.db.commit()
         return model
 
-    async def delete_one(self, db: AsyncSession, id: int) -> bool:
+    async def delete_one(self, id: int) -> bool:
         """
         通过id删除一条数据
-        :param db: session
         :param id: 主键id
         :return:
         """
-        sql = delete(self.model).where(self.model.id == id)
-        obj = await db.execute(sql)
-        await db.commit()
+        sql = delete(self.__model).where(self.__model.id == id)
+        obj = await self.db.execute(sql)
+        await self.db.commit()
         return obj

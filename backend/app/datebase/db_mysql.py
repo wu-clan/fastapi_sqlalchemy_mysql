@@ -28,11 +28,11 @@ else:
 
 async def get_db() -> AsyncSession:
     """
-    session生成器
+    获取数据库会话
     :return:
     """
     async with db_session() as session:
-        yield session
+        return session
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']
