@@ -31,7 +31,7 @@ def query_set_to_list(obj) -> list:
     return ret_list
 
 
-def query_to_json(obj) -> dict:
+def query_set_to_json(obj) -> dict:
     """
     Serialize SQLAlchemy Query Set to json
     :param obj: SQLAlchemy Query Set
