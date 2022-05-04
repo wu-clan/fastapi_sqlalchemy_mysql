@@ -85,13 +85,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await self.db.commit()
         return model
 
-    async def delete_one(self, id: int) -> Optional[bool]:
+    async def delete_one(self, id: int) -> ModelType:
         """
         通过id删除一条数据
         :param id: 主键id
         :return:
         """
-        sql = delete(self.__model).where(self.__model.id == id)
-        obj = await self.db.execute(sql)
+        obj = await self.db.get(self.__model, id)
+        await self.db.delete(obj)
         await self.db.commit()
         return obj
