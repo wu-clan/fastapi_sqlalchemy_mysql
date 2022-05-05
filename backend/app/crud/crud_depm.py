@@ -14,7 +14,7 @@ class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
 
     def get_depm_join_user_by_id(self, id: int) -> Department:
         return self.db.query(Department).join(Department.users).options(
-            contains_eager(Department.users)).filter(Department.id == id).all()
+            contains_eager(Department.users).defer('password')).filter(Department.id == id).all()
 
     def get_one_depm_by_name(self, name: str) -> Department:
         return self.db.query(Department).filter(Department.name == name).first()
