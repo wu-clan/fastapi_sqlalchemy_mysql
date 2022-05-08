@@ -19,7 +19,7 @@ from backend.app.common.pagination import Page
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.core.path_conf import ImgPath
-from backend.app.crud.crud_depm import crud_depm
+from backend.app.crud.crud_dept import crud_dept
 from backend.app.crud.crud_role import crud_role
 from backend.app.crud.crud_user import crud_user
 from backend.app.datebase.db_mysql import get_db
@@ -166,8 +166,8 @@ async def user_register(create: CreateUser, role: CreateUserRole):
         validate_email(create.email).email
     except EmailNotValidError:
         raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
-    depm = await crud_depm.get_one_depm_by_id(create.department_id)
-    if not depm:
+    dept = await crud_dept.get_one_dept_by_id(create.department_id)
+    if not dept:
         raise HTTPException(status_code=404, detail='所选部门不存在')
     if len(role.role_id) == 1:
         if not await crud_role.get_one_role_by_id(role.role_id):
@@ -288,8 +288,8 @@ async def update_userinfo(
             validate_email(put.email).email
         except EmailNotValidError:
             raise HTTPException(status_code=403, detail='邮箱格式错误，请重新输入')
-    depm = await crud_depm.get_one_depm_by_id(put.department_id)
-    if not depm:
+    dept = await crud_dept.get_one_dept_by_id(put.department_id)
+    if not dept:
         raise HTTPException(status_code=404, detail='所选部门不存在')
     if len(role.role_id) == 1:
         if not await crud_role.get_one_role_by_id(role.role_id):

@@ -68,8 +68,8 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         await self.db.execute(
             update(User).where(User.id == current_user.id).values(jsonable_encoder(put, exclude={'department_id'})))
         # 更新部门
-        depm = await self.db.get(Department, put.department_id)
-        await self.db.execute(update(User).where(User.id == current_user.id).values(department_id=depm.id))
+        dept = await self.db.get(Department, put.department_id)
+        await self.db.execute(update(User).where(User.id == current_user.id).values(department_id=dept.id))
         # 更新角色
         # step1 删除用户与角色的关系
         user_role = user.first().roles
