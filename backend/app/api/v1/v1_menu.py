@@ -23,7 +23,7 @@ def get_all():
 
 
 @menu.post("/add", summary='创建菜单', dependencies=[Depends(rbac.verify_rbac)])
-def create(mn: MenuCreate):
+def create_menu(mn: MenuCreate):
     check = crud_menu.get_one_menu_by_name(mn.name)
     if check:
         return Response403(msg='菜单已存在, 请更换菜单展示名称')
@@ -32,7 +32,7 @@ def create(mn: MenuCreate):
 
 
 @menu.put("/put/{id}", summary='更新菜单', dependencies=[Depends(rbac.verify_rbac)])
-def update(mn: MenuCreate, id: int = Query(...)):
+def update_menu(mn: MenuCreate, id: int = Query(...)):
     check = crud_menu.get_one_menu_by_id(id)
     if not check:
         return Response404(data=mn)
@@ -45,7 +45,7 @@ def update(mn: MenuCreate, id: int = Query(...)):
 
 
 @menu.delete("/delete/{id}", summary='删除菜单', dependencies=[Depends(rbac.verify_rbac)])
-def delete(id: int = Query(...)):
+def delete_menu(id: int = Query(...)):
     check = crud_menu.get_one_menu_by_id(id)
     if not check:
         return Response404()

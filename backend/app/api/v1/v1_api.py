@@ -28,7 +28,7 @@ def create_api(obj: APICreate):
         return Response200(data=data)
 
 
-@api.put('/put/{id}', summary='修改API', dependencies=[Depends(rbac.verify_rbac)])
+@api.put('/put/{id}', summary='更新API', dependencies=[Depends(rbac.verify_rbac)])
 def update_api(obj: APIUpdate, id: int = Query(...)):
     check = crud_api.get_one_api_by_id(id)
     if not check:

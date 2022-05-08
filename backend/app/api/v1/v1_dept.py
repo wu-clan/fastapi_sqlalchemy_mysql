@@ -37,7 +37,7 @@ def create_dept(obj: DeptCreate):
         return Response200(data=data)
 
 
-@dept.put('/put/{id}', summary='修改部门', dependencies=[Depends(rbac.verify_rbac)])
+@dept.put('/put/{id}', summary='更新部门', dependencies=[Depends(rbac.verify_rbac)])
 def create_dept(obj: DeptUpdate, id: int = Query(...)):
     check = crud_dept.get_one_dept_by_id(id)
     if not check:

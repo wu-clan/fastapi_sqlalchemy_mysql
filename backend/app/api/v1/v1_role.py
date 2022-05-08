@@ -22,7 +22,7 @@ def get_all_role(db: Session = Depends(get_db)):
 
 
 @role.post('/add', summary='创建角色', dependencies=[Depends(rbac.verify_rbac)])
-def create_dept(obj: RoleCreate, menu: RoleMenuCreate):
+def create_role(obj: RoleCreate, menu: RoleMenuCreate):
     check = crud_role.get_one_role_by_name(obj.name)
     if check:
         return Response403(msg='角色已存在')
@@ -39,8 +39,8 @@ def create_dept(obj: RoleCreate, menu: RoleMenuCreate):
     return Response200(data={'role': data, 'menu': menu.menu_id})
 
 
-@role.put('/put/{id}', summary='修改角色', dependencies=[Depends(rbac.verify_rbac)])
-def create_dept(obj: RoleUpdate, menu: RoleMenuCreate, id: int = Query(...)):
+@role.put('/put/{id}', summary='更新角色', dependencies=[Depends(rbac.verify_rbac)])
+def create_role(obj: RoleUpdate, menu: RoleMenuCreate, id: int = Query(...)):
     check = crud_role.get_one_role_by_id(id)
     if not check:
         return Response404(data=obj)
@@ -62,7 +62,7 @@ def create_dept(obj: RoleUpdate, menu: RoleMenuCreate, id: int = Query(...)):
 
 
 @role.delete('/delete/{id}', summary='删除角色', dependencies=[Depends(rbac.verify_rbac)])
-def get_dept(id: int = Query(...)):
+def get_role(id: int = Query(...)):
     check = crud_role.get_one_role_by_id(id)
     if not check:
         return Response404()
