@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     print(json.dumps(list_to_tree(test_data), indent=4))
 
-    data = [
+    test_data2 = [
         {'id': 10, 'parent_id': 8, 'name': "ACAB"},
         {'id': 9, 'parent_id': 8, 'name': "ACAA"},
         {'id': 8, 'parent_id': 7, 'name': "ACA"},
@@ -59,4 +59,4 @@ if __name__ == '__main__':
         {'id': 1, 'parent_id': 0, 'name': "A"},
     ]
 
-    print(json.dumps(ram_list_to_tree(data), indent=4))
+    print(json.dumps(ram_list_to_tree(test_data2), indent=4))

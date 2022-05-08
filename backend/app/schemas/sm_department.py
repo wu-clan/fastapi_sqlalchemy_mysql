@@ -5,20 +5,20 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class DepmBase(BaseModel):
+class DeptBase(BaseModel):
     name: str
     description: Optional[str] = None
 
 
-class DepmCreate(DepmBase):
+class DeptCreate(DeptBase):
     pass
 
 
-class DepmUpdate(DepmBase):
+class DeptUpdate(DeptBase):
     pass
 
 
-class DepmAll(DepmBase):
+class DeptAll(DeptBase):
     id: int
 
     class Config:

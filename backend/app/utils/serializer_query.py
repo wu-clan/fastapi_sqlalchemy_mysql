@@ -37,7 +37,7 @@ def query_set_to_json(obj) -> dict:
     :param obj: SQLAlchemy Query Set
     :return:
     """
-    dict = obj.__dict__
-    if "_sa_instance_state" in dict:
-        del dict["_sa_instance_state"]
-        return dict
+    obj_dict = obj.__dict__
+    if "_sa_instance_state" in obj_dict:
+        del obj_dict["_sa_instance_state"]
+        return obj_dict

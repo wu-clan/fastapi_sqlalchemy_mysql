@@ -4,32 +4,32 @@ from sqlalchemy.orm import Query, contains_eager
 
 from backend.app.crud.base import CRUDBase
 from backend.app.models import Department
-from backend.app.schemas.sm_department import DepmCreate, DepmUpdate
+from backend.app.schemas.sm_department import DeptCreate, DeptUpdate
 
 
-class CRUDDepm(CRUDBase[Department, DepmCreate, DepmUpdate]):
+class CRUDDept(CRUDBase[Department, DeptCreate, DeptUpdate]):
 
-    def get_all_depm(self) -> Query:
+    def get_all_dept(self) -> Query:
         return self.db.query(Department)
 
-    def get_depm_join_user_by_id(self, id: int) -> Department:
+    def get_dept_join_user_by_id(self, id: int) -> Department:
         return self.db.query(Department).join(Department.users).options(
             contains_eager(Department.users).defer('password')).filter(Department.id == id).all()
 
-    def get_one_depm_by_name(self, name: str) -> Department:
+    def get_one_dept_by_name(self, name: str) -> Department:
         return self.db.query(Department).filter(Department.name == name).first()
 
-    def get_one_depm_by_id(self, id: int) -> Department:
+    def get_one_dept_by_id(self, id: int) -> Department:
         return super().get(id)
 
-    def create_depm(self, obj: DepmCreate) -> Department:
+    def create_dept(self, obj: DeptCreate) -> Department:
         return super().create(obj)
 
-    def update_depm(self, id: int, obj: DepmUpdate) -> DepmUpdate:
+    def update_dept(self, id: int, obj: DeptUpdate) -> DeptUpdate:
         return super().update_one(id, obj)
 
-    def delete_depm(self, id: int) -> Department:
+    def delete_dept(self, id: int) -> Department:
         return super().delete_one(id)
 
 
-crud_depm = CRUDDepm(Department)
+crud_dept = CRUDDept(Department)

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from .v1_api import api
 from .v1_captcha import captcha
-from .v1_depm import depm
+from .v1_dept import dept
 from .v1_casbin import casbin
 from .v1_menu import menu
 from .v1_role import role
@@ -17,7 +17,7 @@ from ...common.sys_casbin import rbac
 v1 = APIRouter(prefix='/v1')
 
 v1.include_router(captcha, prefix='/captcha', tags=['图片验证码'])
-v1.include_router(depm, prefix='/depm', tags=['部门管理'])
+v1.include_router(dept, prefix='/dept', tags=['部门管理'])
 v1.include_router(api, prefix='/api', tags=['API管理'])
 v1.include_router(role, prefix='/role', tags=['角色管理'])
 v1.include_router(menu, prefix='/menu', tags=['菜单管理'])

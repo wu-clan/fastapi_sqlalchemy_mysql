@@ -66,8 +66,8 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
             'blog_address': blog_address, 'introduction': introduction
         })
         # 更新部门
-        depm = self.db.query(Department).get(department_id).id
-        userinfo.update({'department_id': depm})
+        dept = self.db.query(Department).get(department_id).id
+        userinfo.update({'department_id': dept})
         # 更新角色
         # step1 先删除所有角色
         for i in list(userinfo.first().roles):
