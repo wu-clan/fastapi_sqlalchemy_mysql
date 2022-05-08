@@ -3,11 +3,9 @@
 import datetime
 from typing import Optional, List
 
-from fastapi import Form
 from pydantic import BaseModel, Field
 
 from backend.app.schemas.sm_role import RoleAll
-from backend.app.utils.pydantic_as_form import encode_as_form
 
 
 class Auth(BaseModel):

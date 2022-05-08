@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import Boolean, Column, DateTime, func, Integer, SmallInteger, String, ForeignKey
+from sqlalchemy import Boolean, Column, DateTime, func, Integer, String, ForeignKey
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import relationship
 
