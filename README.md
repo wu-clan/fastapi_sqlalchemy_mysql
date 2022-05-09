@@ -2,9 +2,16 @@
 
 ###### 声明：此仓库仅做为 FastAPI 入门级参考，对于不同需求，使用者请自由扩展
 
-📢 开箱即用，所有分支持续同步更新
-
 😓 由于分支过多，不易维护， 所以你也可以在同类型分支之间 cv 功能从而自定义demo
+
+## 📢 公告
+
+"此分支"在之后的迭代中不再进行同步更新,仅作为 <异步实现图形验证码登录> 示例提供
+
+
+End sha: [59dca48](https://gitee.com/wu_cl/fastapi_mysql_demo/commit/59dca48867cadaab30fbe7e407236a2cf3bbdf50)
+
+
 
 ## 异步：
 ### async -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
