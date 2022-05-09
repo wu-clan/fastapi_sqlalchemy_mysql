@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class Token(BaseModel):
-    code: Optional[int] = None
+    code: int = 200
     msg: Optional[str] = None
     access_token: str
     token_type: str

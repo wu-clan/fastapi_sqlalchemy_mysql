@@ -33,7 +33,7 @@ def ram_list_to_tree(data_list: list) -> list:
 
 
 if __name__ == '__main__':
-    test_data = [
+    test_data1 = [
         {'id': 1, 'title': 'GGG', 'parent_id': 0},
         {'id': 2, 'title': 'AAA', 'parent_id': 0},
         {'id': 3, 'title': 'BBB', 'parent_id': 1},
@@ -44,9 +44,9 @@ if __name__ == '__main__':
         {'id': 3, 'title': 'BBB', 'parent_id': 1},
     ]
 
-    print(json.dumps(list_to_tree(test_data), indent=4))
+    print(json.dumps(list_to_tree(test_data1), indent=4))
 
-    data = [
+    test_data2 = [
         {'id': 10, 'parent_id': 8, 'name': "ACAB"},
         {'id': 9, 'parent_id': 8, 'name': "ACAA"},
         {'id': 8, 'parent_id': 7, 'name': "ACA"},
@@ -59,4 +59,4 @@ if __name__ == '__main__':
         {'id': 1, 'parent_id': 0, 'name': "A"},
     ]
 
-    print(json.dumps(ram_list_to_tree(data), indent=4))
+    print(json.dumps(ram_list_to_tree(test_data2), indent=4))
