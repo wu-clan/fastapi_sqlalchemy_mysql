@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, select, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
 from backend.app.api import jwt_security
 from backend.app.models import User
-from backend.app.schemas.sm_user import CreateUser, DeleteUser, UpdateUser
+from backend.app.schemas.sm_user import CreateUser, DeleteUser
 
 
 async def get_user_by_id(db: AsyncSession, user_id: int) -> User:
@@ -53,12 +52,14 @@ async def create_user(db: AsyncSession, create: CreateUser) -> User:
     return new_user
 
 
-async def update_userinfo(db: AsyncSession, current_user: User, put: UpdateUser, file: str) -> User:
+async def update_userinfo(db: AsyncSession, current_user: User, username: str, email: str, mobile_number: str,
+                          wechat: str, qq: str, blog_address: str, introduction: str, file: str) -> User:
     data = await db.execute(select(User).where(User.id == current_user.id))
-    await db.execute(update(User).where(User.id == current_user.id).values(jsonable_encoder(put)))
-    await db.execute(update(User).where(User.id == current_user.id).values(jsonable_encoder({
-        'avatar': file
-    })))
+    await db.execute(update(User).where(User.id == current_user.id).values({
+        'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
+        'blog_address': blog_address, 'introduction': introduction
+    }))
+    await db.execute(update(User).where(User.id == current_user.id).values({'avatar': file}))
     await db.commit()
     return data.scalars().first()
 

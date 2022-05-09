@@ -14,4 +14,7 @@ Versions = os.path.join(BasePath, 'app', 'alembic', 'versions')
 LogPath = os.path.join(BasePath, 'app', 'log')
 
 # 图片上传存放路径: /static/media/uploads/
-ImgPath = os.path.join(BasePath, 'app', 'static', 'media', 'uploads', '')
+ImgPath = os.path.join(BasePath, 'app', 'static', 'media', 'uploads')
+
+# 头像上传存放路径: /static/media/uploads/avatars/
+AvatarPath = os.path.join(ImgPath, 'avatars', '')
