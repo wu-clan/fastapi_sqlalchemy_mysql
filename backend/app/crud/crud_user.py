@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func
 from sqlalchemy.orm import Query
 
@@ -40,9 +39,14 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         self.db.refresh(new_user)
         return new_user
 
-    def update_userinfo(self, current_user: User, put: UpdateUser, file: str) -> User:
+    def update_userinfo(self, current_user: User, username: str, email: str, mobile_number: str, wechat: str, qq: str,
+                        blog_address: str, introduction: str, file: str) -> User:
+
         userinfo = self.db.query(User).filter(User.id == current_user.id)
-        userinfo.update(jsonable_encoder(put))
+        userinfo.update({
+            'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
+            'blog_address': blog_address, 'introduction': introduction
+        })
         userinfo.update({
             'avatar': file
         })
