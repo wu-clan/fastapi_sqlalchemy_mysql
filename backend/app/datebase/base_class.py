@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import uuid
-from typing import Any
 
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import as_declarative, declared_attr

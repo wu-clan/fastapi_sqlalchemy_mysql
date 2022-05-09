@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func
 from sqlalchemy.orm import Session, Query
 
 from backend.app.api import jwt_security
 from backend.app.models import User
-from backend.app.schemas.sm_user import CreateUser, DeleteUser, UpdateUser
+from backend.app.schemas.sm_user import CreateUser
 
 
 def get_user_by_id(db: Session, user_id: int) -> User:
@@ -45,9 +44,13 @@ def create_user(db: Session, create: CreateUser) -> User:
     return new_user
 
 
-def update_userinfo(db: Session, current_user: User, put: UpdateUser, file: str) -> User:
+def update_userinfo(db: Session, current_user: User, username: str, email: str, mobile_number: str, wechat: str, qq: str,
+                    blog_address: str, introduction: str, file: str) -> User:
     userinfo = db.query(User).filter(User.id == current_user.id)
-    userinfo.update(jsonable_encoder(put))
+    userinfo.update({
+        'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
+        'blog_address': blog_address, 'introduction': introduction
+    })
     userinfo.update({
         'avatar': file
     })
@@ -55,10 +58,11 @@ def update_userinfo(db: Session, current_user: User, put: UpdateUser, file: str)
     return userinfo.first()
 
 
-def delete_user(db: Session, user_id: DeleteUser) -> None:
-    user = db.query(User).filter(User.id == user_id)
+def delete_user(db: Session, user_id: int) -> User:
+    user = db.query(User).get(user_id)
     user.delete()
     db.commit()
+    return user
 
 
 def check_email(db: Session, email: str) -> User:

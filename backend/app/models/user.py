@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import Boolean, Column, DateTime, func, Integer, SmallInteger, String
+from sqlalchemy import Boolean, Column, DateTime, func, String
 from sqlalchemy.dialects.mysql import LONGTEXT
 
 from backend.app.datebase.base_class import Base, use_uuid
@@ -10,7 +10,7 @@ from backend.app.datebase.base_class import Base, use_uuid
 class User(Base):
     """ 用户 """
     __tablename__ = 'sys_user'
-    user_uid = Column(String(128), default=use_uuid, unique=True, comment='用户id')
+    user_uid = Column(String(128), default=use_uuid, unique=True, comment='用户uid')
     username = Column(String(128), nullable=False, unique=True, index=True, comment='用户名')
     password = Column(String(128), nullable=False, comment='密码')
     email = Column(String(128), nullable=False, unique=True, index=True, comment='邮箱')
