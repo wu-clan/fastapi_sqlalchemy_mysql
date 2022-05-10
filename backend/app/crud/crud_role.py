@@ -11,7 +11,7 @@ from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleMenuCreate, 
 class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
 
     def get_all_role(self) -> list:
-        return select(Role).order_by(Role.id.desc()).options(joinedload(Role.menus))
+        return select(self.model).order_by(Role.id.desc()).options(joinedload(Role.menus))
 
     def get_one_role_by_name(self, name: str) -> Role:
         return self.db.query(Role).filter(Role.name == name).first()

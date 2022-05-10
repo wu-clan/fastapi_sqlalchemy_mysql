@@ -101,7 +101,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         return current_user.first()
 
     def get_users(self) -> list:
-        return select(User).order_by(User.time_joined.desc()).options(joinedload(User.roles))
+        return select(self.model).order_by(User.time_joined.desc()).options(joinedload(User.roles))
 
     def get_user_is_super(self, user_id: int) -> bool:
         return self.db.query(User).filter(User.id == user_id).first().is_superuser

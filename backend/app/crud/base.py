@@ -19,7 +19,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         具有增删改查的默认方法的 CRUD 对象
         """
-        self.__model = model
+        self.model = model
         self.db: Session = get_db()
 
     def get(self, id: int) -> ModelType:
@@ -28,7 +28,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        return self.db.query(self.__model).filter(self.__model.id == id).first()
+        return self.db.query(self.model).filter(self.model.id == id).first()
 
     def create(self, obj_in: CreateSchemaType) -> ModelType:
         """
@@ -37,7 +37,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :return:
         """
         obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.__model(**obj_in_data)
+        db_obj = self.model(**obj_in_data)
         self.db.add(db_obj)
         self.db.commit()
         self.db.refresh(db_obj)
@@ -68,7 +68,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        model = self.db.query(self.__model).filter(self.__model.id == id).first()
+        model = self.db.query(self.model).filter(self.model.id == id).first()
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
@@ -84,7 +84,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        obj = self.db.query(self.__model).get(id)
+        obj = self.db.query(self.model).get(id)
         self.db.delete(obj)
         self.db.commit()
         return obj
