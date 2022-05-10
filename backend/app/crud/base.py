@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import asyncio
-from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.datebase.base_class import Base
@@ -21,7 +21,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         具有增删改查的默认方法的 CRUD 对象。
         """
-        self.__model = model
+        self.model = model
         self.db: AsyncSession = asyncio.run(get_db())
 
     async def get(self, id: int) -> ModelType:
@@ -31,7 +31,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        sql = select(self.__model).where(self.__model.id == id)
+        sql = select(self.model).where(self.model.id == id)
         data = await self.db.execute(sql)
         return data.scalars().first()
 
@@ -42,14 +42,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :return:
         """
         obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.__model(**obj_in_data)
+        db_obj = self.model(**obj_in_data)
         self.db.add(db_obj)
         await self.db.commit()
         await self.db.refresh(db_obj)
         return db_obj
 
-    async def update(self, db_obj: ModelType,
-                     obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    async def update(self, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过model类更新一条数据
         :param db_obj: 数据库model类
@@ -74,7 +73,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        sql = await self.db.execute(select(self.__model).where(self.__model.id == id))
+        sql = await self.db.execute(select(self.model).where(self.model.id == id))
         model = sql.scalars().first()
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -91,7 +90,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        obj = await self.db.get(self.__model, id)
+        obj = await self.db.get(self.model, id)
         await self.db.delete(obj)
         await self.db.commit()
         return obj

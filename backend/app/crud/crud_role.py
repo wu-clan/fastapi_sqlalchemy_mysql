@@ -14,7 +14,7 @@ class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
         return await super().get(role_id)
 
     def get_all_role(self) -> Select:
-        return select(Role)
+        return select(self.model)
 
     async def get_one_role_by_name(self, name: str) -> Role:
         data = await self.db.execute(select(Role).where(Role.name == name))

@@ -11,7 +11,7 @@ from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate
 class CRUDRbac(CRUDBase[CasbinRule, PolicyCreate, PolicyUpdate]):
 
     def get_all_rbac(self) -> Select:
-        return select(CasbinRule)
+        return select(self.model)
 
 
 crud_rbac = CRUDRbac(CasbinRule)

@@ -11,7 +11,7 @@ from backend.app.schemas.sm_api import APICreate, APIUpdate
 class CRUDApi(CRUDBase[API, APICreate, APIUpdate]):
 
     def get_all_api(self) -> Select:
-        return select(API)
+        return select(self.model)
 
     async def get_one_api_by_name(self, path: str) -> API:
         data = await self.db.execute(select(API).where(API.path == path))

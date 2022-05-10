@@ -11,7 +11,7 @@ from backend.app.schemas.sm_department import DeptCreate, DeptUpdate
 class CRUDDept(CRUDBase[Department, DeptCreate, DeptUpdate]):
 
     def get_all_dept(self) -> Select:
-        return select(Department)
+        return select(self.model)
 
     async def get_one_dept_by_name(self, name: str) -> Department:
         data = await self.db.execute(select(Department).where(Department.name == name))
