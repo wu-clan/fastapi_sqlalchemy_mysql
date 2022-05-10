@@ -16,32 +16,32 @@ menu = APIRouter()
 
 @menu.get("/all", summary='获取所有菜单', response_class=ORJSONResponse, dependencies=[Depends(get_current_user)],
           description='返回树形结构的菜单列表')
-def get_all():
+def get_all_list():
     data_list = query_set_to_list(crud_menu.get_all_menus())
     to_tree = list_to_tree(data_list)
     return to_tree
 
 
 @menu.post("/add", summary='创建菜单', dependencies=[Depends(rbac.verify_rbac)])
-def create_menu(mn: MenuCreate):
-    check = crud_menu.get_one_menu_by_name(mn.name)
+def create_menu(obj: MenuCreate):
+    check = crud_menu.get_one_menu_by_name(obj.name)
     if check:
         return Response403(msg='菜单已存在, 请更换菜单展示名称')
-    data = crud_menu.create_menu(mn)
+    data = crud_menu.create_menu(obj)
     return Response200(data=data)
 
 
 @menu.put("/put/{id}", summary='更新菜单', dependencies=[Depends(rbac.verify_rbac)])
-def update_menu(mn: MenuCreate, id: int = Query(...)):
+def update_menu(obj: MenuCreate, id: int = Query(...)):
     check = crud_menu.get_one_menu_by_id(id)
     if not check:
-        return Response404(data=mn)
-    check_name = crud_menu.get_one_menu_by_name(mn.name)
-    if mn.name != check.name:
+        return Response404(data=obj)
+    check_name = crud_menu.get_one_menu_by_name(obj.name)
+    if obj.name != check.name:
         if check_name:
             return Response403(msg='部门已存在, 请更换部门名称')
-    crud_menu.update_menu(id, mn)
-    return Response200(data=mn)
+    crud_menu.update_menu(id, obj)
+    return Response200(data=obj)
 
 
 @menu.delete("/delete/{id}", summary='删除菜单', dependencies=[Depends(rbac.verify_rbac)])

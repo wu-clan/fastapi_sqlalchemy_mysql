@@ -14,7 +14,7 @@ dept = APIRouter()
 
 
 @dept.get('/all', summary='获取所有部门', response_model=Page[DeptAll], dependencies=[Depends(get_current_user)])
-def get_dept():
+def get_dept_list():
     return paginate(crud_dept.get_all_dept())
 
 

@@ -55,7 +55,6 @@ def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta
 def get_current_user(token: str = Depends(oauth2_schema)) -> User:
     """
     通过token获取当前用户
-    :param db:
     :param token:
     :return:
     """

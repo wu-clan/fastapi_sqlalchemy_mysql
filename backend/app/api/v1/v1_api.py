@@ -14,7 +14,7 @@ api = APIRouter()
 
 
 @api.get('/all', summary='获取所有API', response_model=Page[APIAll], dependencies=[Depends(get_current_user)])
-def get_api():
+def get_api_list():
     return paginate(crud_api.get_all_api())
 
 

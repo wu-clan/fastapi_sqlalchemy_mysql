@@ -14,7 +14,7 @@ casbin = APIRouter()
 
 
 @casbin.get('/all', summary='获取所有权限规则', response_model=Page[RBACAll])
-def get_rbac():
+def get_rbac_list():
     return paginate(crud_rbac.get_all_rbac())
 
 
@@ -74,7 +74,7 @@ def get_group():
 
 
 @casbin.post('/add_group', summary='添加基于用户组的访问权限')
-def create_group(p: UserRole):
+def create_group(g: UserRole):
     """
     g策略 (**依赖p策略**):
 
@@ -85,7 +85,7 @@ def create_group(p: UserRole):
     但是拥有的不是用户角色的所有权限, 而只是单一的对应的p策略所添加的访问权限
     """
     enforcer = rbac.get_casbin_enforcer()
-    data = enforcer.add_grouping_policy(p.uid, p.role)
+    data = enforcer.add_grouping_policy(g.uid, g.role)
     if data:
         return Response200(data=data)
     else:
@@ -93,9 +93,9 @@ def create_group(p: UserRole):
 
 
 @casbin.delete('/del_group', summary='删除基于用户组的访问权限')
-def delete_group(p: UserRole):
+def delete_group(g: UserRole):
     enforcer = rbac.get_casbin_enforcer()
-    data = enforcer.remove_grouping_policy(p.uid, p.role)
+    data = enforcer.remove_grouping_policy(g.uid, g.role)
     if data:
         return Response200(data=data)
     else:
