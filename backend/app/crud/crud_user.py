@@ -78,7 +78,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         return user.scalars().first()
 
     def get_users(self) -> Select:
-        return select(User).order_by(desc(User.time_joined))
+        return select(self.model).order_by(desc(User.time_joined))
 
     async def get_user_is_super(self, user_id: int) -> bool:
         user = await self.db.execute(select(User).where(User.id == user_id))
