@@ -16,7 +16,7 @@ casbin = APIRouter()
 
 
 @casbin.get('/all', summary='获取所有权限规则', response_model=Page[RBACAll])
-async def get_rbac(db: AsyncSession = Depends(get_db)):
+async def get_all_rbac(db: AsyncSession = Depends(get_db)):
     return await paginate(db, crud_rbac.get_all_rbac())
 
 

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import secrets
 from functools import lru_cache
-from typing import List
 
 from pydantic import BaseSettings
 
@@ -38,7 +36,7 @@ fastapi_mysql_demo. 🚀
     DB_DATABASE: str = 'fmp'
     DB_CHARSET: str = 'utf8mb4'
 
-    # redis
+    # Redis
     REDIS_HOST: str = '127.0.0.1'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''

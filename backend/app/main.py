@@ -11,13 +11,20 @@ app = register_app()
 
 if __name__ == '__main__':
     try:
-        uvicorn.run(
-            app=f'{Path(__file__).stem}:app',
-            host=settings.UVICORN_HOST,
-            port=settings.UVICORN_PORT,
-            reload=settings.UVICORN_RELOAD
+        log.info(
+            """\n
+ /$$$$$$$$                   /$$      /$$$$$$  /$$$$$$$  /$$$$$$
+| $$_____/                  | $$     /$$__  $$| $$__  $$|_  $$_/
+| $$    /$$$$$$   /$$$$$$$ /$$$$$$  | $$  | $$| $$  | $$  | $$  
+| $$$$$|____  $$ /$$_____/|_  $$_/  | $$$$$$$$| $$$$$$$/  | $$  
+| $$__/ /$$$$$$$|  $$$$$$   | $$    | $$__  $$| $$____/   | $$  
+| $$   /$$__  $$ |____  $$  | $$ /$$| $$  | $$| $$        | $$  
+| $$  |  $$$$$$$ /$$$$$$$/  |  $$$$/| $$  | $$| $$       /$$$$$$
+|__/   |_______/|_______/    |___/  |__/  |__/|__/      |______/
+
+            """
         )
+        uvicorn.run(app=f'{Path(__file__).stem}:app', host=settings.UVICORN_HOST, port=settings.UVICORN_PORT,
+                    reload=settings.UVICORN_RELOAD)
     except Exception as e:
         log.error(f'FastAPI start filed ❗❗❗: {e}')
-    else:
-        log.success('🚀🚀🚀 FastAPI start success')
