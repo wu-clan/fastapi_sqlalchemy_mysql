@@ -16,12 +16,12 @@ from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleAll, RoleMen
 role = APIRouter()
 
 
-@role.get('/all', summary='获取所有角色', response_model=Page[RoleAll], dependencies=[Depends(get_current_user)])
+@role.get('/roles', summary='获取所有角色', response_model=Page[RoleAll], dependencies=[Depends(get_current_user)])
 def get_role_list(db: Session = Depends(get_db)):
     return paginate(db, crud_role.get_all_role())
 
 
-@role.post('/add', summary='创建角色', dependencies=[Depends(rbac.verify_rbac)])
+@role.post('/role', summary='创建角色', dependencies=[Depends(rbac.verify_rbac)])
 def create_role(obj_role: RoleCreate, obj_menu: RoleMenuCreate):
     check = crud_role.get_one_role_by_name(obj_role.name)
     if check:
@@ -39,7 +39,7 @@ def create_role(obj_role: RoleCreate, obj_menu: RoleMenuCreate):
     return Response200(data={'role': data, 'menu': obj_menu.menu_id})
 
 
-@role.put('/put/{id}', summary='更新角色', dependencies=[Depends(rbac.verify_rbac)])
+@role.put('/role/{id}', summary='更新角色', dependencies=[Depends(rbac.verify_rbac)])
 def create_role(obj_role: RoleUpdate, obj_menu: RoleMenuCreate, id: int = Query(...)):
     check = crud_role.get_one_role_by_id(id)
     if not check:
@@ -61,7 +61,7 @@ def create_role(obj_role: RoleUpdate, obj_menu: RoleMenuCreate, id: int = Query(
     return Response200(data={'role': data, 'menu': obj_menu.menu_id})
 
 
-@role.delete('/delete/{id}', summary='删除角色', dependencies=[Depends(rbac.verify_rbac)])
+@role.delete('/role/{id}', summary='删除角色', dependencies=[Depends(rbac.verify_rbac)])
 def get_role(id: int = Query(...)):
     check = crud_role.get_one_role_by_id(id)
     if not check:

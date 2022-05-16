@@ -13,12 +13,12 @@ from backend.app.schemas.sm_api import APIAll, APICreate, APIUpdate
 api = APIRouter()
 
 
-@api.get('/all', summary='获取所有API', response_model=Page[APIAll], dependencies=[Depends(get_current_user)])
+@api.get('/apis', summary='获取所有API', response_model=Page[APIAll], dependencies=[Depends(get_current_user)])
 def get_api_list():
     return paginate(crud_api.get_all_api())
 
 
-@api.post('/add', summary='创建API', dependencies=[Depends(rbac.verify_rbac)])
+@api.post('/api', summary='创建API', dependencies=[Depends(rbac.verify_rbac)])
 def create_api(obj: APICreate):
     check = crud_api.get_one_api_by_path(obj.path)
     if check:
@@ -28,7 +28,7 @@ def create_api(obj: APICreate):
         return Response200(data=data)
 
 
-@api.put('/put/{id}', summary='更新API', dependencies=[Depends(rbac.verify_rbac)])
+@api.put('/api/{id}', summary='更新API', dependencies=[Depends(rbac.verify_rbac)])
 def update_api(obj: APIUpdate, id: int = Query(...)):
     check = crud_api.get_one_api_by_id(id)
     if not check:
@@ -41,7 +41,7 @@ def update_api(obj: APIUpdate, id: int = Query(...)):
     return Response200(data=obj)
 
 
-@api.delete('/delete/{id}', summary='删除API', dependencies=[Depends(rbac.verify_rbac)])
+@api.delete('/api/{id}', summary='删除API', dependencies=[Depends(rbac.verify_rbac)])
 def delete_api(id: int = Query(...)):
     check = crud_api.get_one_api_by_id(id)
     if not check:
