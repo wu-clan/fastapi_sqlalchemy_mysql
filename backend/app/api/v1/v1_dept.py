@@ -15,12 +15,12 @@ from backend.app.schemas.sm_department import DeptCreate, DeptUpdate, DeptAll
 dept = APIRouter()
 
 
-@dept.get('/all', summary='获取所有部门', response_model=Page[DeptAll], dependencies=[Depends(get_current_user)])
+@dept.get('/depts', summary='获取所有部门', response_model=Page[DeptAll], dependencies=[Depends(get_current_user)])
 async def get_all_dept(db: AsyncSession = Depends(get_db)):
     return await paginate(db, crud_dept.get_all_dept())
 
 
-@dept.post('/add', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])
+@dept.post('/dept', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])
 async def create_dept(obj: DeptCreate):
     check = await crud_dept.get_one_dept_by_name(obj.name)
     if check:
@@ -30,7 +30,7 @@ async def create_dept(obj: DeptCreate):
         return Response200(data=data)
 
 
-@dept.put('/put/{id}', summary='修改部门', dependencies=[Depends(rbac.verify_rbac)])
+@dept.put('/dept/{id}', summary='修改部门', dependencies=[Depends(rbac.verify_rbac)])
 async def update_dept(obj: DeptUpdate, id: int = Query(...)):
     check = await crud_dept.get_one_dept_by_id(id)
     if not check:
@@ -43,7 +43,7 @@ async def update_dept(obj: DeptUpdate, id: int = Query(...)):
     return Response200(data=data)
 
 
-@dept.delete('/delete/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
+@dept.delete('/dept/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
 async def delete_dept(id: int = Query(...)):
     check = await crud_dept.get_one_dept_by_id(id)
     if not check:
