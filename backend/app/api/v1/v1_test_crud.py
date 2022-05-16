@@ -39,7 +39,7 @@ def test_user_register(obj: CreateUser):
     return Response500(msg='用户注册失败')
 
 
-@crud.put('/test_update_userinfo', summary='仅用于测试 CRUDBase 改',
+@crud.put('/test_user', summary='仅用于测试 CRUDBase 改',
           description='仅用于测试 CRUDBase 功能，需要使用真实用户测试，更新后，刷新数据库，查看更新效果')
 def test_update_userinfo(obj: UpdateUser, current_user=Depends(get_current_user)):
     if current_user.username == obj.username:
