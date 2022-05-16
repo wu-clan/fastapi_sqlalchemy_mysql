@@ -24,8 +24,7 @@ async def get_all_rbac(db: AsyncSession = Depends(get_db)):
 def get_policy():
     enforcer = rbac.get_casbin_enforcer()
     data = enforcer.get_policy()
-    if data:
-        return Response200(data=data)
+    return Response200(data=data)
 
 
 @casbin.post('/rbac/policy', summary='添加基于角色(主)/用户(次)的访问权限')
@@ -71,8 +70,7 @@ def delete_policy(p: PolicyDelete):
 def get_group():
     enforcer = rbac.get_casbin_enforcer()
     data = enforcer.get_grouping_policy()
-    if data:
-        return Response200(data=data)
+    return Response200(data=data)
 
 
 @casbin.post('/rbac/group', summary='添加基于用户组的访问权限')
