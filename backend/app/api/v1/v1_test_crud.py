@@ -17,7 +17,7 @@ from backend.app.schemas.sm_user import CreateUser, UpdateUser
 crud = APIRouter()
 
 
-@crud.post('/test_register', summary='仅用于测试 CRUDBase 增',
+@crud.post('/register', summary='仅用于测试 CRUDBase 增',
            description='仅用于测试 CRUDBase 功能，会创建明文密码，无法登录，刷新数据库，有新增数据即为测试通过')
 def test_user_register(obj: CreateUser):
     username = crud_user.get_user_by_username(obj.username)
@@ -39,7 +39,7 @@ def test_user_register(obj: CreateUser):
     return Response500(msg='用户注册失败')
 
 
-@crud.put('/test_user', summary='仅用于测试 CRUDBase 改',
+@crud.put('/me', summary='仅用于测试 CRUDBase 改',
           description='仅用于测试 CRUDBase 功能，需要使用真实用户测试，更新后，刷新数据库，查看更新效果')
 def test_update_userinfo(obj: UpdateUser, current_user=Depends(get_current_user)):
     if current_user.username == obj.username:
