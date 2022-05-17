@@ -12,7 +12,7 @@ from backend.app.utils.generate_string import get_uuid
 captcha = APIRouter()
 
 
-@captcha.get('/captcha', summary='获取验证码')
+@captcha.get('', summary='获取验证码')
 def get_ca(request: Request):
     img, code = img_captcha()
     uid = get_uuid()
@@ -21,7 +21,7 @@ def get_ca(request: Request):
     return StreamingResponse(content=img, media_type='image/jpeg')
 
 
-@captcha.get('/captcha/test', summary='验证码验证')
+@captcha.get('/test', summary='验证码验证')
 def check_captcha(request: Request):
     try:
         code = request.app.state.captcha_uid

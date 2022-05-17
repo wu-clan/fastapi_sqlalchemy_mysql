@@ -8,21 +8,21 @@ from backend.app.schemas import Response200
 rd = APIRouter()
 
 
-@rd.post('/redis')
+@rd.post('')
 def test_redis():
     result = redis_client.set('test', 'test')
     if result:
         return Response200(data=result)
 
 
-@rd.get('/redis')
+@rd.get('')
 def get_redis():
     result = redis_client.get('test')
     if result:
         return Response200(data=result)
 
 
-@rd.delete('/redis')
+@rd.delete('')
 def test_redis():
     result = redis_client.delete('test')
     if result:

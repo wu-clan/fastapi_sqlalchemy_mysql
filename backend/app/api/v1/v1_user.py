@@ -33,7 +33,7 @@ user = APIRouter()
 headers = {"WWW-Authenticate": "Bearer"}
 
 
-@user.post('/user/login', summary='用户登录调试', response_model=Token,
+@user.post('/login', summary='用户登录调试', response_model=Token,
            description='form_data登录，为直接配合swagger-ui认证使用，接口数据与json_data登录一致，自由选择，注释其一即可', )
 def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Any:
     current_user = crud_user.get_user_by_username(db, form_data.username)
@@ -75,7 +75,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
         )
 
 
-# @user.post('/user/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
+# @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
 # def user_login(obj: Auth, db: Session = Depends(get_db)) -> Any:
 #     current_user = crud_user.get_user_by_username(db, obj.username)
 #     if not current_user:
@@ -114,7 +114,7 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #         )
 #
 #
-# @user.post('/user/login', summary='用户登录', response_model=Token,
+# @user.post('/login', summary='用户登录', response_model=Token,
 #            description='带有图形验证码的json_data登录，登陆前需请求一下验证码，并以返回的图片内容输入，不能配合swagger-ui认证使用')
 # def user_login(request: Request, obj: Auth2, db: Session = Depends(get_db)) -> Any:
 #     current_user = crud_user.get_user_by_username(db, obj.username)
@@ -164,12 +164,12 @@ def user_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 #         )
 
 
-@user.post('/user/logout', summary='用户退出', dependencies=[Depends(jwt_security.get_current_user)])
+@user.post('/logout', summary='用户退出', dependencies=[Depends(jwt_security.get_current_user)])
 def user_logout() -> Any:
     return Response200(msg='退出登录成功')
 
 
-@user.post('/user/register', summary='用户注册')
+@user.post('/register', summary='用户注册')
 def user_register(obj: CreateUser, db: Session = Depends(get_db)) -> Any:
     username = crud_user.get_user_by_username(db, obj.username)
     if username:
@@ -191,7 +191,7 @@ def user_register(obj: CreateUser, db: Session = Depends(get_db)) -> Any:
         })
 
 
-@user.post('/user/password/reset/captcha', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
+@user.post('/password/reset/captcha', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
 def password_reset_captcha(username_or_email: str, response: Response, tasks: BackgroundTasks,
                         db: Session = Depends(get_db)) -> Any:
     code = text_captcha()
@@ -238,7 +238,7 @@ def password_reset_captcha(username_or_email: str, response: Response, tasks: Ba
         return Response200(msg='验证码发送成功')
 
 
-@user.post('/user/password/reset', summary='密码重置请求')
+@user.post('/password/reset', summary='密码重置请求')
 def password_reset(obj: ResetPassword, request: Request, response: Response, db: Session = Depends(get_db)) -> Any:
     pwd1 = obj.password1
     pwd2 = obj.password2
@@ -259,17 +259,17 @@ def password_reset(obj: ResetPassword, request: Request, response: Response, db:
     return Response200(msg='密码重置成功')
 
 
-@user.get('/user/password/reset/done', summary='重置密码完成')
+@user.get('/password/reset/done', summary='重置密码完成')
 def password_reset_done() -> Any:
     return Response200(msg='重置密码完成')
 
 
-@user.get('/user', summary='查看用户信息')
+@user.get('/me', summary='查看用户信息')
 def get_userinfo(current_user=Depends(get_current_user)) -> Any:
     return Response200(msg='查看用户信息成功', data=current_user)
 
 
-@user.put('/user', summary='更新用户信息')
+@user.put('/me', summary='更新用户信息')
 def update_userinfo(
         username: str = Form(..., title='用户名'),
         email: str = Form(..., title='邮箱'),
@@ -329,7 +329,7 @@ def update_userinfo(
     })
 
 
-@user.delete('/user/avatar', summary='删除头像文件')
+@user.delete('/me/avatar', summary='删除头像文件')
 def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Session = Depends(get_db)) -> Any:
     current_filename = crud_user.get_avatar_by_username(db, current_user.username)
     if current_filename is not None:
@@ -343,14 +343,14 @@ def delete_avatar(current_user=Depends(jwt_security.get_current_user), db: Sessi
     return Response200(msg='删除用户头像成功')
 
 
-@user.get('/users', summary='获取用户列表', response_model=Page[GetUserInfo],
+@user.get('', summary='获取用户列表', response_model=Page[GetUserInfo],
           dependencies=[Depends(jwt_security.get_current_is_superuser)])
 def get_all_users(db: Session = Depends(get_db)) -> Any:
     user_list = crud_user.get_users(db)
     return paginate(user_list)
 
 
-@user.post('/user/{id}/super', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+@user.post('/{id}/super', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 def super_set(pk: int, db: Session = Depends(get_db)) -> Any:
     if crud_user.get_user_by_id(db, pk):
         if crud_user.super_set(db, pk):
@@ -359,7 +359,7 @@ def super_set(pk: int, db: Session = Depends(get_db)) -> Any:
     return Response404(msg='用户不存在')
 
 
-@user.post('/user/{id}/action', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+@user.post('/{id}/action', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 def active_set(pk: int, db: Session = Depends(get_db)) -> Any:
     if crud_user.get_user_by_id(db, pk):
         if crud_user.active_set(db, pk):
@@ -368,7 +368,7 @@ def active_set(pk: int, db: Session = Depends(get_db)) -> Any:
     return Response404(msg='用户不存在')
 
 
-@user.delete('/user', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
+@user.delete('/me', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
 def delete_user(current_user=Depends(get_current_user), db: Session = Depends(get_db)) -> Any:
     current_filename = crud_user.get_avatar_by_username(db, current_user.username)
     try:
