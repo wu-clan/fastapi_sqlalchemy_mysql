@@ -15,12 +15,12 @@ from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleAll
 role = APIRouter()
 
 
-@role.get('/roles', summary='获取所有角色', response_model=Page[RoleAll], dependencies=[Depends(get_current_user)])
+@role.get('', summary='获取所有角色', response_model=Page[RoleAll], dependencies=[Depends(get_current_user)])
 async def get_all_role(db: AsyncSession = Depends(get_db)):
     return await paginate(db, crud_role.get_all_role())
 
 
-@role.post('/role', summary='创建角色', dependencies=[Depends(rbac.verify_rbac)])
+@role.post('', summary='创建角色', dependencies=[Depends(rbac.verify_rbac)])
 async def create_role(obj: RoleCreate):
     check = await crud_role.get_one_role_by_name(obj.name)
     if check:
@@ -30,7 +30,7 @@ async def create_role(obj: RoleCreate):
         return Response200(data=data)
 
 
-@role.put('/role/{id}', summary='修改角色', dependencies=[Depends(rbac.verify_rbac)])
+@role.put('/{id}', summary='修改角色', dependencies=[Depends(rbac.verify_rbac)])
 async def update_role(obj: RoleUpdate, id: int = Query(...)):
     check = await crud_role.get_one_role_by_id(id)
     if not check:
@@ -43,7 +43,7 @@ async def update_role(obj: RoleUpdate, id: int = Query(...)):
     return Response200(data=data)
 
 
-@role.delete('/role/{id}', summary='删除角色', dependencies=[Depends(rbac.verify_rbac)])
+@role.delete('/{id}', summary='删除角色', dependencies=[Depends(rbac.verify_rbac)])
 async def delete_role(id: int = Query(...)):
     check = await crud_role.get_one_role_by_id(id)
     if not check:

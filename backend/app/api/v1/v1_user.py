@@ -36,7 +36,7 @@ user = APIRouter()
 headers = {"WWW-Authenticate": "Bearer"}
 
 
-@user.post('/user/login', summary='用户登录调试', response_model=Token,
+@user.post('/login', summary='用户登录调试', response_model=Token,
            description='form_data登录，为直接配合swagger-ui认证使用，接口数据与json_data登录一致，自由选择，注释其一即可', )
 async def user_login(form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
     current_user = await crud_user.get_user_by_username(form_data.username)
@@ -69,7 +69,7 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
     )
 
 
-# @user.post('/user/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
+# @user.post('/login', summary='用户登录', description='json_data登录，不能配合swagger-ui认证使用', response_model=Token)
 # async def user_login(obj: Auth) -> Any:
 #     current_user = await crud_user.get_user_by_username(obj.username)
 #     if not current_user:
@@ -101,7 +101,7 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
 #     )
 
 
-@user.post('/user/login/email/captcha', summary='获取邮箱登录验证码')
+@user.post('/login/email/captcha', summary='获取邮箱登录验证码')
 async def user_login_email_captcha(request: Request, obj: ELCode, tasks: BackgroundTasks) -> Any:
     current_email = await crud_user.check_email(obj.email)
     if not current_email:
@@ -123,7 +123,7 @@ async def user_login_email_captcha(request: Request, obj: ELCode, tasks: Backgro
     return Response200(msg='验证码发送成功')
 
 
-@user.post('/user/login/email', summary='邮箱登录', description='邮箱登录, 需同时必须开启login账号密码登录接口', response_model=Token)
+@user.post('/login/email', summary='邮箱登录', description='邮箱登录, 需同时必须开启login账号密码登录接口', response_model=Token)
 async def user_login_email(request: Request, obj: Auth2) -> Any:
     current_email = await crud_user.check_email(obj.email)
     if not current_email:
@@ -163,12 +163,12 @@ async def user_login_email(request: Request, obj: Auth2) -> Any:
     )
 
 
-@user.post('/user/logout', summary='用户退出', dependencies=[Depends(get_current_user)])
+@user.post('/logout', summary='用户退出', dependencies=[Depends(get_current_user)])
 async def user_logout() -> Any:
     return Response200(msg='退出登录成功')
 
 
-@user.post('/user/register', summary='用户注册')
+@user.post('/register', summary='用户注册')
 async def user_register(obj_user: CreateUser, obj_role: CreateUserRole) -> Any:
     username = await crud_user.get_user_by_username(obj_user.username)
     if username:
@@ -197,7 +197,7 @@ async def user_register(obj_user: CreateUser, obj_role: CreateUserRole) -> Any:
     })
 
 
-@user.post('/user/password/reset/captcha', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
+@user.post('/password/reset/captcha', summary='获取密码重置验证码', description='可以通过用户名或者邮箱重置密码')
 async def password_reset_captcha(username_or_email: str, response: Response, tasks: BackgroundTasks) -> Any:
     code = text_captcha()
     if await crud_user.get_user_by_username(username_or_email):
@@ -243,7 +243,7 @@ async def password_reset_captcha(username_or_email: str, response: Response, tas
         return Response200(msg='验证码发送成功')
 
 
-@user.post('/user/password/reset', summary='密码重置请求')
+@user.post('/password/reset', summary='密码重置请求')
 async def password_reset(obj: ResetPassword, request: Request, response: Response) -> Any:
     pwd1 = obj.password1
     pwd2 = obj.password2
@@ -260,17 +260,17 @@ async def password_reset(obj: ResetPassword, request: Request, response: Respons
     return Response200(msg='密码重置成功')
 
 
-@user.get('/user/password/reset/done', summary='重置密码完成')
+@user.get('/password/reset/done', summary='重置密码完成')
 def password_reset_done() -> Any:
     return Response200(msg='重置密码完成')
 
 
-@user.get('/user', summary='查看用户信息')
+@user.get('/me', summary='查看用户信息')
 async def get_userinfo(current_user=Depends(get_current_user)) -> Any:
     return Response200(msg='查看用户信息成功', data=current_user)
 
 
-@user.put('/user', summary='更新用户信息')
+@user.put('/me', summary='更新用户信息')
 async def update_userinfo(
         department_id: int = Form(..., title='部门id'),
         username: str = Form(..., title='用户名'),
@@ -348,7 +348,7 @@ async def update_userinfo(
     })
 
 
-@user.delete('/user/avatar', summary='删除头像文件')
+@user.delete('/me/avatar', summary='删除头像文件')
 async def delete_avatar(current_user=Depends(jwt_security.get_current_user)) -> Any:
     current_filename = await crud_user.get_avatar_by_username(current_user.username)
     if current_filename is not None:
@@ -362,14 +362,14 @@ async def delete_avatar(current_user=Depends(jwt_security.get_current_user)) -> 
     return Response200(msg='删除用户头像成功')
 
 
-@user.get('/users', summary='获取所有用户', response_model=Page[GetUserInfo],
+@user.get('', summary='获取所有用户', response_model=Page[GetUserInfo],
           dependencies=[Depends(jwt_security.get_current_user)])
 async def get_all_users(db: AsyncSession = Depends(get_db)) -> Any:
     user_list = await crud_user.get_users()
     return await paginate(db, user_list)
 
 
-@user.post('/user/{id}/super', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+@user.post('/{id}/super', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 async def super_set(id: int) -> Any:
     if await crud_user.get_user_by_id(id):
         if await crud_user.super_set(id):
@@ -378,7 +378,7 @@ async def super_set(id: int) -> Any:
     return Response404(msg=f'用户 {id} 不存在')
 
 
-@user.post('/user/{id}/action', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
+@user.post('/{id}/action', summary='修改用户状态', dependencies=[Depends(jwt_security.get_current_is_superuser)])
 async def active_set(id: int) -> Any:
     if await crud_user.get_user_by_id(id):
         if await crud_user.active_set(id):
@@ -387,7 +387,7 @@ async def active_set(id: int) -> Any:
     return Response404(msg=f'用户 {id} 不存在')
 
 
-@user.delete('/user', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
+@user.delete('/me', summary='用户注销', description='用户注销 != 用户退出，注销之后用户将从数据库删除')
 async def delete_user(current_user=Depends(get_current_user)) -> Any:
     current_filename = await crud_user.get_avatar_by_username(current_user.username)
     try:
