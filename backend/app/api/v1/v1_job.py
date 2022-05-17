@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Header
 
 from backend.app.common.log import log
 from backend.app.common.sys_jobs import scheduler
@@ -19,7 +19,7 @@ def test_scheduler_write_log():
     log.debug('🎉🎉🎉 test scheduler')
 
 
-@aps.get("/jobs", summary="获取所有jobs")
+@aps.get("", summary="获取所有jobs")
 async def get_jobs_all():
     schedules = []
     for job in scheduler.get_jobs():
@@ -29,16 +29,16 @@ async def get_jobs_all():
     return Response200(data=schedules)
 
 
-@aps.get("/job/{job_id}", summary="获取指定的job")
-async def get_target_job(job_id: str):
+@aps.get("/{job_id}", summary="获取指定的job")
+async def get_target_job(job_id: int):
     job = scheduler.get_job(job_id=job_id)
     if not job:
         return Response404(msg=f"没有 job {job_id}")
     return Response200(data=job.id)
 
 
-@aps.post("/job/start", summary="启动定时任务")
-async def add_job_to_scheduler(job_id: str = Body(...), seconds: int = Body(default=120, gt=1)):
+@aps.post("/{job_id}", summary="启动定时任务")
+async def add_job_to_scheduler(job_id: int = Header(...), seconds: int = Body(default=120, gt=1)):
     res = scheduler.get_job(job_id=job_id)
     if res:
         return Response403(msg=f"job {job_id} is exist")
@@ -47,8 +47,8 @@ async def add_job_to_scheduler(job_id: str = Body(...), seconds: int = Body(defa
     return Response200(msg='success', data={"id": scheduler_job.id})
 
 
-@aps.delete("/job/{job_id}", summary="移除定时任务")
-async def remove_schedule(job_id: str):
+@aps.delete("/{job_id}", summary="移除定时任务")
+async def remove_schedule(job_id: int):
     res = scheduler.get_job(job_id=job_id)
     if not res:
         return Response404(msg=f"没有 job {job_id}")
