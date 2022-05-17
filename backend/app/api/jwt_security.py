@@ -18,7 +18,7 @@ from backend.app.schemas import AuthorizationError, TokenError
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')  # 密码加密
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl='/v1/user/login')  # 指明客户端请求token的地址
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='/v1/users/login')  # 指明客户端请求token的地址
 
 headers = {"WWW-Authenticate": "Bearer"}  # 异常返回规范
 
