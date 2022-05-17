@@ -13,12 +13,12 @@ from backend.app.schemas.sm_department import DeptCreate, DeptUpdate, DeptAll
 dept = APIRouter()
 
 
-@dept.get('/depts', summary='获取所有部门', response_model=Page[DeptAll], dependencies=[Depends(get_current_user)])
+@dept.get('', summary='获取所有部门', response_model=Page[DeptAll], dependencies=[Depends(get_current_user)])
 def get_dept_list():
     return paginate(crud_dept.get_all_dept())
 
 
-@dept.get('/dept/{id}', summary='获取指定部门', dependencies=[Depends(get_current_user)])
+@dept.get('/{id}', summary='获取指定部门', dependencies=[Depends(get_current_user)])
 def get_one_dept(id: int = Query(...)):
     check = crud_dept.get_one_dept_by_id(id)
     if not check:
@@ -29,7 +29,7 @@ def get_one_dept(id: int = Query(...)):
     return Response200(data=check)
 
 
-@dept.post('/dept', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])
+@dept.post('', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])
 def create_dept(obj: DeptCreate):
     check = crud_dept.get_one_dept_by_name(obj.name)
     if check:
@@ -39,7 +39,7 @@ def create_dept(obj: DeptCreate):
         return Response200(data=data)
 
 
-@dept.put('/dept/{id}', summary='更新部门', dependencies=[Depends(rbac.verify_rbac)])
+@dept.put('/{id}', summary='更新部门', dependencies=[Depends(rbac.verify_rbac)])
 def create_dept(obj: DeptUpdate, id: int = Query(...)):
     check = crud_dept.get_one_dept_by_id(id)
     if not check:
@@ -52,7 +52,7 @@ def create_dept(obj: DeptUpdate, id: int = Query(...)):
     return Response200(data=obj)
 
 
-@dept.delete('/dept/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
+@dept.delete('/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
 def delete_dept(id: int = Query(...)):
     check = crud_dept.get_one_dept_by_id(id)
     if not check:
