@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class DeptBase(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: Optional[str]
 
 
 class DeptCreate(DeptBase):

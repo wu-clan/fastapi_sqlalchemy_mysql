@@ -9,7 +9,7 @@ from backend.app.schemas.sm_menu import MenuAll
 
 class RoleBase(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: Optional[str]
 
 
 class RoleCreate(RoleBase):
