@@ -38,7 +38,7 @@ def verity_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta]) -> str:
     """
     生成加密 token
     :param data: 传进来的值

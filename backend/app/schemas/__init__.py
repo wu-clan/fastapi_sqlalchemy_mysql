@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 
 class ResponseBase(BaseModel):
-    data: Optional[Any] = None
+    data: Optional[Any]
 
 
 class Response200(ResponseBase):
