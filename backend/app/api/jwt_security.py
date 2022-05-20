@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -38,7 +38,7 @@ def verity_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: Union[int, Any], expires_delta: Optional[timedelta]) -> str:
+def create_access_token(data: Union[int, Any], expires_delta: Union[timedelta, None] = None) -> str:
     """
     生成加密 token
     :param data: 传进来的值
