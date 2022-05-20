@@ -37,10 +37,10 @@ class RBACAll(BaseModel):
     ptype: str
     v0: str
     v1: str
-    v2: Optional[str] = None
-    v3: Optional[str] = None
-    v4: Optional[str] = None
-    v5: Optional[str] = None
+    v2: Optional[str]
+    v3: Optional[str]
+    v4: Optional[str]
+    v5: Optional[str]
 
     class Config:
         orm_mode = True
