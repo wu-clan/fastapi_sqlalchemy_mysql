@@ -26,19 +26,19 @@ class CreateUser(Auth):
 class UpdateUser(BaseModel):
     username: str
     email: str
-    mobile_number: Optional[str] = None
-    wechat: Optional[str] = None
-    qq: Optional[str] = None
-    blog_address: Optional[str] = None
-    introduction: Optional[str] = None
+    mobile_number: Optional[str]
+    wechat: Optional[str]
+    qq: Optional[str]
+    blog_address: Optional[str]
+    introduction: Optional[str]
 
 
 class GetUserInfo(UpdateUser):
     id: int
     user_uid: str
-    avatar: Optional[str] = None
-    time_joined: Optional[datetime.datetime] = None
-    last_login: Optional[datetime.datetime] = None
+    avatar: Optional[str]
+    time_joined: Optional[datetime.datetime]
+    last_login: Optional[datetime.datetime]
     is_superuser: bool
     is_active: bool
 
