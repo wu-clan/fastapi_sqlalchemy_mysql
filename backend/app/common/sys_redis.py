@@ -49,7 +49,7 @@ class RedisCli:
 
 
 # 初始化redis连接
-init_redis_connect = RedisCli().init_redis_connect()
+init_redis_connect = RedisCli()
 
 # 获取redis连接
-redis_client = RedisCli().get_redis()
+redis_client = init_redis_connect.get_redis()

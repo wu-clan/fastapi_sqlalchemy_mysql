@@ -47,6 +47,7 @@ def register_app():
 def register_router(app):
     """
     路由
+
     :param app: FastAPI
     :return:
     """
@@ -57,8 +58,8 @@ def register_router(app):
 
 def register_static_file(app):
     """
-    静态文件交互开发模式
-    生产使用 nginx 静态资源服务
+    静态文件交互开发模式, 生产使用 nginx 静态资源服务
+
     :param app:
     :return:
     """
@@ -72,6 +73,7 @@ def register_static_file(app):
 def register_init(app):
     """
     初始化连接
+
     :param app: FastAPI
     :return:
     """
@@ -79,14 +81,14 @@ def register_init(app):
     @app.on_event("startup")
     def startup_event():
         # 连接redis
-        init_redis_connect.ping()
+        init_redis_connect.init_redis_connect()
         # 启动定时任务
         scheduler.start()
 
     @app.on_event("shutdown")
     def shutdown_event():
         # 关闭redis连接
-        init_redis_connect.close()
+        init_redis_connect.init_redis_connect().close()
         # 关闭定时任务
         scheduler.shutdown()
 
@@ -94,6 +96,7 @@ def register_init(app):
 def register_page(app):
     """
     分页查询
+
     :param app:
     :return:
     """

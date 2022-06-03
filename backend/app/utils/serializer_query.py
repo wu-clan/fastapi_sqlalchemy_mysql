@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal
 
+from sqlalchemy.orm import Query
 
-def query_set_to_dict(obj) -> dict:
+
+def query_set_to_dict(obj: Query) -> dict:
     """
     Serialize SQLAlchemy Query Set to dict
-    :param obj: SQLAlchemy Query Set
+
+    :param obj:
     :return:
     """
     obj_dict = {}
@@ -18,10 +21,11 @@ def query_set_to_dict(obj) -> dict:
     return obj_dict
 
 
-def query_set_to_list(obj) -> list:
+def query_set_to_list(obj: Query) -> list:
     """
     Serialize SQLAlchemy Query Set to list
-    :param obj: SQLAlchemy Query Set
+
+    :param obj:
     :return:
     """
     ret_list = []
@@ -31,10 +35,11 @@ def query_set_to_list(obj) -> list:
     return ret_list
 
 
-def query_set_to_json(obj) -> dict:
+def query_set_to_json(obj: Query) -> dict:
     """
     Serialize SQLAlchemy Query Set to json
-    :param obj: SQLAlchemy Query Set
+
+    :param obj:
     :return:
     """
     obj_dict = obj.__dict__
