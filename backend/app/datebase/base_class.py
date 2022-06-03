@@ -21,6 +21,7 @@ class Base:
 def use_uuid() -> str:
     """
     使用uuid
+
     :return:
     """
     return uuid.uuid4().hex
