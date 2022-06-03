@@ -74,8 +74,10 @@ fastapi_mysql_demo. 🚀
     # Email
     EMAIL_DESCRIPTION: str = 'fastapi-mysql-demo'  # 默认发件说明
     EMAIL_SERVER: str = 'smtp.qq.com'
+    EMAIL_PORT: int = 465
     EMAIL_USER: str = 'xxxx-nav@qq.com'
     EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
+    EMAIL_SSL: bool = True
 
     # Cookies
     COOKIES_MAX_AGE: int = 60 * 5  # cookies 时效 60 * 5 = 5 分钟
