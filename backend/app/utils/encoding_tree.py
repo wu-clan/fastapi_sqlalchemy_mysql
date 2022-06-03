@@ -6,6 +6,7 @@ import json
 def list_to_tree(data_list, parent_id=0) -> list:
     """
     递归获取树形结构数据
+
     :param data_list: 数据列表
     :param parent_id: 父级id
     :return:
@@ -21,6 +22,7 @@ def list_to_tree(data_list, parent_id=0) -> list:
 def ram_list_to_tree(data_list: list) -> list:
     """
     利用对象内存共享生成树
+
     :param data_list: 数据列表
     :return:
     """

@@ -25,6 +25,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get(self, id: int) -> ModelType:
         """
         通过id查询一条数据
+
         :param id: 主键id
         :return:
         """
@@ -33,6 +34,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def create(self, obj_in: CreateSchemaType) -> ModelType:
         """
         通过schema类新增一条数据
+
         :param obj_in: Pydantic模型类
         :return:
         """
@@ -46,6 +48,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def update(self, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过model类更新一条数据
+
         :param db_obj: 数据库model类
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
@@ -64,6 +67,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def update_one(self, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过主键id更新一条数据
+
         :param id: 主键id
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
@@ -81,6 +85,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def delete_one(self, id: int) -> ModelType:
         """
         通过id删除一条数据
+
         :param id: 主键id
         :return:
         """

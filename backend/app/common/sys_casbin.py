@@ -18,6 +18,7 @@ class RBAC:
     def get_casbin_enforcer() -> casbin.Enforcer:
         """
         由于 casbin_sqlalchemy_adapter 内部使用的 SQLAlchemy 同步, 这里只能使用: mysql+pymysql
+
         :return:
         """
         adapter = casbin_sqlalchemy_adapter.Adapter(SQLALCHEMY_DATABASE_URL, db_class=CasbinRule)
@@ -29,6 +30,7 @@ class RBAC:
     def verify_rbac(self, request: Request, user: User = Depends(get_current_user)):
         """
         权限校验，超级用户跳过校验，默认拥有所有权限
+
         :param request:
         :param user:
         :return:

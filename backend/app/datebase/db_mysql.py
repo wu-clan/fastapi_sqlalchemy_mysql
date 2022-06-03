@@ -3,7 +3,7 @@
 import sys
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
@@ -26,9 +26,10 @@ else:
     db_session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
-def get_db() -> db_session:
+def get_db() -> Session:
     """
     获取数据库会话
+
     :return:
     """
     with db_session() as session:

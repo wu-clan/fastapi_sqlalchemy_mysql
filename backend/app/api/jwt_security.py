@@ -22,13 +22,19 @@ headers = {"WWW-Authenticate": "Bearer"}  # 异常返回规范
 
 
 def get_hash_password(password: str) -> str:
-    """使用hash算法加密密码 """
+    """
+    使用hash算法加密密码
+
+    :param password: 要加密的密码
+    :return: 加密后的密码
+    """
     return pwd_context.hash(password)
 
 
 def verity_password(plain_password: str, hashed_password: str) -> bool:
     """
     密码校验
+
     :param plain_password: 要验证的密码
     :param hashed_password: 要比较的hash密码
     :return: 比较密码之后的结果
@@ -39,6 +45,7 @@ def verity_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(data: Union[int, Any], expires_delta: Union[timedelta, None] = None) -> str:
     """
     生成加密 token
+
     :param data: 传进来的值
     :param expires_delta: 增加的到期时间
     :return: 加密token
@@ -55,6 +62,7 @@ def create_access_token(data: Union[int, Any], expires_delta: Union[timedelta, N
 def get_current_user(token: str = Depends(oauth2_schema)) -> User:
     """
     通过token获取当前用户
+
     :param token:
     :return:
     """
@@ -76,6 +84,7 @@ def get_current_user(token: str = Depends(oauth2_schema)) -> User:
 def get_current_is_superuser(user: User = Depends(get_current_user)) -> bool:
     """
     通过token验证当前用户权限
+
     :param user:
     :return:
     """
