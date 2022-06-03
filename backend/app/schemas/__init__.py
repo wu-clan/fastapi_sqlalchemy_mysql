@@ -92,6 +92,7 @@ def register_exception(app):
     def authorization_error(request: Request, exc: AuthorizationError):
         """
         用户权限异常
+
         :param request:
         :param exc:
         :return:
@@ -105,6 +106,7 @@ def register_exception(app):
     def token_error(request: Request, exc: TokenError):
         """
         Token异常
+
         :param request:
         :param exc:
         :return:
@@ -118,6 +120,7 @@ def register_exception(app):
     def http_exception_handler(request: Request, exc: HTTPException):
         """
         全局HTTP异常处理
+
         :param request:
         :param exc:
         :return:
@@ -132,6 +135,7 @@ def register_exception(app):
     def all_exception_handler(request: Request, exc: Exception):
         """
         全局异常处理
+
         :param request:
         :param exc:
         :return:
@@ -145,6 +149,7 @@ def register_exception(app):
     def validation_error(request: Request, exc: ValidationError):
         """
         全局请求数据验证异常处理, 此异常处理主要用于Pydantic类中的数据验证
+
         :param request:
         :param exc:
         :return:
@@ -158,6 +163,7 @@ def register_exception(app):
     def request_validation_error(request: Request, exc: RequestValidationError):
         """
         全局请求数据验证异常处理
+
         :param request:
         :param exc:
         :return:

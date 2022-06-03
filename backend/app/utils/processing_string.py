@@ -14,6 +14,7 @@ def check_string(pattern, text) -> bool:
 def is_mobile(text: str) -> bool:
     """
     检查手机号码
+
     :param text:
     :return:
     """
@@ -23,6 +24,7 @@ def is_mobile(text: str) -> bool:
 def is_wechat(text: str) -> bool:
     """
     检查微信号
+
     :param text:
     :return:
     """
@@ -32,6 +34,7 @@ def is_wechat(text: str) -> bool:
 def is_QQ(text: str) -> bool:
     """
     检查QQ号
+
     :param text:
     :return:
     """
