@@ -71,6 +71,7 @@ class Settings(BaseSettings):
     EMAIL_PORT: int = 465
     EMAIL_USER: str = 'xxxx-nav@qq.com'
     EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
+    EMAIL_SSL: bool = True  # 是否使用ssl
 
     # 邮箱登录验证码过期时间
     EMAIL_LOGIN_CODE_MAX_AGE: int = 60 * 2  # 时效 60 * 2 = 2 分钟
