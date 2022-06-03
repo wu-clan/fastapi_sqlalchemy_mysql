@@ -36,7 +36,6 @@ def send_email_verification_code(send_to, code, text=SEND_RESET_PASSWORD_TEXT):
             smtp = smtplib.SMTP_SSL(host=settings.EMAIL_HOST, port=settings.EMAIL_PORT)
         else:
             smtp = smtplib.SMTP(host=settings.EMAIL_HOST, port=settings.EMAIL_PORT)
-        smtp.connect(settings.EMAIL_SERVER)
         smtp.login(settings.EMAIL_USER, settings.EMAIL_PASSWORD)
         smtp.sendmail(message['from'], send_to, message.as_string())
         smtp.quit()
