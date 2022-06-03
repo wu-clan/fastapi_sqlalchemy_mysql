@@ -17,6 +17,7 @@ SEND_EMAIL_LOGIN_TEXT = f'您的登录验证码为：{_only_one}\n请在{int(set
 def send_email_verification_code(send_to, code, text=SEND_RESET_PASSWORD_TEXT):
     """
     发送电子邮件验证码
+
     :param send_to: 收件人
     :param code: 验证码
     :param text: 邮件文本内容

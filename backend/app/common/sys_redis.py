@@ -23,6 +23,7 @@ class RedisCli(Redis):
     async def init_redis_connect(self):
         """
         触发初始化连接
+
         :return:
         """
         try:
