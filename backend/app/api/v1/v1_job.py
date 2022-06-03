@@ -14,6 +14,7 @@ aps = APIRouter()
 def test_scheduler_write_log():
     """
     测试定时执行
+
     :return:
     """
     log.debug('📢📢📢 test scheduler')
@@ -30,7 +31,7 @@ def get_jobs_all():
 
 
 @aps.get("/{job_id}", summary="获取指定的job")
-def get_target_job(job_id: int):
+def get_target_job(job_id: str):
     job = scheduler.get_job(job_id=job_id)
     if not job:
         return Response404(msg=f"没有 job {job_id}")
@@ -38,7 +39,7 @@ def get_target_job(job_id: int):
 
 
 @aps.post("/{job_id}", summary="启动定时任务")
-def add_job_to_scheduler(job_id: int = Header(...), seconds: int = Body(default=120, gt=1)):
+def add_job_to_scheduler(job_id: str = Header(...), seconds: int = Body(default=120, gt=1)):
     res = scheduler.get_job(job_id=job_id)
     if res:
         return Response403(msg=f"job {job_id} is exist")
@@ -48,7 +49,7 @@ def add_job_to_scheduler(job_id: int = Header(...), seconds: int = Body(default=
 
 
 @aps.delete("/{job_id}", summary="移除定时任务")
-def remove_schedule(job_id: int):
+def remove_schedule(job_id: str):
     res = scheduler.get_job(job_id=job_id)
     if not res:
         return Response404(msg=f"没有 job {job_id}")
