@@ -184,11 +184,11 @@ async def user_register(obj_user: CreateUser, obj_role: CreateUserRole) -> Any:
     if not dept:
         raise HTTPException(status_code=404, detail='所选部门不存在')
     if len(obj_role.role_id) == 1:
-        if not await crud_role.get_one_role_by_id(obj_role.role_id):
+        if not await crud_role.get_role_by_id(obj_role.role_id):
             raise HTTPException(status_code=404, detail=f'所选角色 {obj_role.role_id} 不存在')
     elif len(obj_role.role_id) > 1:
         for _ in obj_role.role_id.split(','):
-            if not await crud_role.get_one_role_by_id(_):
+            if not await crud_role.get_role_by_id(_):
                 raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     new_user = await crud_user.create_user(obj_user, obj_role)
     return Response200(msg='用户注册成功', data={
@@ -306,11 +306,11 @@ async def update_userinfo(
     if len(role) < 1:
         raise HTTPException(status_code=403, detail='必须至少选择一个角色')
     if len(role[0]) < 3:
-        if not await crud_role.get_one_role_by_id(role[0]):
+        if not await crud_role.get_role_by_id(role[0]):
             raise HTTPException(status_code=404, detail=f'所选角色 {role} 不存在')
     elif len(role[0]) >= 3:
         for _ in role[0].split(","):
-            if not await crud_role.get_one_role_by_id(_):
+            if not await crud_role.get_role_by_id(_):
                 raise HTTPException(status_code=404, detail=f'所选角色 {_} 不存在')
     if mobile_number is not None:
         if not processing_string.is_mobile(mobile_number):
@@ -362,11 +362,9 @@ async def delete_avatar(current_user=Depends(jwt_security.get_current_user)) -> 
     return Response200(msg='删除用户头像成功')
 
 
-@user.get('', summary='获取所有用户', response_model=Page[GetUserInfo],
-          dependencies=[Depends(jwt_security.get_current_user)])
+@user.get('', summary='获取所有用户', response_model=Page[GetUserInfo], dependencies=[Depends(jwt_security.get_current_user)])
 async def get_all_users(db: AsyncSession = Depends(get_db)) -> Any:
-    user_list = await crud_user.get_users()
-    return await paginate(db, user_list)
+    return await paginate(db, crud_user.get_users())
 
 
 @user.post('/{id}/super', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])

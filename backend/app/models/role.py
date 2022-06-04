@@ -14,7 +14,7 @@ class Role(Base):
     users = relationship('User', secondary='sys_user_role', backref='roles')
 
 
-class User_Role(Base):
+class UserRole(Base):
     """ 用户角色 """
     __tablename__ = 'sys_user_role'
     user_id = Column(Integer, ForeignKey('sys_user.id'), primary_key=True, comment='用户id')

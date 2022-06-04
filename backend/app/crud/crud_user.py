@@ -3,11 +3,12 @@
 
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.sql import Select
 
 from backend.app.api import jwt_security
 from backend.app.crud.base import CRUDBase
 from backend.app.models import User, Role, Department
-from backend.app.models.role import User_Role
+from backend.app.models.role import UserRole
 from backend.app.schemas.sm_user import CreateUser, UpdateUser, CreateUserRole
 
 
@@ -16,7 +17,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         return await super().get(user_id)
 
     async def get_user_roles(self, user_id: int) -> list:
-        user_roles = await self.db.execute(select(User_Role.role_id).where(User_Role.user_id == user_id))
+        user_roles = await self.db.execute(select(UserRole.role_id).where(UserRole.user_id == user_id))
         all_roles = user_roles.scalars().all()
         ur_list = []
         for _ in all_roles:
@@ -111,7 +112,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         await self.db.commit()
         return user.scalars().first()
 
-    async def get_users(self) -> list:
+    def get_users(self) -> Select:
         return select(self.model).order_by(User.time_joined.desc()).options(joinedload(User.roles))
 
     async def get_user_is_super(self, user_id: int) -> bool:
