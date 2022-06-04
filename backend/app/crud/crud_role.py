@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
+from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
 from backend.app.models import Role, Menu
@@ -10,7 +11,7 @@ from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleMenuCreate, 
 
 class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
 
-    def get_all_role(self) -> list:
+    def get_all_role(self) -> Select:
         return select(self.model).order_by(Role.id.desc()).options(joinedload(Role.menus))
 
     def get_one_role_by_name(self, name: str) -> Role:

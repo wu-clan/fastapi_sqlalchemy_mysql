@@ -16,7 +16,7 @@ menu = APIRouter()
 
 @menu.get("", summary='获取所有菜单', response_class=ORJSONResponse, dependencies=[Depends(get_current_user)],
           description='返回树形结构的菜单列表')
-def get_all_list():
+def get_tree_menu():
     data_list = query_set_to_list(crud_menu.get_all_menus())
     to_tree = list_to_tree(data_list)
     return to_tree

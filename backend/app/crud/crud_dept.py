@@ -12,7 +12,7 @@ class CRUDDept(CRUDBase[Department, DeptCreate, DeptUpdate]):
     def get_all_dept(self) -> Query:
         return self.db.query(Department)
 
-    def get_dept_join_user_by_id(self, id: int) -> Department:
+    def get_dept_join_user_by_id(self, id: int) -> list:
         return self.db.query(Department).join(Department.users).options(
             contains_eager(Department.users).defer('password')).filter(Department.id == id).all()
 
