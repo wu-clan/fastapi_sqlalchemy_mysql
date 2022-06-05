@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+from asyncio import current_task
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_scoped_session
 from sqlalchemy.orm import sessionmaker
 
 from backend.app.common.log import log
@@ -32,8 +33,14 @@ async def get_db() -> AsyncSession:
 
     :return:
     """
-    async with db_session() as session:
+    session = async_scoped_session(db_session, current_task)
+    try:
         yield session
+    except Exception as e:
+        await session.rollback()
+        raise e
+    finally:
+        await session.close()
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']
