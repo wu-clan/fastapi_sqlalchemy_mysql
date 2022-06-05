@@ -16,41 +16,44 @@ class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
         return select(self.model).order_by(Role.id.desc()).options(joinedload(Role.menus))
 
     async def get_one_role_by_name(self, name: str) -> Role:
-        data = await self.db.execute(select(Role).where(Role.name == name))
-        return data.scalars().first()
+        async with self.db as session:
+            data = await session.execute(select(Role).where(Role.name == name))
+            return data.scalars().first()
 
     async def get_role_by_id(self, role_id: int) -> Role:
         return await super().get(role_id)
 
     async def create_role(self, obj: RoleCreate, menu: RoleMenuCreate) -> Role:
-        new_role = Role(**obj.dict())
-        if len(menu.menu_id) == 1:
-            new_role.menus = [await self.db.get(Menu, menu.menu_id)]
-        else:
-            menu_list = []
-            for _ in menu.menu_id:
-                menu_list.append(await self.db.get(Menu, _))
-            new_role.menus = menu_list
-        self.db.add(new_role)
-        await self.db.commit()
-        await self.db.refresh(new_role)
-        return new_role
+        async with self.db as session:
+            new_role = Role(**obj.dict())
+            if len(menu.menu_id) == 1:
+                new_role.menus = [await session.get(Menu, menu.menu_id)]
+            else:
+                menu_list = []
+                for _ in menu.menu_id:
+                    menu_list.append(await session.get(Menu, _))
+                new_role.menus = menu_list
+            session.add(new_role)
+            await session.commit()
+            await session.refresh(new_role)
+            return new_role
 
     async def update_role(self, id: int, obj: RoleUpdate, menu: RoleMenuUpdate) -> Role:
-        role = await self.db.execute(select(Role).where(Role.id == id).options(selectinload(Role.menus)))
-        role = role.scalars().first()
-        await self.db.execute(update(Role).where(Role.id == id).values(**obj.dict()))
-        # step1 删除原有的菜单
-        for _ in list(role.menus):
-            role.menus.remove(_)
-        # step2 添加新的菜单
-        if len(menu.menu_id) == 1:
-            role.menus.append(await self.db.get(Menu, menu.menu_id))
-        else:
-            for _ in menu.menu_id:
-                role.menus.append(await self.db.get(Menu, _))
-        await self.db.commit()
-        return role
+        async with self.db as session:
+            role = await session.execute(select(Role).where(Role.id == id).options(selectinload(Role.menus)))
+            role = role.scalars().first()
+            await session.execute(update(Role).where(Role.id == id).values(**obj.dict()))
+            # step1 删除原有的菜单
+            for _ in list(role.menus):
+                role.menus.remove(_)
+            # step2 添加新的菜单
+            if len(menu.menu_id) == 1:
+                role.menus.append(await session.get(Menu, menu.menu_id))
+            else:
+                for _ in menu.menu_id:
+                    role.menus.append(await session.get(Menu, _))
+            await session.commit()
+            return role
 
     async def delete_role(self, id: int) -> bool:
         return await super().delete_one(id)

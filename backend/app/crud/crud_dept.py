@@ -14,12 +14,14 @@ class CRUDDept(CRUDBase[Department, DeptCreate, DeptUpdate]):
         return select(self.model)
 
     async def get_one_dept_by_name(self, name: str) -> Department:
-        data = await self.db.execute(select(Department).where(Department.name == name))
-        return data.scalars().first()
+        async with self.db as session:
+            data = await session.execute(select(Department).where(Department.name == name))
+            return data.scalars().first()
 
     async def get_one_dept_by_id(self, id: int) -> Department:
-        data = await self.db.execute(select(Department).where(Department.id == id))
-        return data.scalars().first()
+        async with self.db as session:
+            data = await session.execute(select(Department).where(Department.id == id))
+            return data.scalars().first()
 
     async def create_dept(self, obj: DeptCreate) -> Department:
         return await super().create(obj)

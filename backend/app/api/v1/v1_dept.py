@@ -16,8 +16,9 @@ dept = APIRouter()
 
 
 @dept.get('', summary='获取所有部门', response_model=Page[DeptAll], dependencies=[Depends(get_current_user)])
-async def get_all_dept(db: AsyncSession = Depends(get_db)):
-    return await paginate(db, crud_dept.get_all_dept())
+async def get_all_dept():
+    async with get_db() as session:
+        return await paginate(session, crud_dept.get_all_dept())
 
 
 @dept.post('', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])

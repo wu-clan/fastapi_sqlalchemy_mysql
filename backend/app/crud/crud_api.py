@@ -14,12 +14,14 @@ class CRUDApi(CRUDBase[API, APICreate, APIUpdate]):
         return select(self.model)
 
     async def get_one_api_by_name(self, path: str) -> API:
-        data = await self.db.execute(select(API).where(API.path == path))
-        return data.scalars().first()
+        async with self.db as session:
+            data = await session.execute(select(API).where(API.path == path))
+            return data.scalars().first()
 
     async def get_one_api_by_id(self, id: int) -> API:
-        data = await self.db.execute(select(API).where(API.id == id))
-        return data.scalars().first()
+        async with self.db as session:
+            data = await session.execute(select(API).where(API.id == id))
+            return data.scalars().first()
 
     async def create_api(self, obj: APICreate) -> API:
         return await super().create(obj)

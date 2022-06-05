@@ -22,7 +22,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         具有增删改查的默认方法的 CRUD 对象。
         """
         self.model = model
-        self.db: AsyncSession = asyncio.run(get_db())
+
+    @property
+    def db(self):
+        """
+        获取数据库连接
+
+        :return:
+        """
+        return get_db()
 
     async def get(self, id: int) -> ModelType:
         """
@@ -32,9 +40,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        sql = select(self.model).where(self.model.id == id)
-        data = await self.db.execute(sql)
-        return data.scalars().first()
+        async with self.db as session:
+            sql = select(self.model).where(self.model.id == id)
+            data = await session.execute(sql)
+            return data.scalars().first()
 
     async def create(self, obj_in: CreateSchemaType) -> ModelType:
         """
@@ -43,12 +52,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic 模型类
         :return:
         """
-        obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)
-        self.db.add(db_obj)
-        await self.db.commit()
-        await self.db.refresh(db_obj)
-        return db_obj
+        async with self.db as session:
+            obj_in_data = jsonable_encoder(obj_in)
+            db_obj = self.model(**obj_in_data)
+            session.add(db_obj)
+            await session.commit()
+            await session.refresh(db_obj)
+            return db_obj
 
     async def update(self, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
@@ -58,16 +68,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        obj_data = jsonable_encoder(db_obj)
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        for field in obj_data:
-            if field in update_data:
-                setattr(db_obj, field, update_data[field])
-        await self.db.commit()
-        return db_obj
+        async with self.db as session:
+            obj_data = jsonable_encoder(db_obj)
+            if isinstance(obj_in, dict):
+                update_data = obj_in
+            else:
+                update_data = obj_in.dict(exclude_unset=True)
+            for field in obj_data:
+                if field in update_data:
+                    setattr(db_obj, field, update_data[field])
+            await session.commit()
+            return db_obj
 
     async def update_one(self, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
@@ -77,16 +88,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        sql = await self.db.execute(select(self.model).where(self.model.id == id))
-        model = sql.scalars().first()
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        for attr, value in update_data.items():
-            setattr(model, attr, value)
-        await self.db.commit()
-        return model
+        async with self.db as session:
+            sql = await session.execute(select(self.model).where(self.model.id == id))
+            model = sql.scalars().first()
+            if isinstance(obj_in, dict):
+                update_data = obj_in
+            else:
+                update_data = obj_in.dict(exclude_unset=True)
+            for attr, value in update_data.items():
+                setattr(model, attr, value)
+            await session.commit()
+            return model
 
     async def delete_one(self, id: int) -> ModelType:
         """
@@ -95,7 +107,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        obj = await self.db.get(self.model, id)
-        await self.db.delete(obj)
-        await self.db.commit()
-        return obj
+        async with self.db as session:
+            obj = await session.get(self.model, id)
+            await session.delete(obj)
+            await session.commit()
+            return obj

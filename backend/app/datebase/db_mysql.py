@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+from asyncio import current_task
 from contextlib import asynccontextmanager
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_scoped_session
 from sqlalchemy.orm import sessionmaker
 
 from backend.app.common.log import log
@@ -28,7 +29,7 @@ else:
 
 
 @asynccontextmanager
-async def init_db_contextmanager() -> AsyncSession:
+async def get_db() -> AsyncSession:
     """
     初始化数据库上下文管理器
 
@@ -36,21 +37,14 @@ async def init_db_contextmanager() -> AsyncSession:
 
     :return:
     """
-    session = db_session()
+    session = async_scoped_session(db_session, current_task)
     try:
         yield session
+    except Exception as e:
+        await session.rollback()
+        raise e
     finally:
         await session.close()
-
-
-async def get_db() -> AsyncSession:
-    """
-    获取数据库会话
-
-    :return:
-    """
-    async with init_db_contextmanager() as session:
-        return session
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']

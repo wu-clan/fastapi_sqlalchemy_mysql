@@ -17,8 +17,9 @@ role = APIRouter()
 
 
 @role.get('', summary='获取所有角色', response_model=Page[RoleAll], dependencies=[Depends(get_current_user)])
-async def get_all_role(db: AsyncSession = Depends(get_db)):
-    return await paginate(db, crud_role.get_all_role())
+async def get_all_role():
+    async with get_db() as session:
+        return await paginate(session, crud_role.get_all_role())
 
 
 @role.post('', summary='创建角色', dependencies=[Depends(rbac.verify_rbac)])
