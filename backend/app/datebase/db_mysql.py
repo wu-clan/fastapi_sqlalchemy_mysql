@@ -4,7 +4,7 @@ import sys
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, scoped_session
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
@@ -34,7 +34,7 @@ def get_db() -> Session:
 
     :return:
     """
-    session = db_session()
+    session = scoped_session(db_session)
     try:
         yield session
     except Exception as e:
