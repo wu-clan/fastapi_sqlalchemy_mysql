@@ -3,7 +3,7 @@
 import sys
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
@@ -16,7 +16,7 @@ SQLALCHEMY_DATABASE_URL = f'mysql+pymysql://{settings.DB_USER}:{settings.DB_PASS
 
 try:
     # 数据库引擎
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=settings.DB_ECHO)
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=settings.DB_ECHO, pool_size=100)
     # log.success('数据库连接成功')
 except Exception as e:
     log.error('数据库链接失败 {}', e)
@@ -26,17 +26,20 @@ else:
     db_session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
-def get_db():
+def get_db() -> Session:
     """
     每一个请求处理完毕后会关闭当前连接，不同的请求使用不同的连接
 
     :return:
     """
-    conn = db_session()
+    session = scoped_session(db_session)
     try:
-        yield conn
+        yield session
+    except Exception as e:
+        session.rollback()
+        raise e
     finally:
-        conn.close()
+        session.close()
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']
