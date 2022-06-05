@@ -12,7 +12,6 @@ from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, 
     Form
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination.ext.async_sqlalchemy import paginate
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.api import jwt_security
 from backend.app.api.jwt_security import create_access_token, get_current_user
@@ -328,8 +327,9 @@ async def delete_avatar(current_user=Depends(jwt_security.get_current_user)) -> 
 
 @user.get('', summary='获取所有用户', response_model=Page[GetUserInfo],
           dependencies=[Depends(jwt_security.get_current_is_superuser)])
-async def get_all_users(db: AsyncSession = Depends(get_db)) -> Any:
-    return await paginate(db, crud_user.get_users())
+async def get_all_users() -> Any:
+    async with get_db() as session:
+        return await paginate(session, crud_user.get_users())
 
 
 @user.post('/{id}/super', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
