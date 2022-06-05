@@ -3,6 +3,7 @@
 from sqlalchemy.orm import Query
 
 from backend.app.crud.base import CRUDBase
+from backend.app.datebase.db_mysql import get_db
 from backend.app.models import API
 from backend.app.schemas.sm_api import APICreate, APIUpdate
 
@@ -10,13 +11,16 @@ from backend.app.schemas.sm_api import APICreate, APIUpdate
 class CRUDApi(CRUDBase[API, APICreate, APIUpdate]):
 
     def get_all_api(self) -> Query:
-        return self.db.query(API)
+        with self.db as session:
+            return session.query(API)
 
     def get_one_api_by_path(self, path: str) -> API:
-        return self.db.query(API).filter(API.path == path).first()
+        with self.db as session:
+            return session.query(API).filter(API.path == path).first()
 
     def get_one_api_by_id(self, id: int) -> API:
-        return self.db.query(API).filter(API.id == id).first()
+        with self.db as session:
+            return session.query(API).filter(API.id == id).first()
 
     def create_api(self, obj: APICreate) -> API:
         return super().create(obj)

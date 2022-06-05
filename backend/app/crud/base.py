@@ -20,7 +20,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         具有增删改查的默认方法的 CRUD 对象
         """
         self.model = model
-        self.db: Session = get_db()
+
+    @property
+    def db(self):
+        """
+        获取数据库连接
+
+        :return:
+        """
+        return get_db()
 
     def get(self, id: int) -> ModelType:
         """
@@ -29,7 +37,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        return self.db.query(self.model).filter(self.model.id == id).first()
+        with self.db as session:
+            return session.query(self.model).filter(self.model.id == id).first()
 
     def create(self, obj_in: CreateSchemaType) -> ModelType:
         """
@@ -38,12 +47,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic模型类
         :return:
         """
-        obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)
-        self.db.add(db_obj)
-        self.db.commit()
-        self.db.refresh(db_obj)
-        return db_obj
+        with self.db as session:
+            obj_in_data = jsonable_encoder(obj_in)
+            db_obj = self.model(**obj_in_data)
+            session.add(db_obj)
+            session.commit()
+            session.refresh(db_obj)
+            return db_obj
 
     def update(self, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
@@ -53,16 +63,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        obj_data = jsonable_encoder(db_obj)
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        for field in obj_data:
-            if field in update_data:
-                setattr(db_obj, field, update_data[field])
-        self.db.commit()
-        return db_obj
+        with self.db as session:
+            obj_data = jsonable_encoder(db_obj)
+            if isinstance(obj_in, dict):
+                update_data = obj_in
+            else:
+                update_data = obj_in.dict(exclude_unset=True)
+            for field in obj_data:
+                if field in update_data:
+                    setattr(db_obj, field, update_data[field])
+            session.commit()
+            return db_obj
 
     def update_one(self, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
@@ -72,15 +83,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
-        model = self.db.query(self.model).filter(self.model.id == id).first()
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        for attr, value in update_data.items():
-            setattr(model, attr, value)
-        self.db.commit()
-        return model
+        with self.db as session:
+            model = session.query(self.model).filter(self.model.id == id).first()
+            if isinstance(obj_in, dict):
+                update_data = obj_in
+            else:
+                update_data = obj_in.dict(exclude_unset=True)
+            for attr, value in update_data.items():
+                setattr(model, attr, value)
+            session.commit()
+            return model
 
     def delete_one(self, id: int) -> ModelType:
         """
@@ -89,7 +101,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: 主键id
         :return:
         """
-        obj = self.db.query(self.model).get(id)
-        self.db.delete(obj)
-        self.db.commit()
-        return obj
+        with self.db as session:
+            obj = session.query(self.model).get(id)
+            session.delete(obj)
+            session.commit()
+            return obj

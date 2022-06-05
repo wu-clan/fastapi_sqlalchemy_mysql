@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from backend.app.crud.base import CRUDBase
+from backend.app.datebase.db_mysql import get_db
 from backend.app.models import Menu
 from backend.app.schemas.sm_menu import MenuBase, MenuCreate, MenuUpdate
 
@@ -9,13 +10,16 @@ from backend.app.schemas.sm_menu import MenuBase, MenuCreate, MenuUpdate
 class CRUDMenu(CRUDBase[MenuBase, MenuCreate, MenuUpdate]):
 
     def get_all_menus(self) -> list:
-        return self.db.query(Menu).order_by(Menu.sort).all()
+        with self.db as session:
+            return session.query(Menu).order_by(Menu.sort).all()
 
     def get_one_menu_by_id(self, menu_id: int) -> Menu:
-        return self.db.query(Menu).filter(Menu.id == menu_id).first()
+        with self.db as session:
+            return session.query(Menu).filter(Menu.id == menu_id).first()
 
     def get_one_menu_by_name(self, menu_name: str) -> Menu:
-        return self.db.query(Menu).filter(Menu.name == menu_name).first()
+        with self.db as session:
+            return session.query(Menu).filter(Menu.name == menu_name).first()
 
     def create_menu(self, menu: MenuCreate) -> Menu:
         return super().create(menu)
