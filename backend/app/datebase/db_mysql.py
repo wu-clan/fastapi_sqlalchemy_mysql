@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, scoped_session
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
@@ -26,14 +27,21 @@ else:
     db_session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
+@contextmanager
 def get_db() -> Session:
     """
     获取数据库会话
 
     :return:
     """
-    with db_session() as session:
-        return session
+    session = scoped_session(db_session)
+    try:
+        yield session
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']

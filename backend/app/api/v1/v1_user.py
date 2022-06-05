@@ -311,8 +311,7 @@ def delete_avatar(current_user=Depends(jwt_security.get_current_user)) -> Any:
 @user.get('', summary='获取所有用户', response_model=Page[GetUserInfo],
           dependencies=[Depends(jwt_security.get_current_is_superuser)])
 def get_all_users() -> Any:
-    user_list = crud_user.get_users()
-    return paginate(user_list)
+    return paginate(crud_user.get_users())
 
 
 @user.post('/{id}/super', summary='修改用户超级权限', dependencies=[Depends(jwt_security.get_current_is_superuser)])
