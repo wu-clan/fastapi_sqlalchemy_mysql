@@ -75,7 +75,8 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                               mobile_number: str, wechat: str, qq: str, blog_address: str, introduction: str,
                               role: list, file: str) -> User:
         async with self.db as session:
-            user = await session.scalars(select(User).where(User.id == current_user.id).options(selectinload(User.roles)))
+            user = await session.scalars(
+                select(User).where(User.id == current_user.id).options(selectinload(User.roles)))
             await session.execute(
                 update(User).where(User.id == current_user.id).values(
                     username=username, email=email, mobile_number=mobile_number, wechat=wechat, qq=qq,
@@ -124,7 +125,8 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
             return user.scalars().first()
 
     def get_users(self) -> Select:
-        return select(self.model).order_by(User.time_joined.desc()).options(joinedload(User.roles))
+        return select(self.model).order_by(User.time_joined.desc()).options(
+            selectinload(User.roles).joinedload(Role.menus))
 
     async def get_user_is_super(self, user_id: int) -> bool:
         async with self.db as session:
