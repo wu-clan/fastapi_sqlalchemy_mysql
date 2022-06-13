@@ -60,7 +60,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
             create.password = jwt_security.get_hash_password(create.password)
             new_user = User(**create.dict())
             if len(role.role_id) == 1:
-                new_user.roles = await session.get(Role, role.role_id)
+                new_user.roles = [await session.get(Role, role.role_id)]
             else:
                 role_list = []
                 for _ in role.role_id.split(','):
