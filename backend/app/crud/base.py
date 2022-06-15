@@ -22,7 +22,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     @property
-    def db(self):
+    def db(self) -> Session:
         """
         获取数据库连接
 
