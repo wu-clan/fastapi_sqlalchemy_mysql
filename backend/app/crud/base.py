@@ -5,6 +5,7 @@ from typing import Any, Dict, Generic, Type, TypeVar, Union
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.datebase.base_class import Base
 from backend.app.datebase.db_mysql import get_db
@@ -22,7 +23,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     @property
-    def db(self):
+    def db(self) -> AsyncSession:
         """
         获取数据库连接
 
