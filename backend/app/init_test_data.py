@@ -5,10 +5,10 @@ import asyncio
 from email_validator import EmailNotValidError, validate_email
 from faker import Faker
 
-from backend.app.datebase.db_mysql import db_session
-from backend.app.models import User, Department, Role
-from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password
+from backend.app.common.log import log
+from backend.app.datebase.db_mysql import db_session
+from backend.app.models import User, Department, Role, Menu
 
 db = db_session()
 
@@ -19,23 +19,17 @@ class InitData:
     def __init__(self):
         self.fake = Faker('zh_CN')
 
-    # @staticmethod
-    # async def create_department():
-    #     """ 自动创建部门 """
-    #     dep_obj = Department(name='test')
-    #     db.add(dep_obj)
-    #     await db.commit()
-    #     await db.refresh(dep_obj)
-    #     print(f'部门 test 创建成功')
-    #
-    # @staticmethod
-    # async def create_role():
-    #     """ 自动创建部门 """
-    #     dep_obj = Role(name='test')
-    #     db.add(dep_obj)
-    #     await db.commit()
-    #     await db.refresh(dep_obj)
-    #     print(f'角色 test 创建成功')
+    @staticmethod
+    async def create_role():
+        """ 自动创建角色 """
+        dep_obj = Role(name='test')
+        dep_obj.menus = [
+            Menu(name='test', route_name='test', route_path='test', url='test', sort=0, icon='test', file_path='test',
+                 is_show=True)]
+        db.add(dep_obj)
+        await db.commit()
+        await db.refresh(dep_obj)
+        log.info(f'角色 test 创建成功')
 
     @staticmethod
     async def create_superuser_by_yourself():
@@ -52,17 +46,16 @@ class InitData:
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
-            new_email = success_email
             break
         department = Department(name='test')
         user_obj = User(
             username=username,
             password=get_hash_password(password),
-            email=new_email,
+            email=success_email,
             is_superuser=True,
             department_id=1,
         )
-        user_obj.roles = [Role(name='test')]
+        user_obj.roles.append(await db.get(Role, 1))
         db.add(department)
         db.add(user_obj)
         await db.commit()
@@ -164,9 +157,8 @@ class InitData:
     async def init_data(self):
         """ 自动创建数据 """
         log.info('----------------开始初始化数据----------------')
-        # await self.create_department()
         # await self.create_role()
-        # await self.create_superuser_by_yourself()
+        await self.create_superuser_by_yourself()
         await self.create_test_user()
         await self.fake_user()
         await self.fake_no_active_user()
