@@ -157,7 +157,7 @@ class InitData:
     async def init_data(self):
         """ 自动创建数据 """
         log.info('----------------开始初始化数据----------------')
-        # await self.create_role()
+        await self.create_role()
         await self.create_superuser_by_yourself()
         await self.create_test_user()
         await self.fake_user()
