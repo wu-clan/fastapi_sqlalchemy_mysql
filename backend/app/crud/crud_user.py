@@ -63,7 +63,7 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                 new_user.roles = [await session.get(Role, role.role_id)]
             else:
                 role_list = []
-                for _ in role.role_id.split(','):
+                for _ in role.role_id:
                     role_list.append(await session.get(Role, _))
                 new_user.roles = role_list
             session.add(new_user)
@@ -76,30 +76,29 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                               role: list, file: str) -> User:
         async with self.db as session:
             user = await session.scalars(
-                select(User).where(User.id == current_user.id).options(selectinload(User.roles)))
+                select(User).where(User.id == current_user.id).options(selectinload(User.roles))
+            )
             await session.execute(
-                update(User).where(User.id == current_user.id).values(
-                    username=username, email=email, mobile_number=mobile_number, wechat=wechat, qq=qq,
-                    blog_address=blog_address, introduction=introduction
-                ))
+                update(User).where(User.id == current_user.id).values({
+                    'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
+                    'blog_address': blog_address, 'introduction': introduction, "avatar": file
+                }))
             # 更新部门
             dept = await session.get(Department, department_id)
             await session.execute(update(User).where(User.id == current_user.id).values(department_id=dept.id))
             # 更新角色
             # step1 删除用户与角色的关系
-            user_role = user.first().roles
-            for _ in list(user_role):
-                user_role.remove(_)
+            first_user = user.first()
+            for i in list(first_user.roles):
+                first_user.roles.remove(i)
             # step2 添加用户与角色的关系
-            if len(role[0]) == 1:
-                user_role.append(await session.get(Role, role))
+            if len(role[0]) < 3:
+                first_user.roles.append(await session.get(Role, role))
             else:
                 for _ in role[0].split(','):
-                    user_role.append(await session.get(Role, _))
-            # 更新头像
-            await session.execute(update(User).where(User.id == current_user.id).values(avatar=file))
+                    first_user.roles.append(await session.get(Role, _))
             await session.commit()
-            return user
+            return first_user
 
     async def delete_user(self, user_id: int) -> bool:
         return await super().delete_one(user_id)
@@ -165,4 +164,4 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                 return active_status
 
 
-crud_user = CRUDUser(User)
+UserDao = CRUDUser(User)

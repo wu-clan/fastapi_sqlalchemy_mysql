@@ -27,7 +27,7 @@ class CreateUser(Auth):
 
 
 class CreateUserRole(BaseModel):
-    role_id: str = Field(..., description='包含多个角色时,应该是 "1,2",而不是用list')
+    role_id: List[int]
 
 
 class UpdateUser(BaseModel):

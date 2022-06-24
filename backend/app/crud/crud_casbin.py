@@ -14,4 +14,4 @@ class CRUDRbac(CRUDBase[CasbinRule, PolicyCreate, PolicyUpdate]):
         return select(self.model)
 
 
-crud_rbac = CRUDRbac(CasbinRule)
+RbacDao = CRUDRbac(CasbinRule)

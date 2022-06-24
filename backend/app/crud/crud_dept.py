@@ -33,4 +33,4 @@ class CRUDDept(CRUDBase[Department, DeptCreate, DeptUpdate]):
         return await super().delete_one(id)
 
 
-crud_dept = CRUDDept(Department)
+DeptDao = CRUDDept(Department)

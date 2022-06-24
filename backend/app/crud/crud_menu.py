@@ -35,4 +35,4 @@ class CRUDMenu(CRUDBase[Menu, MenuCreate, MenuUpdate]):
         return await super().delete_one(menu_id)
 
 
-crud_menu = CRUDMenu(Menu)
+MenuDao = CRUDMenu(Menu)

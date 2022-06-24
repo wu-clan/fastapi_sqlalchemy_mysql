@@ -7,10 +7,8 @@ from faker import Faker
 
 from backend.app.api.jwt_security import get_hash_password
 from backend.app.common.log import log
-from backend.app.datebase.db_mysql import db_session
+from backend.app.database.db_mysql import get_db
 from backend.app.models import User, Department, Role, Menu
-
-db = db_session()
 
 
 class InitData:
@@ -26,9 +24,10 @@ class InitData:
         dep_obj.menus = [
             Menu(name='test', route_name='test', route_path='test', url='test', sort=0, icon='test', file_path='test',
                  is_show=True)]
-        db.add(dep_obj)
-        await db.commit()
-        await db.refresh(dep_obj)
+        async with get_db() as db:
+            db.add(dep_obj)
+            await db.commit()
+            await db.refresh(dep_obj)
         log.info(f'角色 test 创建成功')
 
     @staticmethod
@@ -55,12 +54,13 @@ class InitData:
             is_superuser=True,
             department_id=1,
         )
-        user_obj.roles.append(await db.get(Role, 1))
-        db.add(department)
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(department)
-        await db.refresh(user_obj)
+        async with get_db() as db:
+            user_obj.roles.append(await db.get(Role, 1))
+            db.add(department)
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(department)
+            await db.refresh(user_obj)
         log.info(f'管理员用户创建成功，账号：{username}，密码：{password}')
 
     async def create_test_user(self):
@@ -74,10 +74,11 @@ class InitData:
             is_superuser=False,
             department_id=1,
         )
-        user_obj.roles.append(await db.get(Role, 1))
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with get_db() as db:
+            user_obj.roles.append(await db.get(Role, 1))
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"普通用户创建成功，账号：{text}，密码：{text}")
 
     async def fake_user(self):
@@ -92,10 +93,11 @@ class InitData:
             is_superuser=False,
             department_id=1,
         )
-        user_obj.roles.append(await db.get(Role, 1))
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with get_db() as db:
+            user_obj.roles.append(await db.get(Role, 1))
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"普通用户创建成功，账号：{username}，密码：{password}")
 
     async def fake_no_active_user(self):
@@ -111,10 +113,11 @@ class InitData:
             is_superuser=False,
             department_id=1,
         )
-        user_obj.roles.append(await db.get(Role, 1))
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with get_db() as db:
+            user_obj.roles.append(await db.get(Role, 1))
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"普通锁定用户创建成功，账号：{username}，密码：{password}")
 
     async def fake_superuser(self):
@@ -129,10 +132,11 @@ class InitData:
             is_superuser=True,
             department_id=1,
         )
-        user_obj.roles.append(await db.get(Role, 1))
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with get_db() as db:
+            user_obj.roles.append(await db.get(Role, 1))
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"管理员用户创建成功，账号：{username}，密码：{password}")
 
     async def fake_no_active_superuser(self):
@@ -148,10 +152,11 @@ class InitData:
             is_superuser=True,
             department_id=1,
         )
-        user_obj.roles.append(await db.get(Role, 1))
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with get_db() as db:
+            user_obj.roles.append(await db.get(Role, 1))
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"管理员锁定用户创建成功，账号：{username}，密码：{password}")
 
     async def init_data(self):
@@ -165,7 +170,6 @@ class InitData:
         await self.fake_superuser()
         await self.fake_no_active_superuser()
         log.info('----------------数据初始化完成----------------')
-        await db.close()
 
 
 if __name__ == '__main__':

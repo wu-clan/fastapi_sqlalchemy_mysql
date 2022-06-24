@@ -33,4 +33,4 @@ class CRUDApi(CRUDBase[API, APICreate, APIUpdate]):
         return await super().delete_one(id)
 
 
-crud_api = CRUDApi(API)
+ApiDao = CRUDApi(API)

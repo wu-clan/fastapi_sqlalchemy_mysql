@@ -59,4 +59,4 @@ class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
         return await super().delete_one(id)
 
 
-crud_role = CRUDRole(Role)
+RoleDao = CRUDRole(Role)
