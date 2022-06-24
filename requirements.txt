@@ -1,5 +1,5 @@
-fastapi==0.73.0
-starlette==0.17.1
+fastapi==0.78.0
+starlette==0.19.1
 SQLAlchemy==1.4.31
 python-jose==3.3.0
 bcrypt==3.2.2
