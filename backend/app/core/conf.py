@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     TITLE: str = 'FastAPI'
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
-fastapi_mysql_demo. 🚀
+fastapi_sqlalchemy_mysql. 🚀
     
-### 点击跳转 -> [master](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/master/)
+### 点击跳转 -> [master](https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql/tree/master/)
     """
     DOCS_URL: str = '/v1/docs'
     REDOCS_URL: bool = False
@@ -37,7 +37,7 @@ fastapi_mysql_demo. 🚀
     DB_CHARSET: str = 'utf8mb4'
 
     # redis
-    REDIS_OPEN: bool = True  # 如果你扩展API时使用了redis,就必须开启;如果你未使用到redis,则可以选择关闭(False)
+    REDIS_OPEN: bool = False  # 如果你扩展API时使用了redis,就必须开启;如果你未使用到redis,则可以选择关闭(False)
     REDIS_HOST: str = '127.0.0.1'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
@@ -50,11 +50,11 @@ fastapi_mysql_demo. 🚀
     TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # token 时效 60 * 24 * 1 = 1 天
 
     # Email
-    EMAIL_DESCRIPTION: str = 'fastapi-mysql-demo'  # 默认发件说明
+    EMAIL_DESCRIPTION: str = 'fastapi_sqlalchemy_mysql'  # 默认发件说明
     EMAIL_SERVER: str = 'smtp.qq.com'
     EMAIL_PORT: int = 465
-    EMAIL_USER: str = 'xxxx-nav@qq.com'
-    EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
+    EMAIL_USER: str = 'xxxxx-nav@qq.com'
+    EMAIL_PASSWORD: str = 'lalalalalalalala'  # 授权密码，非邮箱密码
     EMAIL_SSL: bool = True
 
     # 邮箱登录验证码过期时间

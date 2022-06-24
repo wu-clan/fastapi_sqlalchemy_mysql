@@ -29,7 +29,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
-from backend.app.datebase.db_mysql import SQLALCHEMY_DATABASE_URL
+from backend.app.database.db_mysql import SQLALCHEMY_DATABASE_URL
 config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
 
 from backend.app.models import Base

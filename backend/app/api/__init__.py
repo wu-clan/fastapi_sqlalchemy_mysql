@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import sys
 
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
+from backend.app.api.v1 import v1
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
-from backend.app.api.v1 import v1
 from backend.app.middleware import register_middleware
 from backend.app.schemas import register_exception
 
@@ -45,7 +44,7 @@ def register_app():
     return app
 
 
-def register_router(app):
+def register_router(app: FastAPI):
     """
     路由
 
@@ -57,7 +56,7 @@ def register_router(app):
     )
 
 
-def register_static_file(app):
+def register_static_file(app: FastAPI):
     """
     静态文件交互开发模式, 生产使用 nginx 静态资源服务
 
@@ -71,7 +70,7 @@ def register_static_file(app):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-def register_init(app):
+def register_init(app: FastAPI):
     """
     初始化连接
 
@@ -92,7 +91,7 @@ def register_init(app):
             await redis_client.init_redis_connect().close()
 
 
-def register_page(app):
+def register_page(app: FastAPI):
     """
     分页查询
 

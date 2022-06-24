@@ -31,7 +31,7 @@ def is_wechat(text: str) -> bool:
     return check_string(r"^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$", text)
 
 
-def is_QQ(text: str) -> bool:
+def is_qq(text: str) -> bool:
     """
     检查QQ号
 

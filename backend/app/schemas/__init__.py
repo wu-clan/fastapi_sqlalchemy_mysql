@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Optional
 
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, status, FastAPI
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError, ValidationError
 from fastapi.responses import JSONResponse
@@ -87,7 +87,7 @@ class TokenError(Exception):
 """
 
 
-def register_exception(app):
+def register_exception(app: FastAPI):
     @app.exception_handler(AuthorizationError)
     def authorization_error(request: Request, exc: AuthorizationError):
         """

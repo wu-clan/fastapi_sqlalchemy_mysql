@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from typing import Union
 
 from sqlalchemy import func, select, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -53,14 +54,13 @@ async def create_user(db: AsyncSession, create: CreateUser) -> User:
 
 
 async def update_userinfo(db: AsyncSession, current_user: User, username: str, email: str, mobile_number: str,
-                          wechat: str, qq: str, blog_address: str, introduction: str, file: str) -> User:
-    data = await db.execute(select(User).where(User.id == current_user.id))
+                          wechat: str, qq: str, blog_address: str, introduction: str, file: Union[str, None]) -> User:
     await db.execute(update(User).where(User.id == current_user.id).values({
         'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
-        'blog_address': blog_address, 'introduction': introduction
+        'blog_address': blog_address, 'introduction': introduction, 'avatar': file
     }))
-    await db.execute(update(User).where(User.id == current_user.id).values({'avatar': file}))
     await db.commit()
+    data = await db.execute(select(User).where(User.id == current_user.id))
     return data.scalars().first()
 
 
