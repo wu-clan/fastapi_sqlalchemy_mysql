@@ -4,13 +4,14 @@ import asyncio
 
 from email_validator import EmailNotValidError, validate_email
 from faker import Faker
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.datebase.db_mysql import db_session
+from backend.app.database.db_mysql import db_session
 from backend.app.models import User
 from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password
 
-db = db_session()
+session: AsyncSession = db_session()
 
 
 class InitData:
@@ -30,11 +31,10 @@ class InitData:
         while True:
             email = input()
             try:
-                success_email = validate_email(email).email
+                new_email = validate_email(email, check_deliverability=False).email
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
-            new_email = success_email
             break
         user_obj = User(
             username=username,
@@ -42,10 +42,11 @@ class InitData:
             email=new_email,
             is_superuser=True,
         )
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
-        print(f'管理员用户创建成功，账号：{username}，密码：{password}')
+        async with session as db:
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
+        log.info(f'管理员用户创建成功，账号：{username}，密码：{password}')
 
     async def fake_user(self):
         """ 自动创建普通用户 """
@@ -58,9 +59,10 @@ class InitData:
             email=email,
             is_superuser=False,
         )
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with session as db:
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"普通用户创建成功，账号：{username}，密码：{password}")
 
     async def fake_no_active_user(self):
@@ -75,9 +77,10 @@ class InitData:
             is_active=False,
             is_superuser=False,
         )
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with session as db:
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"普通锁定用户创建成功，账号：{username}，密码：{password}")
 
     async def fake_superuser(self):
@@ -91,9 +94,10 @@ class InitData:
             email=email,
             is_superuser=True,
         )
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with session as db:
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"管理员用户创建成功，账号：{username}，密码：{password}")
 
     async def fake_no_active_superuser(self):
@@ -108,20 +112,21 @@ class InitData:
             is_active=False,
             is_superuser=True,
         )
-        db.add(user_obj)
-        await db.commit()
-        await db.refresh(user_obj)
+        async with session as db:
+            db.add(user_obj)
+            await db.commit()
+            await db.refresh(user_obj)
         log.info(f"管理员锁定用户创建成功，账号：{username}，密码：{password}")
 
     async def init_data(self):
         """ 自动创建数据 """
-        log.info('----------------开始初始化数据----------------')
+        log.info('--------------- 开始初始化数据 ---------------')
         await self.create_superuser_by_yourself()
         await self.fake_user()
         await self.fake_no_active_user()
         await self.fake_superuser()
         await self.fake_no_active_superuser()
-        log.info('----------------数据初始化完成----------------')
+        log.info('--------------- 数据初始化完成 ---------------')
 
 
 if __name__ == '__main__':

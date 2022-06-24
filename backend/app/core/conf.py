@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     TITLE: str = 'FastAPI'
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
- fastapi_mysql_demo. 🚀
+fastapi_sqlalchemy_mysql. 🚀
  
- ### 点击跳转 -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/async-CRUDBase/)
+ ### 点击跳转 -> [async-CRUDBase](https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql/tree/async-CRUDBase/)
     """
     DOCS_URL: str = '/v1/docs'
     REDOCS_URL: bool = False
@@ -66,11 +66,11 @@ class Settings(BaseSettings):
     TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # token 时效 60 * 24 * 1 = 1 天
 
     # Email
-    EMAIL_DESCRIPTION: str = 'fastapi-mysql-demo'  # 默认发件说明
+    EMAIL_DESCRIPTION: str = 'fastapi_sqlalchemy_mysql'  # 默认发件说明
     EMAIL_SERVER: str = 'smtp.qq.com'
     EMAIL_PORT: int = 465
     EMAIL_USER: str = 'xxxx-nav@qq.com'
-    EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
+    EMAIL_PASSWORD: str = 'lalalalala'  # 授权密码，非邮箱密码
     EMAIL_SSL: bool = True  # 是否使用ssl
 
     # 邮箱登录验证码过期时间

@@ -4,7 +4,7 @@
 from sqlalchemy import Boolean, Column, DateTime, func, String
 from sqlalchemy.dialects.mysql import LONGTEXT
 
-from backend.app.datebase.base_class import Base, use_uuid
+from backend.app.database.base_class import Base, use_uuid
 
 
 class User(Base):

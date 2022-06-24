@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from typing import Union
 
 from sqlalchemy import func, select, update, desc
 from sqlalchemy.sql import Select
@@ -52,15 +53,15 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
             return new_user
 
     async def update_userinfo(self, current_user: User, username: str, email: str, mobile_number: str,
-                              wechat: str, qq: str, blog_address: str, introduction: str, file: str) -> User:
+                              wechat: str, qq: str, blog_address: str, introduction: str,
+                              file: Union[str, None]) -> User:
         async with self.db as session:
-            user = await session.execute(select(User).where(User.username == current_user.username))
             await session.execute(update(User).where(User.id == current_user.id).values({
                 'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
-                'blog_address': blog_address, 'introduction': introduction
+                'blog_address': blog_address, 'introduction': introduction, 'avatar': file
             }))
-            await session.execute(update(User).where(User.id == current_user.id).values({'avatar': file}))
             await session.commit()
+            user = await session.execute(select(User).where(User.username == current_user.username))
             return user.scalars().first()
 
     async def delete_user(self, user_id: int) -> bool:
@@ -73,9 +74,9 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
 
     async def delete_avatar(self, user_id: int) -> User:
         async with self.db as session:
-            user = await session.execute(select(User).where(User.username == user_id))
             await session.execute(update(User).where(User.id == user_id).values({'avatar': None}))
             await session.commit()
+            user = await session.execute(select(User).where(User.id == user_id))
             return user.scalars().first()
 
     async def reset_password(self, username: str, password: str) -> User:
@@ -127,4 +128,4 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                 return active_status
 
 
-crud_user = CRUDUser(User)
+UserDao = CRUDUser(User)
