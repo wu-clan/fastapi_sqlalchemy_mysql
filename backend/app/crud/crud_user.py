@@ -49,10 +49,7 @@ def update_userinfo(db: Session, current_user: User, username: str, email: str, 
     userinfo = db.query(User).filter(User.id == current_user.id)
     userinfo.update({
         'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
-        'blog_address': blog_address, 'introduction': introduction
-    })
-    userinfo.update({
-        'avatar': file
+        'blog_address': blog_address, 'introduction': introduction, 'avatar': file
     })
     db.commit()
     return userinfo.first()

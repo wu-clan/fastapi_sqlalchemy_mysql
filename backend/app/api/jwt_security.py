@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.core.conf import settings
 from backend.app.crud import crud_user
-from backend.app.datebase.db_mysql import get_db
+from backend.app.database.db_mysql import get_db
 from backend.app.models import User
 from backend.app.schemas import AuthorizationError, TokenError
 

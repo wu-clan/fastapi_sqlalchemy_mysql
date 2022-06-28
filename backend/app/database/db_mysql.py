@@ -16,7 +16,7 @@ SQLALCHEMY_DATABASE_URL = f'mysql+pymysql://{settings.DB_USER}:{settings.DB_PASS
 
 try:
     # 数据库引擎
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=settings.DB_ECHO, pool_size=100)
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=settings.DB_ECHO)
     # log.success('数据库连接成功')
 except Exception as e:
     log.error('数据库链接失败 {}', e)

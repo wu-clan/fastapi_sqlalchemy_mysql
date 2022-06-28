@@ -43,7 +43,7 @@ def register_app():
     return app
 
 
-def register_router(app):
+def register_router(app: FastAPI):
     """
     路由
 
@@ -55,7 +55,7 @@ def register_router(app):
     )
 
 
-def register_static_file(app):
+def register_static_file(app: FastAPI):
     """
     静态文件交互开发模式, 生产使用 nginx 静态资源服务
 
@@ -69,7 +69,7 @@ def register_static_file(app):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-def register_init(app):
+def register_init(app: FastAPI):
     """
     初始化连接
 
@@ -90,7 +90,7 @@ def register_init(app):
             init_redis_connect.init_redis_connect().close()
 
 
-def register_page(app):
+def register_page(app: FastAPI):
     """
     分页查询
 

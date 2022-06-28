@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     TITLE: str = 'FastAPI'
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
- fastapi_mysql_demo. 🚀
+fastapi_sqlalchemy_mysql. 🚀
  
- ### 点击跳转 -> [sync](https://gitee.com/wu_cl/fastapi_mysql_demo/tree/sync/)
+ ### 点击跳转 -> [sync](https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql/tree/sync/)
     """
     DOCS_URL: str = '/v1/docs'
     REDOCS_URL: bool = False
@@ -57,7 +57,7 @@ class Settings(BaseSettings):
     EMAIL_SERVER: str = 'smtp.qq.com'
     EMAIL_PORT: int = 465
     EMAIL_USER: str = 'xxxx-nav@qq.com'
-    EMAIL_PASSWORD: str = 'cvszjyenrlvfkeaef'  # 授权密码，非邮箱密码
+    EMAIL_PASSWORD: str = 'lalalalala'  # 授权密码，非邮箱密码
     EMAIL_SSL: bool = True  # 是否使用ssl
 
     # Cookies
