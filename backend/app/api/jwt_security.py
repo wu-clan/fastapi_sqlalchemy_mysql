@@ -10,7 +10,7 @@ from passlib.context import CryptContext
 from pydantic import ValidationError
 
 from backend.app.core.conf import settings
-from backend.app.crud.crud_user import crud_user
+from backend.app.crud.crud_user import UserDao
 from backend.app.models import User
 from backend.app.schemas import AuthorizationError, TokenError
 
@@ -74,7 +74,7 @@ def get_current_user(token: str = Depends(oauth2_schema)) -> User:
             raise TokenError
     except (jwt.JWTError, ValidationError):
         raise TokenError
-    user = crud_user.get_user_by_id(user_id)
+    user = UserDao.get_user_by_id(user_id)
     return user
 
 

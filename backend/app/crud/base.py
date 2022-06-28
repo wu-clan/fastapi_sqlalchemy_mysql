@@ -6,8 +6,8 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from backend.app.datebase.base_class import Base
-from backend.app.datebase.db_mysql import get_db
+from backend.app.database.base_class import Base
+from backend.app.database.db_mysql import get_db
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)

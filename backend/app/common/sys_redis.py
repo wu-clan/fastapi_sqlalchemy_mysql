@@ -23,6 +23,7 @@ class RedisCli:
     def get_redis(self) -> Redis:
         """
         获取redis连接
+
         :return:
         """
         with self.redis as redis:
@@ -31,6 +32,7 @@ class RedisCli:
     def init_redis_connect(self) -> Redis:
         """
         触发初始化连接
+
         :return:
         """
         try:

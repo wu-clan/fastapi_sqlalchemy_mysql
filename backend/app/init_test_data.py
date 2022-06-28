@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 from email_validator import EmailNotValidError, validate_email
 from faker import Faker
+from sqlalchemy.orm import Session
 
-from backend.app.datebase.db_mysql import db_session
+from backend.app.database.db_mysql import db_session
 from backend.app.models import User
 from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password
 
-db = db_session()
+session: Session = db_session()
 
 
 class InitData:
@@ -28,11 +29,10 @@ class InitData:
         while True:
             email = input()
             try:
-                success_email = validate_email(email).email
+                new_email = validate_email(email, check_deliverability=False).email
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
-            new_email = success_email
             break
         user_obj = User(
             username=username,
@@ -40,9 +40,10 @@ class InitData:
             email=new_email,
             is_superuser=True,
         )
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with session as db:
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         print(f'管理员用户创建成功，账号：{username}，密码：{password}')
 
     def fake_user(self):
@@ -56,9 +57,10 @@ class InitData:
             email=email,
             is_superuser=False,
         )
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with session as db:
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"普通用户创建成功，账号：{username}，密码：{password}")
 
     def fake_no_active_user(self):
@@ -73,9 +75,10 @@ class InitData:
             is_active=False,
             is_superuser=False,
         )
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with session as db:
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"普通锁定用户创建成功，账号：{username}，密码：{password}")
 
     def fake_superuser(self):
@@ -89,9 +92,10 @@ class InitData:
             email=email,
             is_superuser=True,
         )
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with session as db:
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"管理员用户创建成功，账号：{username}，密码：{password}")
 
     def fake_no_active_superuser(self):
@@ -106,9 +110,10 @@ class InitData:
             is_active=False,
             is_superuser=True,
         )
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with session as db:
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"管理员锁定用户创建成功，账号：{username}，密码：{password}")
 
     def init_data(self):
