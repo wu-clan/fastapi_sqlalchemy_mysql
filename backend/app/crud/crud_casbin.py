@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Query
 
 from backend.app.crud.base import CRUDBase
-from backend.app.datebase.db_mysql import get_db
+from backend.app.database.db_mysql import get_db
 from backend.app.models import CasbinRule
 from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate
 
@@ -15,4 +15,4 @@ class CRUDRbac(CRUDBase[CasbinRule, PolicyCreate, PolicyUpdate]):
             return session.query(CasbinRule)
 
 
-crud_rbac = CRUDRbac(CasbinRule)
+RbacDao = CRUDRbac(CasbinRule)

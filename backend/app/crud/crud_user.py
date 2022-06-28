@@ -7,7 +7,7 @@ from sqlalchemy.sql import Select
 
 from backend.app.api import jwt_security
 from backend.app.crud.base import CRUDBase
-from backend.app.datebase.db_mysql import get_db
+from backend.app.database.db_mysql import get_db
 from backend.app.models import User, Role, Department
 from backend.app.models.role import UserRole
 from backend.app.schemas.sm_user import CreateUser, UpdateUser, CreateUserRole
@@ -74,25 +74,22 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
             userinfo = session.query(User).filter(User.id == current_user.id)
             userinfo.update({
                 'username': username, 'email': email, 'mobile_number': mobile_number, 'wechat': wechat, 'qq': qq,
-                'blog_address': blog_address, 'introduction': introduction
+                'blog_address': blog_address, 'introduction': introduction,  'avatar': file
             })
             # 更新部门
             dept = session.query(Department).get(department_id).id
             userinfo.update({'department_id': dept})
             # 更新角色
+            _user = userinfo.first()
             # step1 先删除所有角色
-            for i in list(userinfo.first().roles):
-                userinfo.first().roles.remove(i)
+            for i in list(_user.roles):
+                _user.roles.remove(i)
             # step2 再添加新的角色
             if len(role[0]) < 3:
-                userinfo.first().roles.append(session.query(Role).get(role))
+                _user.roles.append(session.query(Role).get(role))
             else:
                 for _ in role[0].split(","):
-                    userinfo.first().roles.append(session.query(Role).get(_))
-            # 更新头像
-            userinfo.update({
-                'avatar': file
-            })
+                    _user.roles.append(session.query(Role).get(_))
             session.commit()
             return userinfo.first()
 
@@ -151,4 +148,4 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                 return active_status
 
 
-crud_user = CRUDUser(User)
+UserDao = CRUDUser(User)

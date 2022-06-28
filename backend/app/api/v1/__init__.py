@@ -16,7 +16,7 @@ from ...common.sys_casbin import rbac
 
 v1 = APIRouter(prefix='/v1')
 
-v1.include_router(captcha, prefix='/captchas', tags=['图片验证码'])
+v1.include_router(captcha, prefix='/captcha', tags=['图片验证码'])
 v1.include_router(dept, prefix='/depts', tags=['部门管理'])
 v1.include_router(api, prefix='/apis', tags=['API管理'])
 v1.include_router(role, prefix='/roles', tags=['角色管理'])

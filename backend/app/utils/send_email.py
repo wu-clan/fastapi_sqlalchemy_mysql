@@ -13,7 +13,7 @@ _only_one = get_uuid()
 SEND_RESET_PASSWORD_TEXT = f'您的重置密码验证码为：{_only_one}\n为了不影响您正常使用，请在{int(settings.COOKIES_MAX_AGE / 60)}分钟内完成密码重置'
 
 
-def send_email_verification_code(send_to, code, text=SEND_RESET_PASSWORD_TEXT):
+def send_verification_code_email(send_to, code, text=SEND_RESET_PASSWORD_TEXT):
     """
     发送电子邮件验证码
 
@@ -22,12 +22,11 @@ def send_email_verification_code(send_to, code, text=SEND_RESET_PASSWORD_TEXT):
     :param text: 邮件文本内容
     :return:
     """
-    _text = text.replace(str(_only_one), code)
+    _text = text.replace(_only_one, code)
     message = MIMEMultipart()
-    content = MIMEText(_text, _charset="utf-8")
-    message['from'] = settings.EMAIL_USER
     message['subject'] = settings.EMAIL_DESCRIPTION
-    message.attach(content)
+    message['from'] = settings.EMAIL_USER
+    message.attach(MIMEText(_text, _charset="utf-8"))
 
     # 登录smtp服务器并发送邮件
     try:
@@ -40,12 +39,4 @@ def send_email_verification_code(send_to, code, text=SEND_RESET_PASSWORD_TEXT):
         smtp.quit()
     except Exception as e:
         log.error('邮件发送失败 {}', e)
-
-
-if __name__ == '__main__':
-    try:
-        send_email_verification_code('xxx@qq.com', 'test')
-    except Exception as e:
-        print('fail')
-        raise e
-    print('success')
+        raise Exception('邮件发送失败 {}'.format(e))

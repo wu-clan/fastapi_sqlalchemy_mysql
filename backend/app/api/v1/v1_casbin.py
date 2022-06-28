@@ -6,7 +6,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 
 from backend.app.common.pagination import Page
 from backend.app.common.sys_casbin import rbac
-from backend.app.crud.crud_casbin import crud_rbac
+from backend.app.crud.crud_casbin import RbacDao
 from backend.app.schemas import Response200, Response404, Response403
 from backend.app.schemas.sm_casbin import PolicyCreate, PolicyUpdate, PolicyDelete, RBACAll, UserRole
 
@@ -15,7 +15,7 @@ casbin = APIRouter()
 
 @casbin.get('', summary='获取所有权限规则', response_model=Page[RBACAll])
 def get_rbac_list():
-    return paginate(crud_rbac.get_all_rbac())
+    return paginate(RbacDao.get_all_rbac())
 
 
 @casbin.get('/policies', summary='获取所有p策略')

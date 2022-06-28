@@ -3,12 +3,10 @@
 from email_validator import EmailNotValidError, validate_email
 from faker import Faker
 
-from backend.app.datebase.db_mysql import db_session
-from backend.app.models import User, Department, Role, Menu
-from backend.app.common.log import log
 from backend.app.api.jwt_security import get_hash_password
-
-db = db_session()
+from backend.app.common.log import log
+from backend.app.database.db_mysql import get_db
+from backend.app.models import User, Department, Role, Menu
 
 
 class InitData:
@@ -24,9 +22,10 @@ class InitData:
         dep_obj.menus = [
             Menu(name='test', route_name='test', route_path='test', url='test', sort=0, icon='test', file_path='test',
                  is_show=True)]
-        db.add(dep_obj)
-        db.commit()
-        db.refresh(dep_obj)
+        with get_db() as db:
+            db.add(dep_obj)
+            db.commit()
+            db.refresh(dep_obj)
         log.info(f'角色 test 创建成功')
 
     @staticmethod
@@ -40,11 +39,10 @@ class InitData:
         while True:
             email = input()
             try:
-                success_email = validate_email(email).email
+                new_email = validate_email(email, check_deliverability=False).email
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
-            new_email = success_email
             break
         # 多对多添加用户角色
         department = Department(name='test')
@@ -55,12 +53,13 @@ class InitData:
             is_superuser=True,
             department_id=1,
         )
-        user_obj.roles.append(db.query(Role).get(1))
-        db.add(department)
-        db.add(user_obj)
-        db.commit()
-        db.refresh(department)
-        db.refresh(user_obj)
+        with get_db() as db:
+            user_obj.roles.append(db.query(Role).get(1))
+            db.add(department)
+            db.add(user_obj)
+            db.commit()
+            db.refresh(department)
+            db.refresh(user_obj)
         log.info(f'部门 test 创建成功')
         log.info(f"管理员用户创建成功，账号：{username}，密码：{password}")
 
@@ -76,10 +75,11 @@ class InitData:
             is_superuser=False,
             department_id=1
         )
-        user_obj.roles.append(db.query(Role).get(1))
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with get_db() as db:
+            user_obj.roles.append(db.query(Role).get(1))
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"普通用户创建成功，账号：{username}，密码：{password}")
 
     def fake_no_active_user(self):
@@ -95,10 +95,11 @@ class InitData:
             is_superuser=False,
             department_id=1
         )
-        user_obj.roles.append(db.query(Role).get(1))
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with get_db() as db:
+            user_obj.roles.append(db.query(Role).get(1))
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"普通锁定用户创建成功，账号：{username}，密码：{password}")
 
     def fake_superuser(self):
@@ -113,10 +114,11 @@ class InitData:
             is_superuser=True,
             department_id=1
         )
-        user_obj.roles.append(db.query(Role).get(1))
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with get_db() as db:
+            user_obj.roles.append(db.query(Role).get(1))
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"管理员用户创建成功，账号：{username}，密码：{password}")
 
     def create_test_user(self):
@@ -130,10 +132,11 @@ class InitData:
             is_superuser=False,
             department_id=1
         )
-        user_obj.roles.append(db.query(Role).get(1))
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with get_db() as db:
+            user_obj.roles.append(db.query(Role).get(1))
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"普通用户创建成功，账号：{text}，密码：{text}")
 
     def fake_no_active_superuser(self):
@@ -149,11 +152,11 @@ class InitData:
             is_superuser=True,
             department_id=1
         )
-
-        user_obj.roles.append(db.query(Role).get(1))
-        db.add(user_obj)
-        db.commit()
-        db.refresh(user_obj)
+        with get_db() as db:
+            user_obj.roles.append(db.query(Role).get(1))
+            db.add(user_obj)
+            db.commit()
+            db.refresh(user_obj)
         log.info(f"管理员锁定用户创建成功，账号：{username}，密码：{password}")
 
     def init_data(self):

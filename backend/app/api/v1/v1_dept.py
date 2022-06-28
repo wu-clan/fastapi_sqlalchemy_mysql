@@ -6,7 +6,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from backend.app.api.jwt_security import get_current_user
 from backend.app.common.pagination import Page
 from backend.app.common.sys_casbin import rbac
-from backend.app.crud.crud_dept import crud_dept
+from backend.app.crud.crud_dept import DeptDao
 from backend.app.schemas import Response200, Response403, Response404
 from backend.app.schemas.sm_department import DeptCreate, DeptUpdate, DeptAll
 
@@ -15,15 +15,15 @@ dept = APIRouter()
 
 @dept.get('', summary='获取所有部门', response_model=Page[DeptAll], dependencies=[Depends(get_current_user)])
 def get_dept_list():
-    return paginate(crud_dept.get_all_dept())
+    return paginate(DeptDao.get_all_dept())
 
 
-@dept.get('/{id}', summary='获取指定部门', dependencies=[Depends(get_current_user)])
-def get_one_dept(id: int = Query(...)):
-    check = crud_dept.get_one_dept_by_id(id)
+@dept.get('/{pk}', summary='获取指定部门', dependencies=[Depends(get_current_user)])
+def get_one_dept(pk: int = Query(...)):
+    check = DeptDao.get_one_dept_by_id(pk)
     if not check:
         return Response404()
-    dept_user = crud_dept.get_dept_join_user_by_id(id)
+    dept_user = DeptDao.get_dept_join_user_by_id(pk)
     if dept_user:
         return Response200(data=dept_user)
     return Response200(data=check)
@@ -31,31 +31,31 @@ def get_one_dept(id: int = Query(...)):
 
 @dept.post('', summary='创建部门', dependencies=[Depends(rbac.verify_rbac)])
 def create_dept(obj: DeptCreate):
-    check = crud_dept.get_one_dept_by_name(obj.name)
+    check = DeptDao.get_one_dept_by_name(obj.name)
     if check:
         return Response403(msg='部门已存在, 请更换部门名称')
     else:
-        data = crud_dept.create_dept(obj)
+        data = DeptDao.create_dept(obj)
         return Response200(data=data)
 
 
-@dept.put('/{id}', summary='更新部门', dependencies=[Depends(rbac.verify_rbac)])
-def create_dept(obj: DeptUpdate, id: int = Query(...)):
-    check = crud_dept.get_one_dept_by_id(id)
+@dept.put('/{pk}', summary='更新部门', dependencies=[Depends(rbac.verify_rbac)])
+def create_dept(obj: DeptUpdate, pk: int = Query(...)):
+    check = DeptDao.get_one_dept_by_id(pk)
     if not check:
         return Response404(data=obj)
-    check_name = crud_dept.get_one_dept_by_name(obj.name)
+    check_name = DeptDao.get_one_dept_by_name(obj.name)
     if obj.name != check.name:
         if check_name:
             return Response403(msg='部门已存在, 请更换部门名称')
-    crud_dept.update_dept(id, obj)
+    DeptDao.update_dept(pk, obj)
     return Response200(data=obj)
 
 
-@dept.delete('/{id}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
-def delete_dept(id: int = Query(...)):
-    check = crud_dept.get_one_dept_by_id(id)
+@dept.delete('/{pk}', summary='删除部门', dependencies=[Depends(rbac.verify_rbac)])
+def delete_dept(pk: int = Query(...)):
+    check = DeptDao.get_one_dept_by_id(pk)
     if not check:
         return Response404()
-    crud_dept.delete_dept(id)
+    DeptDao.delete_dept(pk)
     return Response200()

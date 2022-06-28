@@ -5,7 +5,7 @@ from sqlalchemy import Boolean, Column, DateTime, func, Integer, String, Foreign
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import relationship
 
-from backend.app.datebase.base_class import Base, use_uuid
+from backend.app.database.base_class import Base, use_uuid
 
 
 class User(Base):

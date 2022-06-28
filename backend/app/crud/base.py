@@ -6,8 +6,8 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from backend.app.datebase.base_class import Base
-from backend.app.datebase.db_mysql import get_db
+from backend.app.database.base_class import Base
+from backend.app.database.db_mysql import get_db
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -30,15 +30,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         return get_db()
 
-    def get(self, id: int) -> ModelType:
+    def get(self, pk: int) -> ModelType:
         """
         通过id查询一条数据
 
-        :param id: 主键id
+        :param pk: 主键id
         :return:
         """
         with self.db as session:
-            return session.query(self.model).filter(self.model.id == id).first()
+            return session.query(self.model).filter(self.model.id == pk).first()
 
     def create(self, obj_in: CreateSchemaType) -> ModelType:
         """
@@ -75,16 +75,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             session.commit()
             return db_obj
 
-    def update_one(self, id: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    def update_one(self, pk: int, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """
         通过主键id更新一条数据
 
-        :param id: 主键id
+        :param pk: 主键id
         :param obj_in: Pydantic模型类 or 对应数据库字段的字典
         :return:
         """
         with self.db as session:
-            model = session.query(self.model).filter(self.model.id == id).first()
+            model = session.query(self.model).filter(self.model.id == pk).first()
             if isinstance(obj_in, dict):
                 update_data = obj_in
             else:
@@ -94,15 +94,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             session.commit()
             return model
 
-    def delete_one(self, id: int) -> ModelType:
+    def delete_one(self, pk: int) -> ModelType:
         """
         通过id删除一条数据
 
-        :param id: 主键id
+        :param pk: 主键id
         :return:
         """
         with self.db as session:
-            obj = session.query(self.model).get(id)
+            obj = session.query(self.model).get(pk)
             session.delete(obj)
             session.commit()
             return obj

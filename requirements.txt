@@ -1,4 +1,5 @@
-fastapi==0.68.2
+fastapi==0.78.0
+starlette==0.19.1
 SQLAlchemy==1.4.31
 python-jose==3.3.0
 bcrypt==3.2.2
@@ -9,7 +10,6 @@ redis==4.1.1
 alembic==1.7.4
 uvicorn==0.13.4
 path==15.1.2
-starlette==0.14.2
 Faker==9.7.1
 python-jose==3.3.0
 fast-captcha==0.1.3

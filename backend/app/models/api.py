@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, String
 
-from backend.app.datebase.base_class import Base
+from backend.app.database.base_class import Base
 
 
 class API(Base):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from backend.app.crud.base import CRUDBase
-from backend.app.datebase.db_mysql import get_db
+from backend.app.database.db_mysql import get_db
 from backend.app.models import Menu
 from backend.app.schemas.sm_menu import MenuBase, MenuCreate, MenuUpdate
 
@@ -31,4 +31,4 @@ class CRUDMenu(CRUDBase[MenuBase, MenuCreate, MenuUpdate]):
         return super().delete_one(menu_id)
 
 
-crud_menu = CRUDMenu(Menu)
+MenuDao = CRUDMenu(Menu)

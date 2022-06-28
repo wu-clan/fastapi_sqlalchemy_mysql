@@ -3,7 +3,7 @@
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
-from backend.app.datebase.base_class import Base
+from backend.app.database.base_class import Base
 
 
 class Role(Base):

@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import Select
 
 from backend.app.crud.base import CRUDBase
-from backend.app.datebase.db_mysql import get_db
+from backend.app.database.db_mysql import get_db
 from backend.app.models import Role, Menu
 from backend.app.schemas.sm_role import RoleCreate, RoleUpdate, RoleMenuCreate, RoleMenuUpdate
 
@@ -19,8 +19,8 @@ class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
         with self.db as session:
             return session.query(Role).filter(Role.name == name).first()
 
-    def get_one_role_by_id(self, id: int) -> Role:
-        return super().get(id)
+    def get_one_role_by_id(self, pk: int) -> Role:
+        return super().get(pk)
 
     def create_role(self, obj: RoleCreate, menu: RoleMenuCreate) -> Role:
         with self.db as session:
@@ -37,24 +37,25 @@ class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
             session.refresh(new_role)
             return new_role
 
-    def update_role(self, id: int, obj: RoleUpdate, menu: RoleMenuUpdate) -> Role:
+    def update_role(self, pk: int, obj: RoleUpdate, menu: RoleMenuUpdate) -> Role:
         with self.db as session:
-            role = session.query(Role).filter(Role.id == id)
+            role = session.query(Role).filter(Role.id == pk)
             role.update(obj.dict())
+            _role = role.first()
             # step1 删除原有的菜单
-            for _ in list(role.first().menus):
-                role.first().menus.remove(_)
+            for _ in list(_role.menus):
+                _role.menus.remove(_)
             # step2 添加新的菜单
             if len(menu.menu_id) == 1:
-                role.first().menus.append(session.query(Menu).get(menu.menu_id))
+                _role.menus.append(session.query(Menu).get(menu.menu_id))
             else:
                 for _ in menu.menu_id:
-                    role.first().menus.append(session.query(Menu).get(_))
+                    _role.menus.append(session.query(Menu).get(_))
             session.commit()
             return role.first()
 
-    def delete_role(self, id: int) -> bool:
-        return super().delete_one(id)
+    def delete_role(self, pk: int) -> bool:
+        return super().delete_one(pk)
 
 
-crud_role = CRUDRole(Role)
+RoleDao = CRUDRole(Role)
