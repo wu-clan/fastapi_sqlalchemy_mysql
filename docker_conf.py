@@ -12,24 +12,19 @@ class Settings(BaseSettings):
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
 fastapi_sqlalchemy_mysql. 🚀
- 
+
  ### 点击跳转 -> [sync](https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql/tree/sync/)
     """
     DOCS_URL: str = '/v1/docs'
     REDOCS_URL: bool = None
     OPENAPI_URL: str = '/v1/openapi'
 
-    # Uvicorn
-    UVICORN_HOST: str = '127.0.0.1'
-    UVICORN_PORT: int = 8000
-    UVICORN_RELOAD: bool = True
-
     # Static Server
-    STATIC_FILES = True
+    STATIC_FILES = False
 
     # DB
     DB_ECHO: bool = False
-    DB_HOST: str = '127.0.0.1'
+    DB_HOST: str = 'mysql'
     DB_PORT: int = 3306
     DB_USER: str = 'root'
     DB_PASSWORD: str = '123456'
@@ -38,7 +33,7 @@ fastapi_sqlalchemy_mysql. 🚀
 
     # Redis
     REDIS_OPEN: bool = True  # 如果你扩展API时使用了redis,就必须开启;如果你未使用到redis,则可以选择关闭(False)
-    REDIS_HOST: str = '127.0.0.1'
+    REDIS_HOST: str = 'redis'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
     REDIS_DATABASE: int = 0

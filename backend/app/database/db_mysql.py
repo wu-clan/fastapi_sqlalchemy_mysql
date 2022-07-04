@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
+from backend.app.models import Base
 
 """ 
 说明：SqlAlchemy
@@ -40,6 +41,13 @@ def get_db() -> Session:
         raise e
     finally:
         session.close()
+
+
+def create_table():
+    """
+    创建数据库表
+    """
+    Base.metadata.create_all(engine)
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']

@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "fsm_server"
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+      - nginx
+    volumes:
+      - ./backend:/fsm/backend
+      - ./docker_conf.py:/fsm/backend/app/core/conf.py
+    networks:
+      - fsm_network
+    command: supervisord -c supervisor.conf
+
+  mysql:
+    image: mysql:8.0.29
+    ports:
+      - "3306:3306"
+    container_name: "mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: fsm
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    volumes:
+      - /var/lib/mysql
+    networks:
+      - fsm_network
+
+  redis:
+    image: redis:6.2.7
+    ports:
+      - "6379:6379"
+    container_name: "redis"
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /var/lib/redis
+    networks:
+      - fsm_network
+
+  nginx:
+    image: nginx
+    ports:
+      - "8000:80"
+    container_name: "nginx"
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - fsm_network
+
+
+networks:
+  fsm_network:
