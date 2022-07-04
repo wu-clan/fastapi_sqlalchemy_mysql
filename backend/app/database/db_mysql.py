@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 from backend.app.common.log import log
 from backend.app.core.conf import settings
+from backend.app.models import Base
 
 """ 
 说明：SqlAlchemy
@@ -45,6 +46,14 @@ async def get_db() -> AsyncSession:
         raise e
     finally:
         await session.close()
+
+
+async def create_table():
+    """
+    创建数据库表
+    """
+    async with engine.begin() as coon:
+        await coon.run_sync(Base.metadata.create_all)
 
 
 __all__ = ['SQLALCHEMY_DATABASE_URL', 'get_db', 'db_session']

@@ -73,10 +73,10 @@ fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler + pycasbin
 ### 1. 克隆仓库
 
 ```shell
-#全部分支:
+# 全部分支:
 git clone https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql.git
 
-#指定分支:
+# 指定分支:
 git clone -b 分支名 https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql.git
 ```
 
@@ -88,39 +88,49 @@ git clone -b 分支名 https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql.git
 
 ## 安装使用:
 
+> ⚠️: 此过程请格外注意端口占用情况, 特别是 8000, 3306, 6379...
+
 ### 1：传统
 
-first > 项目根目录下安装所需依赖包
+1. 安装依赖
+    ```shell
+    pip install -r requirements.txt
+    ```
 
-```shell
-pip install -r requirements.txt
-```
+2. 创建数据库 fsmp, 选择 utf8mb4 编码
+3. 查看 backend/app/core/conf.py 配置文件, 检查并修改数据库配置信息
+4. 执行数据库迁移 [alembic](https://alembic.sqlalchemy.org/en/latest/tutorial.html)
+    ```shell
+    cd backend/app/
+    
+    # 生成迁移文件
+    alembic revision --autogenerate
+    
+    # 执行迁移
+    alembic upgrade head
+    ```
 
-next > 配置数据库，执行迁移
+5. 安装启动 redis
+6. 查看 backend/app/core/conf.py 配置文件, 检查并修改 redis 配置信息
+7. 执行 backend/app/main.py 文件启动服务
+8. 浏览器访问: http://127.0.0.1:8000/v1/docs
 
-```text
-1 > 修改 core/conf.py 文件中数据库配置
-
-2 > 终端进入 backend/app/ 目录下, 生成迁移文件
-    执行: alembic revision --autogenerate
-
-3 > 执行迁移: alembic upgrade head
-
-4 > 运行 init_test_data.py 文件，初始化测试用户
-```
-
-next > 启动 redis 服务
-
-next > 运行 main.py 文件启动 FastAPI
-
-end > 打开浏览器,访问 http://127.0.0.1:8000/v1/docs/
-
-example:
-![](doc/example.png)
+---
 
 ### 2：docker
 
-###### 😓待完善
+1. 在 docker-compose.yml 文件所在目录下执行一键启动命令
+
+    ```shell
+    docker-compose up -d --build
+    ```
+2. 等待命令自动执行完成
+
+3. 浏览器访问: http://127.0.0.1:8000/v1/docs
+
+## 初始化测试数据
+
+执行 backend/app/init_test_data.py 文件
 
 ## 目录结构
 
