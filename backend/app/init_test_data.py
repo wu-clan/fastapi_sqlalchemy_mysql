@@ -29,7 +29,7 @@ class InitData:
         while True:
             email = input()
             try:
-                new_email = validate_email(email, check_deliverability=False).email
+                validate_email(email, check_deliverability=False).email
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
@@ -37,7 +37,7 @@ class InitData:
         user_obj = User(
             username=username,
             password=get_hash_password(password),
-            email=new_email,
+            email=email,
             is_superuser=True,
         )
         with session as db:
@@ -118,13 +118,13 @@ class InitData:
 
     def init_data(self):
         """ 自动创建数据 """
-        log.info('----------------开始初始化数据----------------')
+        log.info('---------------- 开始初始化数据 ----------------')
         self.create_superuser_by_yourself()
         self.fake_user()
         self.fake_no_active_user()
         self.fake_superuser()
         self.fake_no_active_superuser()
-        log.info('----------------数据初始化完成----------------')
+        log.info('---------------- 数据初始化完成 ----------------')
 
 
 if __name__ == '__main__':
