@@ -12,24 +12,19 @@ class Settings(BaseSettings):
     VERSION: str = 'v0.0.1'
     DESCRIPTION: str = """
 fastapi_sqlalchemy_mysql. 🚀
-    
+
 ### 点击跳转 -> [sync-Plus](https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql/tree/sync-Plus)
     """
     DOCS_URL: str = '/v1/docs'
-    REDOCS_URL: bool = False
+    REDOCS_URL: str = None
     OPENAPI_URL: str = '/v1/openapi'
 
-    # Uvicorn
-    UVICORN_HOST: str = '127.0.0.1'
-    UVICORN_PORT: int = 8000
-    UVICORN_RELOAD: bool = True
-
     # Static Server
-    STATIC_FILES: bool = True
+    STATIC_FILES: bool = False
 
     # DB
     DB_ECHO: bool = False
-    DB_HOST: str = '127.0.0.1'
+    DB_HOST: str = 'mysql'
     DB_PORT: int = 3306
     DB_USER: str = 'root'
     DB_PASSWORD: str = '123456'
@@ -37,14 +32,14 @@ fastapi_sqlalchemy_mysql. 🚀
     DB_CHARSET: str = 'utf8mb4'
 
     # Redis
-    REDIS_HOST: str = '127.0.0.1'
+    REDIS_HOST: str = 'redis'
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
     REDIS_DATABASE: int = 0
     REDIS_TIMEOUT: int = 5
 
     # APScheduler Redis
-    APS_REDIS_HOST: str = '127.0.0.1'
+    APS_REDIS_HOST: str = 'redis'
     APS_REDIS_PORT: int = 6379
     APS_REDIS_PASSWORD: str = ''
     APS_REDIS_DATABASE: int = 1
