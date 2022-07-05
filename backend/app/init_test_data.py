@@ -31,7 +31,7 @@ class InitData:
         while True:
             email = input()
             try:
-                new_email = validate_email(email, check_deliverability=False).email
+                validate_email(email, check_deliverability=False).email
             except EmailNotValidError:
                 print('邮箱不符合规范，请重新输入：')
                 continue
@@ -39,7 +39,7 @@ class InitData:
         user_obj = User(
             username=username,
             password=get_hash_password(password),
-            email=new_email,
+            email=email,
             is_superuser=True,
         )
         async with session as db:
