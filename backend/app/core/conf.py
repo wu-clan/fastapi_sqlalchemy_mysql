@@ -18,7 +18,7 @@ fastapi_sqlalchemy_mysql. 🚀
 ### 点击跳转 -> [sync-CRUDBase](https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql/tree/sync-CRUDBase/)
     """
     DOCS_URL: str = '/v1/docs'
-    REDOCS_URL: bool = False
+    REDOCS_URL: str = None
     OPENAPI_URL: str = '/v1/openapi'
 
     # Uvicorn
