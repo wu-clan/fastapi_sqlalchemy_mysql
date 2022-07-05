@@ -11,7 +11,7 @@
 #### async -> master
 
 ```text
-fastapi + sqlalchyme + alembic + aiomysql + aioredis
+fastapi + sqlalchemy + alembic + aiomysql + aioredis
 
 📢: 含 redis 邮箱验证码登录
 ```
@@ -19,7 +19,7 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis
 #### async -> async-APScheduler
 
 ```text
-fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
+fastapi + sqlalchemy + alembic + aiomysql + aioredis + APScheduler
 
 📢: 在 master 分支基础上扩展, 加入 APScheduler 定时任务
 ✨: 删除了邮箱验证码登录, 新增了图片验证码登录
@@ -29,7 +29,7 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 #### async -> async-CRUDBase
 
 ```text
-fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
+fastapi + sqlalchemy + alembic + aiomysql + aioredis + APScheduler
 
 📢: 在 master 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务
 ```
@@ -37,7 +37,7 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler
 #### async -> async-Plus
 
 ```text
-fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler + pycasbin
+fastapi + sqlalchemy + alembic + aiomysql + aioredis + APScheduler + pycasbin
 
 📢: 在 async-CRUDBase 分支基础上扩展，加入 RBAC 鉴权
 ```
@@ -47,7 +47,7 @@ fastapi + sqlalchyme + alembic + aiomysql + aioredis + APScheduler + pycasbin
 #### sync -> sync
 
 ```text
-fastapi + sqlalchyme + alembic + pymysql + redis
+fastapi + sqlalchemy + alembic + pymysql + redis
 
 📢: 含 redis 图片验证码登录
 ```
@@ -55,7 +55,7 @@ fastapi + sqlalchyme + alembic + pymysql + redis
 #### sync -> sync-CRUDBase
 
 ```text
-fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler
+fastapi + sqlalchemy + alembic + pymysql + redis + APScheduler
 
 📢: 在 sync 分支基础上扩展，对普通 CRUD 操作进行封装，加入 APScheduler 定时任务
 ```
@@ -63,7 +63,7 @@ fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler
 #### sync -> sync-Plus
 
 ```text
-fastapi + sqlalchyme + alembic + pymysql + redis + APScheduler + pycasbin
+fastapi + sqlalchemy + alembic + pymysql + redis + APScheduler + pycasbin
 
 📢: 在 sync-CRUDBase 分支基础上扩展，加入 RBAC 鉴权
 ```
