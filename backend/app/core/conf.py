@@ -16,7 +16,7 @@ fastapi_sqlalchemy_mysql. 🚀
 ### 点击跳转 -> [sync-Plus](https://gitee.com/wu_cl/fastapi_sqlalchemy_mysql/tree/sync-Plus)
     """
     DOCS_URL: str = '/v1/docs'
-    REDOCS_URL: bool = False
+    REDOCS_URL: str = None
     OPENAPI_URL: str = '/v1/openapi'
 
     # Uvicorn
