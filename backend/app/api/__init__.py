@@ -9,6 +9,7 @@ from backend.app.common.sys_jobs import scheduler
 from backend.app.common.sys_redis import redis_client
 from backend.app.core.conf import settings
 from backend.app.api.v1 import v1
+from backend.app.database.db_mysql import create_table
 from backend.app.middleware import register_middleware
 from backend.app.schemas import register_exception
 
@@ -74,7 +75,7 @@ def register_static_file(app: FastAPI):
 
 def register_init(app: FastAPI):
     """
-    初始化连接
+    启动初始化
 
     :param app: FastAPI
     :return:
@@ -82,6 +83,8 @@ def register_init(app: FastAPI):
 
     @app.on_event("startup")
     async def startup_event():
+        # 创建数据库表
+        await create_table()
         # 连接redis
         await redis_client.init_redis_connect()
         # 启动定时任务
